@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "npm run generate:importmap && node ./scripts/vercel-build.mjs",
+    "build": "npm run generate:importmap && cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=8000\" next build",
     "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev --port 3000",
     "devsafe": "lsof -ti:3000 | xargs kill -9 2>/dev/null || true; rm -rf .next node_modules/.cache 2>/dev/null; cross-env NODE_OPTIONS=--no-deprecation next dev --port 3000",
     "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",

@@ -11,6 +11,7 @@ import { Media } from './collections/Media'
 import { Photos } from './collections/Photos'
 import { Users } from './collections/Users'
 import { SiteSettings } from './globals/SiteSettings'
+import { migrations } from './migrations'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -82,6 +83,7 @@ export default buildConfig({
         pool: {
           connectionString: postgresConnectionString,
         },
+        prodMigrations: migrations,
       })
     : sqliteAdapter({
         client: {
