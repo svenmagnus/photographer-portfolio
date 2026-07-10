@@ -7,31 +7,6 @@ import { PHOTO_CATEGORIES } from '../../collections/Photos'
 import { prepareImageForUpload } from '../../lib/compressImageForUpload'
 import { isImageFile } from '../../lib/filenameToTitle'
 
-const MAX_BATCH_BYTES = 3 * 1024 * 1024
-
-function buildUploadBatches(files: File[]): File[][] {
-  const batches: File[][] = []
-  let currentBatch: File[] = []
-  let currentSize = 0
-
-  for (const file of files) {
-    if (currentBatch.length > 0 && currentSize + file.size > MAX_BATCH_BYTES) {
-      batches.push(currentBatch)
-      currentBatch = []
-      currentSize = 0
-    }
-
-    currentBatch.push(file)
-    currentSize += file.size
-  }
-
-  if (currentBatch.length > 0) {
-    batches.push(currentBatch)
-  }
-
-  return batches
-}
-
 type ImportResult = {
   created: number
   failed: number
@@ -158,7 +133,7 @@ export function BulkImportForm() {
         return
       }
 
-      const batches = buildUploadBatches(preparedFiles)
+      const batches = preparedFiles.map((file) => [file])
       setProgress({ done: 0, total: preparedFiles.length, phase: 'upload' })
 
       let uploaded = 0

@@ -1,5 +1,6 @@
-const MAX_BYTES = 3 * 1024 * 1024
+const TARGET_MAX_BYTES = 2 * 1024 * 1024
 const MAX_EDGE = 2400
+const SKIP_BELOW_BYTES = 900 * 1024
 
 function withRelativePath(file: File, relativePath?: string): File {
   if (relativePath) {
@@ -79,25 +80,19 @@ async function encodeCanvas(
   })
 }
 
-export async function prepareImageForUpload(file: File): Promise<File> {
+async function compressImage(image: HTMLImageElement, file: File): Promise<File> {
   const relativePath = file.webkitRelativePath
   const basename = file.name.replace(/\.[^.]+$/i, '')
-
-  if (file.size <= MAX_BYTES) {
-    return file
-  }
-
-  const image = await loadImage(file)
   let maxEdge = MAX_EDGE
 
   for (let round = 0; round < 6; round += 1) {
     const canvas = drawScaledImage(image, maxEdge)
 
-    for (const quality of [0.88, 0.8, 0.72, 0.64, 0.56, 0.48, 0.4]) {
+    for (const quality of [0.88, 0.8, 0.72, 0.64, 0.56, 0.48, 0.4, 0.32]) {
       for (const mimeType of ['image/webp', 'image/jpeg'] as const) {
         const blob = await encodeCanvas(canvas, mimeType, quality)
 
-        if (blob.size <= MAX_BYTES) {
+        if (blob.size <= TARGET_MAX_BYTES) {
           const extension = mimeType === 'image/webp' ? 'webp' : 'jpg'
           const compressed = new File([blob], `${basename}.${extension}`, {
             type: mimeType,
@@ -117,4 +112,16 @@ export async function prepareImageForUpload(file: File): Promise<File> {
   }
 
   throw new Error(`${file.name} konnte nicht klein genug komprimiert werden`)
+}
+
+export async function prepareImageForUpload(file: File): Promise<File> {
+  const image = await loadImage(file)
+  const needsResize = image.naturalWidth > MAX_EDGE || image.naturalHeight > MAX_EDGE
+  const needsCompress = file.size > TARGET_MAX_BYTES
+
+  if (!needsResize && !needsCompress && file.size <= SKIP_BELOW_BYTES) {
+    return file
+  }
+
+  return compressImage(image, file)
 }

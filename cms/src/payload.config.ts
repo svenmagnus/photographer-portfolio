@@ -72,6 +72,9 @@ export default buildConfig({
     importMap: {
       baseDir: path.resolve(dirname),
     },
+    components: {
+      afterNavLinks: ['/components/AdminLogoutLink#AdminLogoutLink'],
+    },
   },
   collections: [Users, Media, Photos],
   globals: [SiteSettings],
