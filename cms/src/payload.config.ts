@@ -1,7 +1,8 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import { sqliteAdapter } from '@payloadcms/db-sqlite'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
-import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
+import { isVercelBlobConfigured } from './lib/vercelBlob'
+import { vercelBlobStorage } from './storage/vercelBlobStorage'
 import path from 'path'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
@@ -39,13 +40,12 @@ function shouldUsePostgres(): boolean {
 
 const usePostgres = shouldUsePostgres()
 const postgresConnectionString = getPostgresConnectionString()
-const blobToken = process.env.BLOB_READ_WRITE_TOKEN
-const useVercelBlob = Boolean(blobToken)
+const useVercelBlob = isVercelBlobConfigured()
 const isVercel = process.env.VERCEL === '1'
 
 if (isVercel && !useVercelBlob) {
   console.warn(
-    'WARN: BLOB_READ_WRITE_TOKEN fehlt auf Vercel — Bild-Uploads schlagen fehl. Bitte Blob Storage verbinden und redeployen.',
+    'WARN: Vercel Blob ist nicht verbunden — Bild-Uploads schlagen fehl. Unter Vercel → Storage → Blob mit dem CMS-Projekt verbinden und redeployen.',
   )
 }
 
@@ -67,7 +67,6 @@ const plugins = useVercelBlob
         collections: {
           media: true,
         },
-        token: blobToken,
         clientUploads: true,
         addRandomSuffix: true,
       }),

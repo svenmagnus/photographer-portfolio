@@ -1,6 +1,8 @@
 import type { CollectionConfig } from 'payload'
 
-const useVercelBlob = Boolean(process.env.BLOB_READ_WRITE_TOKEN)
+import { isVercelBlobConfigured } from '@/lib/vercelBlob'
+
+const useVercelBlob = isVercelBlobConfigured()
 const isVercel = process.env.VERCEL === '1'
 
 export const Media: CollectionConfig = {

@@ -9,13 +9,14 @@ import {
   isImageFile,
 } from '@/lib/filenameToTitle'
 import { PHOTO_CATEGORIES } from '@/collections/Photos'
+import { isVercelBlobConfigured } from '@/lib/vercelBlob'
 
 export const maxDuration = 60
 
 const validCategories = new Set(PHOTO_CATEGORIES.map((category) => category.value))
 
 export async function POST(request: Request) {
-  if (process.env.VERCEL === '1' && !process.env.BLOB_READ_WRITE_TOKEN) {
+  if (process.env.VERCEL === '1' && !isVercelBlobConfigured()) {
     return Response.json(
       {
         error:
