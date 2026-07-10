@@ -69,6 +69,8 @@ hollywood · fashion clicks · black & white · beauty pics · runway · miscell
 
 ## Deployment
 
+Ausführliche Vercel-Anleitung: [docs/VERCEL-SETUP.md](docs/VERCEL-SETUP.md)
+
 ### CMS auf Vercel
 
 1. Neues Vercel-Projekt mit Root Directory `cms`
