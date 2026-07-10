@@ -1,0 +1,10 @@
+[build]
+builder = "nixpacks"
+buildCommand = "npm install && npm run build --workspace=cms"
+watchPatterns = ["cms/**"]
+
+[deploy]
+startCommand = "npm run start --workspace=cms"
+healthcheckPath = "/admin"
+healthcheckTimeout = 300
+restartPolicyType = "on_failure"

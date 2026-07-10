@@ -1,0 +1,47 @@
+---
+import { fetchSiteSettings, getAdminLoginUrl } from '../lib/siteSettings'
+
+const settings = await fetchSiteSettings()
+const adminUrl = getAdminLoginUrl(settings)
+---
+
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="refresh" content={`0;url=${adminUrl}`} />
+    <link rel="canonical" href={adminUrl} />
+    <title>Login — {settings.photographerName}</title>
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        background: #fff;
+        color: #000;
+      }
+      main {
+        text-align: center;
+        padding: 2rem;
+      }
+      a {
+        color: #000;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p>Weiterleitung zum Admin-Login …</p>
+      <p>
+        <a href={adminUrl}>Hier klicken, falls die Weiterleitung nicht funktioniert</a>
+      </p>
+      <p>
+        <a href="/">← Zurück zur Website</a>
+      </p>
+    </main>
+  </body>
+</html>

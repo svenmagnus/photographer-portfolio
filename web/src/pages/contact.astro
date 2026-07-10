@@ -1,0 +1,29 @@
+---
+import Layout from '../layouts/Layout.astro'
+import Header from '../components/Header.astro'
+
+const contactEmail = import.meta.env.PUBLIC_CONTACT_EMAIL
+---
+
+<Layout title="Contact — Sven Magnus Hanefeld">
+  <main>
+    <Header />
+    <section class="max-w-2xl mx-auto px-6 py-16 text-portfolio-muted leading-relaxed text-center text-[13px]">
+      <h2 class="text-2xl text-portfolio-black mb-6">Contact</h2>
+      {
+        contactEmail ? (
+          <p>
+            <a href={`mailto:${contactEmail}`} class="underline hover:text-portfolio-black">
+              {contactEmail}
+            </a>
+          </p>
+        ) : (
+          <p>Contact details can be configured via PUBLIC_CONTACT_EMAIL.</p>
+        )
+      }
+      <p class="mt-8">
+        <a href="/" class="underline hover:text-portfolio-black">← Back to portfolio</a>
+      </p>
+    </section>
+  </main>
+</Layout>

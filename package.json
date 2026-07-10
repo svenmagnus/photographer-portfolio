@@ -1,0 +1,23 @@
+{
+  "name": "portfolio-sven-magnus",
+  "private": true,
+  "workspaces": [
+    "cms",
+    "web"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=cms & npm run dev --workspace=web",
+    "dev:cms": "npm run devsafe --workspace=cms",
+    "dev:cms:safe": "npm run devsafe --workspace=cms",
+    "dev:web": "npm run dev --workspace=web",
+    "build": "npm run build --workspace=cms && npm run build --workspace=web",
+    "build:cms": "npm run build --workspace=cms",
+    "build:web": "npm run build --workspace=web"
+  },
+  "engines": {
+    "node": ">=20.9.0"
+  },
+  "dependencies": {
+    "@payloadcms/storage-vercel-blob": "^3.85.2"
+  }
+}

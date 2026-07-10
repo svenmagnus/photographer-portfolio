@@ -1,0 +1,27 @@
+<script>
+  const DEFAULT_CATEGORY = 'hollywood'
+
+  function initCategoryFilter() {
+    const params = new URLSearchParams(window.location.search)
+    const activeCategory = params.get('category') ?? DEFAULT_CATEGORY
+    const grid = document.getElementById('photo-grid')
+    const navLinks = document.querySelectorAll<HTMLAnchorElement>('[data-category]')
+
+    navLinks.forEach((link) => {
+      const isActive = link.dataset.category === activeCategory
+      link.classList.toggle('underline', isActive)
+      link.classList.toggle('underline-offset-[3px]', isActive)
+    })
+
+    if (!grid) return
+
+    const items = grid.querySelectorAll<HTMLElement>('.photo-item')
+    items.forEach((item) => {
+      const matches = item.dataset.category === activeCategory
+      item.style.display = matches ? '' : 'none'
+    })
+  }
+
+  initCategoryFilter()
+  document.addEventListener('astro:page-load', initCategoryFilter)
+</script>

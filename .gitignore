@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+.next/
+.astro/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Database
+*.db
+*.db-journal
+
+# Media uploads (local dev)
+cms/media/
+
+# OS / IDE
+.DS_Store
+.idea/
+.vscode/
+*.log
+
+# Payload
+cms/src/payload-types.ts
