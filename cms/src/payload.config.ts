@@ -45,6 +45,14 @@ const serverURL =
   process.env.PAYLOAD_PUBLIC_SERVER_URL ||
   (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000')
 
+const frontendOrigins =
+  process.env.CORS_ORIGINS?.split(',').map((origin) => origin.trim()).filter(Boolean) ?? [
+    'http://localhost:4321',
+  ]
+
+// Admin requests come from the CMS domain — must be allowed for CSRF/CORS.
+const trustedOrigins = [...new Set([...frontendOrigins, serverURL])]
+
 const plugins = useVercelBlob
   ? [
       vercelBlobStorage({
@@ -67,12 +75,8 @@ export default buildConfig({
   },
   collections: [Users, Media, Photos],
   globals: [SiteSettings],
-  cors: process.env.CORS_ORIGINS?.split(',').map((origin) => origin.trim()) ?? [
-    'http://localhost:4321',
-  ],
-  csrf: process.env.CORS_ORIGINS?.split(',').map((origin) => origin.trim()) ?? [
-    'http://localhost:4321',
-  ],
+  cors: trustedOrigins,
+  csrf: trustedOrigins,
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
