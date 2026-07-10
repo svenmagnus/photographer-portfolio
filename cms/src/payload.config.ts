@@ -82,7 +82,6 @@ export default buildConfig({
         pool: {
           connectionString: postgresConnectionString,
         },
-        push: process.env.VERCEL === '1',
       })
     : sqliteAdapter({
         client: {

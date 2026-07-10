@@ -48,6 +48,8 @@ Optional für Bild-Uploads:
 
 Nach dem Setzen der Variablen: **Deployments → … → Redeploy**
 
+Der Build führt automatisch `payload migrate` aus und legt die Datenbank-Tabellen an.
+
 ### Test
 
 - https://photographer-portfolio-cms.vercel.app/admin
