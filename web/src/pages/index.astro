@@ -4,16 +4,14 @@ import Header from '../components/Header.astro'
 import PhotoGrid from '../components/PhotoGrid.astro'
 import Lightbox from '../components/Lightbox.astro'
 import CategoryFilter from '../components/CategoryFilter.astro'
-import { fetchAllPhotos } from '../lib/payload'
 
-const photos = await fetchAllPhotos()
 const activeCategory = Astro.url.searchParams.get('category') ?? 'hollywood'
 ---
 
 <Layout>
   <main class="min-h-screen bg-white">
     <Header activeCategory={activeCategory} />
-    <PhotoGrid photos={photos} />
+    <PhotoGrid />
     <Lightbox />
     <CategoryFilter />
   </main>

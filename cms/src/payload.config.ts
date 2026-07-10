@@ -58,8 +58,11 @@ const frontendOrigins =
     'http://localhost:4321',
   ]
 
+const webOrigins =
+  process.env.WEB_ORIGINS?.split(',').map((origin) => origin.trim()).filter(Boolean) ?? []
+
 // Admin requests come from the CMS domain — must be allowed for CSRF/CORS.
-const trustedOrigins = [...new Set([...frontendOrigins, serverURL])]
+const trustedOrigins = [...new Set([...frontendOrigins, ...webOrigins, serverURL])]
 
 const plugins = useVercelBlob
   ? [
