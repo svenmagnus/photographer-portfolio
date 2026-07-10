@@ -1,12 +1,17 @@
 import type { CollectionConfig } from 'payload'
 
+const useVercelBlob = Boolean(process.env.BLOB_READ_WRITE_TOKEN)
+const isVercel = process.env.VERCEL === '1'
+
 export const Media: CollectionConfig = {
   slug: 'media',
   access: {
     read: () => true,
   },
   upload: {
-    staticDir: 'media',
+    ...(useVercelBlob || isVercel
+      ? { disableLocalStorage: true }
+      : { staticDir: 'media' }),
     bulkUpload: true,
     mimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/avif', 'image/tiff'],
     imageSizes: [

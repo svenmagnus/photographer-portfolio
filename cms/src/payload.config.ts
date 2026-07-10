@@ -39,7 +39,15 @@ function shouldUsePostgres(): boolean {
 
 const usePostgres = shouldUsePostgres()
 const postgresConnectionString = getPostgresConnectionString()
-const useVercelBlob = Boolean(process.env.BLOB_READ_WRITE_TOKEN)
+const blobToken = process.env.BLOB_READ_WRITE_TOKEN
+const useVercelBlob = Boolean(blobToken)
+const isVercel = process.env.VERCEL === '1'
+
+if (isVercel && !useVercelBlob) {
+  console.warn(
+    'WARN: BLOB_READ_WRITE_TOKEN fehlt auf Vercel — Bild-Uploads schlagen fehl. Bitte Blob Storage verbinden und redeployen.',
+  )
+}
 
 const serverURL =
   process.env.PAYLOAD_PUBLIC_SERVER_URL ||
@@ -59,7 +67,7 @@ const plugins = useVercelBlob
         collections: {
           media: true,
         },
-        token: process.env.BLOB_READ_WRITE_TOKEN,
+        token: blobToken,
         clientUploads: true,
         addRandomSuffix: true,
       }),

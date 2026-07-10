@@ -15,6 +15,16 @@ export const maxDuration = 60
 const validCategories = new Set(PHOTO_CATEGORIES.map((category) => category.value))
 
 export async function POST(request: Request) {
+  if (process.env.VERCEL === '1' && !process.env.BLOB_READ_WRITE_TOKEN) {
+    return Response.json(
+      {
+        error:
+          'Vercel Blob ist nicht verbunden. Unter Vercel → Storage → Blob mit dem CMS-Projekt verbinden, dann redeployen.',
+      },
+      { status: 503 },
+    )
+  }
+
   const payload = await getPayload({ config })
   const requestHeaders = await headers()
   const { user } = await payload.auth({ headers: requestHeaders })
