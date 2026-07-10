@@ -84,3 +84,13 @@ Du hast bisher nur das **CMS**-Projekt. Die öffentliche Website braucht ein **z
 - [ ] CMS: `/admin` lädt ohne Fehler
 - [ ] Frontend: zweites Projekt mit Root `web`
 - [ ] Strato DNS: A + CNAME (siehe DOMAIN-STRATO.md)
+
+---
+
+## Fehlerbehebung: `/admin` zeigt 500
+
+1. **Vercel → Deployments** — ist der letzte Build **grün**? Bei rot: Logs öffnen. Häufig: `payload migrate` schlägt fehl oder `PAYLOAD_SECRET` fehlt.
+2. **`PAYLOAD_SECRET`** muss unter Environment Variables stehen (langer Zufallsstring, z. B. `openssl rand -base64 32`).
+3. **Root Directory** unter Settings → General muss `cms` sein.
+4. Nach Änderungen: **Redeploy** (nicht nur speichern).
+5. Unter **Logs** (Runtime) nach „missing secret key“ oder Datenbankfehlern suchen.
