@@ -15,8 +15,34 @@ import { SiteSettings } from './globals/SiteSettings'
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
-const usePostgres = process.env.DATABASE_ADAPTER === 'postgres'
+function getPostgresConnectionString(): string {
+  return (
+    process.env.DATABASE_URL_UNPOOLED ||
+    process.env.POSTGRES_URL_NON_POOLING ||
+    process.env.DATABASE_URL ||
+    process.env.POSTGRES_URL ||
+    ''
+  )
+}
+
+function shouldUsePostgres(): boolean {
+  if (process.env.DATABASE_ADAPTER === 'postgres') return true
+  if (process.env.DATABASE_ADAPTER === 'sqlite') return false
+
+  const connectionString = getPostgresConnectionString()
+  return (
+    connectionString.startsWith('postgres://') ||
+    connectionString.startsWith('postgresql://')
+  )
+}
+
+const usePostgres = shouldUsePostgres()
+const postgresConnectionString = getPostgresConnectionString()
 const useVercelBlob = Boolean(process.env.BLOB_READ_WRITE_TOKEN)
+
+const serverURL =
+  process.env.PAYLOAD_PUBLIC_SERVER_URL ||
+  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000')
 
 const plugins = useVercelBlob
   ? [
@@ -54,8 +80,9 @@ export default buildConfig({
   db: usePostgres
     ? postgresAdapter({
         pool: {
-          connectionString: process.env.DATABASE_URL || '',
+          connectionString: postgresConnectionString,
         },
+        push: process.env.VERCEL === '1',
       })
     : sqliteAdapter({
         client: {
@@ -64,5 +91,5 @@ export default buildConfig({
       }),
   plugins,
   sharp,
-  serverURL: process.env.PAYLOAD_PUBLIC_SERVER_URL || 'http://localhost:3000',
+  serverURL,
 })

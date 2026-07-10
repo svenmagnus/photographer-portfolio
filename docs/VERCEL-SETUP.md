@@ -7,7 +7,7 @@
 | `/` | War 404 (normal) → leitet jetzt zu `/admin` weiter |
 | `/admin` | **500** = Datenbank oder Umgebungsvariablen fehlen |
 
-Payload CMS braucht auf Vercel **PostgreSQL** — SQLite funktioniert dort nicht.
+Payload CMS braucht auf Vercel **PostgreSQL** — SQLite funktioniert dort nicht. Ab dem letzten Fix wird Postgres automatisch erkannt, wenn `DATABASE_URL` oder `POSTGRES_URL` gesetzt ist (Neon/Vercel Postgres).
 
 ---
 
@@ -30,13 +30,13 @@ Vercel setzt `DATABASE_URL` automatisch.
 
 ### Settings → Environment Variables
 
-| Variable | Wert |
-|----------|------|
-| `DATABASE_ADAPTER` | `postgres` |
-| `DATABASE_URL` | *(automatisch von Vercel Postgres)* |
-| `PAYLOAD_SECRET` | z. B. Ausgabe von `openssl rand -base64 32` |
-| `PAYLOAD_PUBLIC_SERVER_URL` | `https://photographer-portfolio-cms.vercel.app` (später `https://cms.svenmagnus.com`) |
-| `CORS_ORIGINS` | `https://svenmagnus.com,https://www.svenmagnus.com` |
+| Variable | Wert | Pflicht? |
+|----------|------|----------|
+| `PAYLOAD_SECRET` | z. B. Ausgabe von `openssl rand -base64 32` | **Ja** |
+| `DATABASE_URL` | *(automatisch von Vercel Postgres/Neon)* | **Ja** |
+| `PAYLOAD_PUBLIC_SERVER_URL` | `https://photographer-portfolio-cms.vercel.app` (später `https://cms.svenmagnus.com`) | Empfohlen |
+| `CORS_ORIGINS` | `https://svenmagnus.com,https://www.svenmagnus.com` | Empfohlen |
+| `DATABASE_ADAPTER` | `postgres` | Optional (Auto-Erkennung) |
 
 Optional für Bild-Uploads:
 
@@ -76,8 +76,8 @@ Du hast bisher nur das **CMS**-Projekt. Die öffentliche Website braucht ein **z
 
 - [ ] CMS: Root Directory = `cms`
 - [ ] CMS: Postgres-Datenbank verbunden
-- [ ] CMS: `DATABASE_ADAPTER=postgres`
-- [ ] CMS: `PAYLOAD_SECRET` gesetzt
+- [ ] CMS: `PAYLOAD_SECRET` gesetzt (ohne diesen Wert → 500)
+- [ ] CMS: Postgres-Variablen von Vercel/Neon verbunden
 - [ ] CMS: `PAYLOAD_PUBLIC_SERVER_URL` = deine CMS-URL
 - [ ] CMS: `/admin` lädt ohne Fehler
 - [ ] Frontend: zweites Projekt mit Root `web`
