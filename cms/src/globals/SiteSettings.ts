@@ -7,7 +7,6 @@ export const SiteSettings: GlobalConfig = {
     read: () => true,
   },
   admin: {
-    group: 'Einstellungen',
     description:
       'Domain, Kontakt und Website-Einstellungen — analog zu Format „Settings → Domain and Email“.',
   },
