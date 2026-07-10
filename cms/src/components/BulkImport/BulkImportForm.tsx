@@ -6,7 +6,36 @@ import type { PhotoCategory } from '../../collections/Photos'
 import { PHOTO_CATEGORIES } from '../../collections/Photos'
 import { isImageFile } from '../../lib/filenameToTitle'
 
-const BATCH_SIZE = 5
+const MAX_UPLOAD_BYTES = 4 * 1024 * 1024
+const MAX_BATCH_BYTES = 3 * 1024 * 1024
+
+function buildUploadBatches(files: File[]): File[][] {
+  const batches: File[][] = []
+  let currentBatch: File[] = []
+  let currentSize = 0
+
+  for (const file of files) {
+    if (file.size > MAX_UPLOAD_BYTES) {
+      batches.push([file])
+      continue
+    }
+
+    if (currentBatch.length > 0 && currentSize + file.size > MAX_BATCH_BYTES) {
+      batches.push(currentBatch)
+      currentBatch = []
+      currentSize = 0
+    }
+
+    currentBatch.push(file)
+    currentSize += file.size
+  }
+
+  if (currentBatch.length > 0) {
+    batches.push(currentBatch)
+  }
+
+  return batches
+}
 
 type ImportResult = {
   created: number
@@ -49,7 +78,19 @@ export function BulkImportForm() {
       credentials: 'include',
     })
 
-    const data = (await response.json()) as ImportResult & { error?: string }
+    const raw = await response.text()
+    let data: ImportResult & { error?: string }
+
+    try {
+      data = JSON.parse(raw) as ImportResult & { error?: string }
+    } catch {
+      const message = raw.trim().slice(0, 160)
+      throw new Error(
+        message.includes('Request Entity Too Large') || message.includes('FUNCTION_PAYLOAD_TOO_LARGE')
+          ? 'Upload zu groß für Vercel (max. ca. 4 MB pro Bild). Bitte kleinere JPG/WebP-Dateien verwenden.'
+          : message || `Upload fehlgeschlagen (${response.status})`,
+      )
+    }
 
     if (!response.ok) {
       throw new Error(data.error || 'Upload fehlgeschlagen')
@@ -69,6 +110,14 @@ export function BulkImportForm() {
       return
     }
 
+    const oversized = imageFiles.filter((file) => file.size > MAX_UPLOAD_BYTES)
+    if (oversized.length > 0) {
+      setError(
+        `${oversized.length} Datei(en) sind größer als 4 MB und können online nicht hochgeladen werden. Bitte vorher exportieren/verkleinern (JPG/WebP).`,
+      )
+      return
+    }
+
     setIsUploading(true)
     setProgress({ done: 0, total: imageFiles.length })
 
@@ -79,16 +128,20 @@ export function BulkImportForm() {
       errors: [],
     }
 
+    const batches = buildUploadBatches(imageFiles)
+
     try {
-      for (let index = 0; index < imageFiles.length; index += BATCH_SIZE) {
-        const batch = imageFiles.slice(index, index + BATCH_SIZE)
+      for (const batch of batches) {
         const batchResult = await uploadBatch(batch)
 
         combined.created += batchResult.created
         combined.failed += batchResult.failed
         combined.photos.push(...batchResult.photos)
         combined.errors.push(...batchResult.errors)
-        setProgress({ done: Math.min(index + batch.length, imageFiles.length), total: imageFiles.length })
+        setProgress((prev) => ({
+          done: Math.min(prev.done + batch.length, imageFiles.length),
+          total: imageFiles.length,
+        }))
       }
 
       setResult(combined)
@@ -107,8 +160,8 @@ export function BulkImportForm() {
   return (
     <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '1.25rem', maxWidth: '720px' }}>
       <p style={{ margin: 0, lineHeight: 1.5, opacity: 0.85 }}>
-        Wähle einen Ordner mit Fotos. Die Bilder werden in kleinen Paketen hochgeladen, damit der
-        Server stabil bleibt. Titel werden aus dem Dateinamen erzeugt.
+        Wähle einen Ordner mit Fotos. Auf Vercel werden Bilder einzeln oder in kleinen Paketen
+        hochgeladen (max. ca. 4 MB pro Datei). Titel werden aus dem Dateinamen erzeugt.
       </p>
 
       <label style={{ display: 'grid', gap: '0.5rem' }}>

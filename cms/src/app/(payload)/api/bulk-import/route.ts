@@ -10,6 +10,8 @@ import {
 } from '@/lib/filenameToTitle'
 import { PHOTO_CATEGORIES } from '@/collections/Photos'
 
+export const maxDuration = 60
+
 const validCategories = new Set(PHOTO_CATEGORIES.map((category) => category.value))
 
 export async function POST(request: Request) {
