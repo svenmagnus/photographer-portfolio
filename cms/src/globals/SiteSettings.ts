@@ -2,11 +2,12 @@ import type { GlobalConfig } from 'payload'
 
 export const SiteSettings: GlobalConfig = {
   slug: 'site-settings',
-  label: 'Website',
+  label: 'Domain & Kontakt',
   access: {
     read: () => true,
   },
   admin: {
+    group: 'Website',
     description:
       'Domain, Kontakt und Website-Einstellungen — analog zu Format „Settings → Domain and Email“.',
   },
