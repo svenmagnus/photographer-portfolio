@@ -4,9 +4,9 @@ import React, { useMemo, useState } from 'react'
 
 import type { PhotoCategory } from '../../collections/Photos'
 import { PHOTO_CATEGORIES } from '../../collections/Photos'
+import { prepareImageForUpload } from '../../lib/compressImageForUpload'
 import { isImageFile } from '../../lib/filenameToTitle'
 
-const MAX_UPLOAD_BYTES = 4 * 1024 * 1024
 const MAX_BATCH_BYTES = 3 * 1024 * 1024
 
 function buildUploadBatches(files: File[]): File[][] {
@@ -15,11 +15,6 @@ function buildUploadBatches(files: File[]): File[][] {
   let currentSize = 0
 
   for (const file of files) {
-    if (file.size > MAX_UPLOAD_BYTES) {
-      batches.push([file])
-      continue
-    }
-
     if (currentBatch.length > 0 && currentSize + file.size > MAX_BATCH_BYTES) {
       batches.push(currentBatch)
       currentBatch = []
@@ -44,6 +39,12 @@ type ImportResult = {
   errors: Array<{ filename: string; error: string }>
 }
 
+type ProgressState = {
+  done: number
+  total: number
+  phase: 'idle' | 'optimize' | 'upload'
+}
+
 export function BulkImportForm() {
   const [category, setCategory] = useState<PhotoCategory>(
     PHOTO_CATEGORIES[0]?.value ?? 'hollywood',
@@ -52,17 +53,19 @@ export function BulkImportForm() {
   const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10))
   const [files, setFiles] = useState<File[]>([])
   const [isUploading, setIsUploading] = useState(false)
-  const [progress, setProgress] = useState({ done: 0, total: 0 })
+  const [progress, setProgress] = useState<ProgressState>({ done: 0, total: 0, phase: 'idle' })
+  const [optimizedCount, setOptimizedCount] = useState(0)
   const [result, setResult] = useState<ImportResult | null>(null)
   const [error, setError] = useState<string | null>(null)
 
   const imageCount = useMemo(() => files.filter(isImageFile).length, [files])
 
   function handleFolderChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const selected = Array.from(event.target.files ?? [])
-    setFiles(selected.filter(isImageFile))
+    const selected = Array.from(event.target.files ?? []).filter(isImageFile)
+    setFiles(selected)
     setResult(null)
     setError(null)
+    setOptimizedCount(0)
   }
 
   async function uploadBatch(batch: File[]): Promise<ImportResult> {
@@ -84,11 +87,10 @@ export function BulkImportForm() {
     try {
       data = JSON.parse(raw) as ImportResult & { error?: string }
     } catch {
-      const message = raw.trim().slice(0, 160)
       throw new Error(
-        message.includes('Request Entity Too Large') || message.includes('FUNCTION_PAYLOAD_TOO_LARGE')
-          ? 'Upload zu groß für Vercel (max. ca. 4 MB pro Bild). Bitte kleinere JPG/WebP-Dateien verwenden.'
-          : message || `Upload fehlgeschlagen (${response.status})`,
+        response.status === 413
+          ? 'Upload zu groß — bitte erneut versuchen, die Bilder werden automatisch verkleinert.'
+          : raw.trim().slice(0, 160) || `Upload fehlgeschlagen (${response.status})`,
       )
     }
 
@@ -103,6 +105,7 @@ export function BulkImportForm() {
     event.preventDefault()
     setError(null)
     setResult(null)
+    setOptimizedCount(0)
 
     const imageFiles = files.filter(isImageFile)
     if (!imageFiles.length) {
@@ -110,16 +113,8 @@ export function BulkImportForm() {
       return
     }
 
-    const oversized = imageFiles.filter((file) => file.size > MAX_UPLOAD_BYTES)
-    if (oversized.length > 0) {
-      setError(
-        `${oversized.length} Datei(en) sind größer als 4 MB und können online nicht hochgeladen werden. Bitte vorher exportieren/verkleinern (JPG/WebP).`,
-      )
-      return
-    }
-
     setIsUploading(true)
-    setProgress({ done: 0, total: imageFiles.length })
+    setProgress({ done: 0, total: imageFiles.length, phase: 'optimize' })
 
     const combined: ImportResult = {
       created: 0,
@@ -128,9 +123,45 @@ export function BulkImportForm() {
       errors: [],
     }
 
-    const batches = buildUploadBatches(imageFiles)
+    const preparedFiles: File[] = []
+    let compressedCount = 0
 
     try {
+      for (let index = 0; index < imageFiles.length; index += 1) {
+        const file = imageFiles[index]
+
+        try {
+          const prepared = await prepareImageForUpload(file)
+          if (prepared.size < file.size) {
+            compressedCount += 1
+          }
+          preparedFiles.push(prepared)
+        } catch (prepareError) {
+          combined.failed += 1
+          combined.errors.push({
+            filename: file.webkitRelativePath || file.name,
+            error:
+              prepareError instanceof Error
+                ? prepareError.message
+                : 'Bild konnte nicht optimiert werden',
+          })
+        }
+
+        setProgress({ done: index + 1, total: imageFiles.length, phase: 'optimize' })
+      }
+
+      setOptimizedCount(compressedCount)
+
+      if (!preparedFiles.length) {
+        setError('Keine Bilder konnten vorbereitet werden.')
+        setResult(combined)
+        return
+      }
+
+      const batches = buildUploadBatches(preparedFiles)
+      setProgress({ done: 0, total: preparedFiles.length, phase: 'upload' })
+
+      let uploaded = 0
       for (const batch of batches) {
         const batchResult = await uploadBatch(batch)
 
@@ -138,30 +169,37 @@ export function BulkImportForm() {
         combined.failed += batchResult.failed
         combined.photos.push(...batchResult.photos)
         combined.errors.push(...batchResult.errors)
-        setProgress((prev) => ({
-          done: Math.min(prev.done + batch.length, imageFiles.length),
-          total: imageFiles.length,
-        }))
+
+        uploaded += batch.length
+        setProgress({ done: uploaded, total: preparedFiles.length, phase: 'upload' })
       }
 
       setResult(combined)
       setFiles([])
     } catch (uploadError) {
       setError(uploadError instanceof Error ? uploadError.message : 'Verbindungsfehler beim Upload')
-      if (combined.created > 0) {
+      if (combined.created > 0 || combined.errors.length > 0) {
         setResult(combined)
       }
     } finally {
       setIsUploading(false)
-      setProgress({ done: 0, total: 0 })
+      setProgress({ done: 0, total: 0, phase: 'idle' })
     }
   }
+
+  const progressLabel =
+    progress.phase === 'optimize'
+      ? `Bilder werden optimiert: ${progress.done} / ${progress.total}`
+      : progress.phase === 'upload'
+        ? `Upload: ${progress.done} / ${progress.total}`
+        : null
 
   return (
     <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '1.25rem', maxWidth: '720px' }}>
       <p style={{ margin: 0, lineHeight: 1.5, opacity: 0.85 }}>
-        Wähle einen Ordner mit Fotos. Auf Vercel werden Bilder einzeln oder in kleinen Paketen
-        hochgeladen (max. ca. 4 MB pro Datei). Titel werden aus dem Dateinamen erzeugt.
+        Wähle einen Ordner mit Fotos. Große Dateien werden automatisch auf WebP/JPG verkleinert
+        (max. 2400 px, unter 3 MB) und anschließend hochgeladen. Titel werden aus dem Dateinamen
+        erzeugt.
       </p>
 
       <label style={{ display: 'grid', gap: '0.5rem' }}>
@@ -231,10 +269,8 @@ export function BulkImportForm() {
         )}
       </label>
 
-      {isUploading && progress.total > 0 && (
-        <p style={{ margin: 0 }}>
-          Fortschritt: {progress.done} / {progress.total}
-        </p>
+      {progressLabel && (
+        <p style={{ margin: 0 }}>{progressLabel}</p>
       )}
 
       {error && (
@@ -252,6 +288,12 @@ export function BulkImportForm() {
             gap: '0.5rem',
           }}
         >
+          {optimizedCount > 0 && (
+            <p style={{ margin: 0 }}>
+              {optimizedCount} große Datei{optimizedCount === 1 ? '' : 'en'} automatisch
+              verkleinert.
+            </p>
+          )}
           <p style={{ margin: 0 }}>
             <strong>{result.created}</strong> Foto{result.created === 1 ? '' : 's'} erfolgreich
             importiert.

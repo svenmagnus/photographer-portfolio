@@ -43,6 +43,17 @@ export async function POST(request: Request) {
   const files = formData.getAll('files').filter((entry): entry is File => entry instanceof File)
   const imageFiles = files.filter(isImageFile)
 
+  const oversized = imageFiles.filter((file) => file.size > 4 * 1024 * 1024)
+  if (oversized.length > 0) {
+    return Response.json(
+      {
+        error: `${oversized.length} Datei(en) sind größer als 4 MB. Bitte kleinere JPG/WebP-Dateien verwenden.`,
+        oversized: oversized.map((file) => file.name),
+      },
+      { status: 413 },
+    )
+  }
+
   if (!imageFiles.length) {
     return Response.json({ error: 'Keine Bilddateien gefunden' }, { status: 400 })
   }
