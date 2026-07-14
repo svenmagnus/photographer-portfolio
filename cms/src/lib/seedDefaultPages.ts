@@ -3,7 +3,11 @@ import type { Payload } from 'payload'
 import { PHOTO_CATEGORIES } from '@/collections/Photos'
 import { lexicalParagraphs } from './defaultLexical'
 
-const GALLERY_COUNT = PHOTO_CATEGORIES.length
+/** Gallery pages on the homepage — film-editor is a blog page instead. */
+const GALLERY_PAGE_CATEGORIES = PHOTO_CATEGORIES.filter((category) => category.value !== 'film-editor')
+const GALLERY_COUNT = GALLERY_PAGE_CATEGORIES.length
+const FILM_EDITOR_NAV_ORDER =
+  PHOTO_CATEGORIES.findIndex((category) => category.value === 'film-editor') + 1
 
 const DEFAULT_PAGES = [
   {
@@ -75,12 +79,34 @@ const DEFAULT_PAGES = [
       },
     ],
   },
+  {
+    title: 'Film Editor',
+    slug: 'film-editor',
+    pageType: 'blog' as const,
+    navOrder: FILM_EDITOR_NAV_ORDER,
+    layout: [
+      {
+        blockType: 'heading',
+        text: 'Film Editor',
+        level: 'h1',
+        align: 'center',
+      },
+      {
+        blockType: 'richText',
+        width: 'narrow',
+        content: lexicalParagraphs(
+          'Artikel, Projekte und Notizen zum Filmschnitt — Inhalte kannst du hier im CMS bearbeiten.',
+        ),
+      },
+    ],
+  },
 ] as const
 
 export async function seedDefaultPages(payload: Payload): Promise<void> {
   try {
     await seedDefaultPagesInner(payload)
     await seedGalleryPages(payload)
+    await ensureFilmEditorBlogPage(payload)
     await syncContentPageNavigation(payload)
     await removeDuplicateContactInfoBlock(payload)
   } catch (error) {
@@ -91,7 +117,7 @@ export async function seedDefaultPages(payload: Payload): Promise<void> {
 }
 
 async function seedGalleryPages(payload: Payload): Promise<void> {
-  for (const [index, category] of PHOTO_CATEGORIES.entries()) {
+  for (const [index, category] of GALLERY_PAGE_CATEGORIES.entries()) {
     const existing = await payload.find({
       collection: 'pages',
       where: { slug: { equals: category.value } },
@@ -123,6 +149,65 @@ async function seedGalleryPages(payload: Payload): Promise<void> {
 
     payload.logger.info(`Created gallery page: ${category.value}`)
   }
+}
+
+async function ensureFilmEditorBlogPage(payload: Payload): Promise<void> {
+  const blogPage = DEFAULT_PAGES.find((page) => page.slug === 'film-editor')
+  if (!blogPage) return
+
+  const existing = await payload.find({
+    collection: 'pages',
+    where: { slug: { equals: 'film-editor' } },
+    limit: 1,
+    depth: 0,
+  })
+
+  const doc = existing.docs[0]
+  if (!doc) {
+    await payload.create({
+      collection: 'pages',
+      data: {
+        title: blogPage.title,
+        slug: blogPage.slug,
+        pageType: blogPage.pageType,
+        status: 'published',
+        showInNavigation: true,
+        navOrder: blogPage.navOrder,
+        layout: [...blogPage.layout],
+      },
+    })
+    payload.logger.info('Created blog page: film-editor')
+    return
+  }
+
+  const layout = Array.isArray(doc.layout) ? (doc.layout as Array<{ blockType?: string }>) : []
+  const isDefaultGalleryLayout =
+    doc.pageType === 'gallery' &&
+    layout.length === 1 &&
+    layout[0]?.blockType === 'photoGrid'
+
+  const needsUpdate =
+    doc.pageType !== 'blog' ||
+    doc.galleryCategory != null ||
+    doc.showInNavigation !== true ||
+    doc.navOrder !== blogPage.navOrder ||
+    isDefaultGalleryLayout
+
+  if (!needsUpdate) return
+
+  await payload.update({
+    collection: 'pages',
+    id: doc.id,
+    data: {
+      pageType: 'blog',
+      galleryCategory: null,
+      showInNavigation: true,
+      navOrder: blogPage.navOrder,
+      ...(isDefaultGalleryLayout ? { layout: [...blogPage.layout] } : {}),
+    },
+  })
+
+  payload.logger.info('Updated film-editor page to blog type')
 }
 
 async function syncContentPageNavigation(payload: Payload): Promise<void> {

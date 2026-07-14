@@ -7,7 +7,6 @@ export const PHOTO_CATEGORIES = [
   { label: 'miscellaneous', value: 'miscellaneous' },
   { label: 'alaïa collection', value: 'alaia-collection' },
   { label: 'advertorial', value: 'advertorial' },
-  { label: 'film editor', value: 'film-editor' },
   { label: 'motion', value: 'motion' },
   { label: 'insta', value: 'insta' },
   { label: 'publications', value: 'publications' },

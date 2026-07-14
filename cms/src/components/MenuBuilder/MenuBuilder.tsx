@@ -48,6 +48,19 @@ const buttonStyle: React.CSSProperties = {
   cursor: 'pointer',
 }
 
+function getPageTypeLabel(pageType: string): string {
+  switch (pageType) {
+    case 'gallery':
+      return 'Galerie'
+    case 'blog':
+      return 'Blog'
+    case 'landing':
+      return 'Landingpage'
+    default:
+      return 'Seite'
+  }
+}
+
 const primaryButtonStyle: React.CSSProperties = {
   ...buttonStyle,
   padding: '0.65rem 1.15rem',
@@ -436,7 +449,7 @@ export function MenuBuilder() {
                       <span>
                         <strong>{page.title}</strong>
                         <div style={{ fontSize: '0.85rem', opacity: 0.7 }}>
-                          {page.pageType === 'gallery' ? 'Galerie' : 'Seite'} · /{page.slug}
+                          {getPageTypeLabel(page.pageType)} · /{page.slug}
                         </div>
                       </span>
                     </label>

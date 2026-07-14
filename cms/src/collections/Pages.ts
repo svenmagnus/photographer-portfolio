@@ -74,7 +74,8 @@ export const Pages: CollectionConfig = {
       options: [...PAGE_TYPES],
       admin: {
         position: 'sidebar',
-        description: 'Galerie = Foto-Grid einer Kategorie, Inhalt = Text/Formular/Blöcke',
+        description:
+          'Galerie = Foto-Grid, Blog = Artikel mit Text/Bildern, Inhalt = allgemeine Seite',
       },
     },
     {
