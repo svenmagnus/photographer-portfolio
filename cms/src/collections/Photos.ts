@@ -21,7 +21,7 @@ export const Photos: CollectionConfig = {
   slug: 'photos',
   admin: {
     useAsTitle: 'title',
-    defaultColumns: ['title', 'category', 'date', 'updatedAt'],
+    defaultColumns: ['image', 'title', 'category', 'date', 'updatedAt'],
     description: 'Einzelne Fotos bearbeiten oder ganze Ordner unter „Ordner-Import“ hochladen.',
     components: {
       beforeListTable: ['/components/BulkImport/BulkImportLink#BulkImportLink'],
@@ -57,6 +57,11 @@ export const Photos: CollectionConfig = {
       type: 'upload',
       relationTo: 'media',
       required: true,
+      admin: {
+        components: {
+          Cell: '/components/PhotoImageCell#PhotoImageCell',
+        },
+      },
     },
     {
       name: 'date',
