@@ -29,8 +29,6 @@ import { MenuBuilderLink as MenuBuilderLink_15dd9a636cf28a3fc3e2030a5ea073e8 } f
 import { AdminViewSiteAction as AdminViewSiteAction_dc3b2bc47c64a17abaf83f287c45bbef } from '../../../components/AdminViewSiteAction'
 import { AdminLogoutLink as AdminLogoutLink_f544dbd6caab9ea341eb6cbe4db4e532 } from '../../../components/AdminLogoutLink'
 import { AdminViewSiteLink as AdminViewSiteLink_01e68676de7d23fab3bd2dfe9dcc4f74 } from '../../../components/AdminViewSiteLink'
-import { AdminMenuLink as AdminMenuLink_0e370e4809febadfe9c81168672ccdc1 } from '../../../components/AdminMenuLink'
-import { AdminBlogLink as AdminBlogLink_6f02a0c63cff535e40b37067cd6f9356 } from '../../../components/AdminBlogLink'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 
 /** @type import('payload').ImportMap */
@@ -66,7 +64,5 @@ export const importMap = {
   "/components/AdminViewSiteAction#AdminViewSiteAction": AdminViewSiteAction_dc3b2bc47c64a17abaf83f287c45bbef,
   "/components/AdminLogoutLink#AdminLogoutLink": AdminLogoutLink_f544dbd6caab9ea341eb6cbe4db4e532,
   "/components/AdminViewSiteLink#AdminViewSiteLink": AdminViewSiteLink_01e68676de7d23fab3bd2dfe9dcc4f74,
-  "/components/AdminMenuLink#AdminMenuLink": AdminMenuLink_0e370e4809febadfe9c81168672ccdc1,
-  "/components/AdminBlogLink#AdminBlogLink": AdminBlogLink_6f02a0c63cff535e40b37067cd6f9356,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
 }
