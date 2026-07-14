@@ -31,6 +31,24 @@ export const BlogPosts: CollectionConfig = {
       label: 'Titel',
     },
     {
+      name: 'slug',
+      type: 'text',
+      required: true,
+      unique: true,
+      label: 'URL-Slug',
+      admin: {
+        description: 'z. B. schnittakademie-berlin → /blog/schnittakademie-berlin',
+      },
+    },
+    {
+      name: 'excerpt',
+      type: 'textarea',
+      label: 'Kurztext',
+      admin: {
+        description: 'Optional — kurze Vorschau in der Blog-Liste',
+      },
+    },
+    {
       name: 'featuredImage',
       type: 'upload',
       relationTo: 'media',
@@ -43,14 +61,11 @@ export const BlogPosts: CollectionConfig = {
       },
     },
     {
-      name: 'slug',
-      type: 'text',
+      name: 'content',
+      type: 'richText',
       required: true,
-      unique: true,
-      label: 'URL-Slug',
-      admin: {
-        description: 'z. B. schnittakademie-berlin → /blog/schnittakademie-berlin',
-      },
+      label: 'Inhalt',
+      editor: contentLexicalEditor,
     },
     {
       name: 'blogPage',
@@ -92,21 +107,6 @@ export const BlogPosts: CollectionConfig = {
           pickerAppearance: 'dayAndTime',
         },
       },
-    },
-    {
-      name: 'excerpt',
-      type: 'textarea',
-      label: 'Kurztext',
-      admin: {
-        description: 'Optional — kurze Vorschau in der Blog-Liste',
-      },
-    },
-    {
-      name: 'content',
-      type: 'richText',
-      required: true,
-      label: 'Inhalt',
-      editor: contentLexicalEditor,
     },
     {
       name: 'metaTitle',
