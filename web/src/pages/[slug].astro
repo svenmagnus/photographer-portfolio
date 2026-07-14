@@ -1,22 +1,25 @@
 ---
+export const prerender = false
+
 import Layout from '../layouts/Layout.astro'
 import Header from '../components/Header.astro'
 import BlockRenderer from '../components/blocks/BlockRenderer.astro'
 import Lightbox from '../components/Lightbox.astro'
-import { fetchPublishedPages } from '../lib/pages'
+import { fetchPageBySlug } from '../lib/pages'
 import { fetchSiteSettings } from '../lib/siteSettings'
 import { buildNavigation } from '../lib/navigation'
 
-export async function getStaticPaths() {
-  const pages = await fetchPublishedPages()
+const slug = Astro.params.slug
 
-  return pages.map((page) => ({
-    params: { slug: page.slug },
-    props: { page },
-  }))
+if (!slug) {
+  return new Response(null, { status: 404, statusText: 'Not Found' })
 }
 
-const { page } = Astro.props
+const page = await fetchPageBySlug(slug)
+
+if (!page) {
+  return new Response(null, { status: 404, statusText: 'Not Found' })
+}
 const settings = await fetchSiteSettings()
 const navItems = buildNavigation(settings)
 
