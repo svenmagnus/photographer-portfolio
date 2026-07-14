@@ -1,14 +1,12 @@
-'use client'
-
 import React from 'react'
 
-import { usePublicSitePageUrl } from '../hooks/usePublicSitePageUrl'
+import { getPublicSiteUrl } from '../lib/publicSiteUrl'
 import { ViewSiteIcon } from './ViewSiteIcon'
 
 const accentColor = 'var(--theme-success-500, #16a34a)'
 
 export function AdminViewSiteLink() {
-  const siteUrl = usePublicSitePageUrl()
+  const siteUrl = getPublicSiteUrl()
 
   return (
     <div
