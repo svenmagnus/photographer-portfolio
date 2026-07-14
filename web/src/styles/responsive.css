@@ -1,12 +1,9 @@
-/* Site shell — Format-style centered content with side margins */
+/* Site shell — Format-style: full width, ~1 cm margins on large screens, less on small */
 
 .site-shell {
+  box-sizing: border-box;
   width: 100%;
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: clamp(1rem, 2.5vw, 1.5rem);
-  padding-right: clamp(1rem, 2.5vw, 1.5rem);
+  padding-inline: clamp(0.625rem, 2vw, 1cm);
 }
 
 /* Photo grids — progressive columns: 1 → 2 → 3 → 4 like Format.com */
