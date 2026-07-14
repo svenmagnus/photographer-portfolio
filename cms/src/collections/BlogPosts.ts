@@ -87,7 +87,7 @@ export const BlogPosts: CollectionConfig = {
       relationTo: 'media',
       label: 'Beitragsbild',
       admin: {
-        description: 'Wird in der Blog-Liste und oben im Artikel angezeigt',
+        description: 'Wird in der Blog-Liste und oben im Artikel angezeigt. Alternativ: Bilder im Inhalt einfügen.',
       },
     },
     {

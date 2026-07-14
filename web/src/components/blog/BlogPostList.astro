@@ -1,5 +1,6 @@
 ---
 import type { BlogPost } from '../../lib/blogPosts'
+import { getBlogPostListImage } from '../../lib/blogPostMedia'
 import { getBlogPostIntro } from '../../lib/blogPostIntro'
 import { getMediaUrl } from '../../lib/photoLoader'
 
@@ -33,11 +34,8 @@ function formatPostDate(value?: string | null): string | null {
         {
           posts.map((post) => {
             const postUrl = `/${blogSlug}/${post.slug}`
-            const image =
-              post.featuredImage && typeof post.featuredImage === 'object'
-                ? post.featuredImage
-                : null
-            const imageUrl = getMediaUrl(image)
+            const listImage = getBlogPostListImage(post)
+            const imageUrl = getMediaUrl(listImage)
             const dateLabel = formatPostDate(post.publishedAt)
             const { intro, showReadMore } = getBlogPostIntro(post)
 
@@ -48,7 +46,7 @@ function formatPostDate(value?: string | null): string | null {
                     imageUrl ? (
                       <img
                         src={imageUrl}
-                        alt={image?.alt || post.title}
+                          alt={listImage?.alt || post.title}
                         loading="lazy"
                         decoding="async"
                         class="blog-post-image"

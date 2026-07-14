@@ -1,15 +1,4 @@
-type LexicalNode = {
-  type: string
-  children?: LexicalNode[]
-  text?: string
-  format?: number | string
-  tag?: string
-  url?: string
-  newTab?: boolean
-  listType?: 'bullet' | 'number'
-  fields?: LinkFields
-  [key: string]: unknown
-}
+import { getMediaUrl, type Media } from './photoLoader'
 
 type LinkFields = {
   url?: string
@@ -25,6 +14,21 @@ type LinkFields = {
           id?: number | string
         }
   } | null
+}
+
+export type LexicalNode = {
+  type: string
+  children?: LexicalNode[]
+  text?: string
+  format?: number | string
+  tag?: string
+  url?: string
+  newTab?: boolean
+  listType?: 'bullet' | 'number'
+  fields?: LinkFields & Record<string, unknown>
+  value?: unknown
+  relationTo?: string
+  [key: string]: unknown
 }
 
 type LexicalContent = {
@@ -49,6 +53,28 @@ function wrapText(text: string, format: number): string {
   if (format & FORMAT_ITALIC) result = `<em>${result}</em>`
   if (format & FORMAT_UNDERLINE) result = `<u>${result}</u>`
   return result
+}
+
+function isMediaObject(value: unknown): value is Media {
+  return Boolean(value && typeof value === 'object' && 'id' in value)
+}
+
+function mediaFromUploadNode(node: LexicalNode): Media | null {
+  if (node.type !== 'upload') return null
+  if (isMediaObject(node.value)) return node.value
+  if (node.fields && isMediaObject(node.fields.value)) return node.fields.value as Media
+  return null
+}
+
+function renderUpload(node: LexicalNode): string {
+  const media = mediaFromUploadNode(node)
+  if (!media) return ''
+
+  const src = getMediaUrl(media)
+  if (!src) return ''
+
+  const alt = escapeHtml(media.alt || '')
+  return `<figure class="cms-upload-image"><img src="${escapeHtml(src)}" alt="${alt}" loading="lazy" decoding="async" /></figure>`
 }
 
 function getLinkFields(node: LexicalNode): LinkFields {
@@ -118,6 +144,8 @@ function renderNodes(nodes: LexicalNode[] | undefined): string {
         case 'link':
         case 'autolink':
           return renderLink(node)
+        case 'upload':
+          return renderUpload(node)
         case 'list': {
           const tag = node.listType === 'number' ? 'ol' : 'ul'
           return `<${tag}>${renderNodes(node.children)}</${tag}>`

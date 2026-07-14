@@ -56,7 +56,7 @@ export async function fetchBlogPostsForPage(blogPageSlug: string): Promise<BlogP
     if (pageId == null) return []
 
     const postParams = new URLSearchParams({
-      depth: '1',
+      depth: '2',
       limit: '100',
       sort: '-publishedAt',
       'where[status][equals]': 'published',
