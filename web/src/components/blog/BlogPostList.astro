@@ -8,6 +8,19 @@ interface Props {
 }
 
 const { posts, blogSlug } = Astro.props
+
+function formatPostDate(value?: string | null): string | null {
+  if (!value) return null
+
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return null
+
+  return new Intl.DateTimeFormat('de-DE', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  }).format(date)
+}
 ---
 
 <section class="blog-post-list" aria-label="Blog-Beiträge">
@@ -23,13 +36,14 @@ const { posts, blogSlug } = Astro.props
                 ? post.featuredImage
                 : null
             const imageUrl = getMediaUrl(image)
+            const dateLabel = formatPostDate(post.publishedAt)
 
             return (
               <li>
                 <a href={`/${blogSlug}/${post.slug}`} class="blog-post-row">
-                  <div class="blog-post-thumb-wrap">
-                    {
-                      imageUrl ? (
+                  {
+                    imageUrl ? (
+                      <div class="blog-post-thumb-wrap">
                         <img
                           src={imageUrl}
                           alt={image?.alt || post.title}
@@ -37,13 +51,12 @@ const { posts, blogSlug } = Astro.props
                           decoding="async"
                           class="blog-post-thumb"
                         />
-                      ) : (
-                        <div class="blog-post-thumb blog-post-thumb--empty" aria-hidden="true" />
-                      )
-                    }
-                  </div>
+                      </div>
+                    ) : null
+                  }
                   <div class="blog-post-copy">
                     <h2 class="blog-post-title">{post.title}</h2>
+                    {dateLabel ? <p class="blog-post-date">{dateLabel}</p> : null}
                     {post.excerpt ? <p class="blog-post-excerpt">{post.excerpt}</p> : null}
                   </div>
                 </a>
@@ -61,7 +74,7 @@ const { posts, blogSlug } = Astro.props
     width: 100%;
     max-width: 960px;
     margin: 0 auto;
-    padding: 1.5rem 0 4rem;
+    padding: 2rem 0 4rem;
   }
 
   .blog-post-empty {
@@ -81,8 +94,8 @@ const { posts, blogSlug } = Astro.props
   .blog-post-row {
     display: flex;
     gap: 1.25rem;
-    align-items: center;
-    padding: 1.1rem 0;
+    align-items: flex-start;
+    padding: 1.25rem 0;
     border-bottom: 1px solid #e8e8e8;
     text-decoration: none;
     color: inherit;
@@ -106,13 +119,10 @@ const { posts, blogSlug } = Astro.props
     background: #f3f3f3;
   }
 
-  .blog-post-thumb--empty {
-    min-height: 0;
-  }
-
   .blog-post-copy {
     min-width: 0;
     flex: 1;
+    padding-top: 0.1rem;
   }
 
   .blog-post-title {
@@ -124,10 +134,17 @@ const { posts, blogSlug } = Astro.props
     color: #000;
   }
 
-  .blog-post-excerpt {
+  .blog-post-date {
     margin: 0.35rem 0 0;
+    font-size: 13px;
+    line-height: 1.4;
+    color: #888;
+  }
+
+  .blog-post-excerpt {
+    margin: 0.5rem 0 0;
     font-size: 14px;
-    line-height: 1.5;
+    line-height: 1.55;
     color: #666;
   }
 

@@ -28,6 +28,16 @@ function getPayloadUrl(): string {
   return (import.meta.env.PUBLIC_PAYLOAD_URL || 'http://localhost:3000').replace(/\/$/, '')
 }
 
+function getPostSortTime(post: BlogPost): number {
+  const published = post.publishedAt ? Date.parse(post.publishedAt) : Number.NaN
+  if (!Number.isNaN(published)) return published
+  return typeof post.id === 'number' ? post.id : 0
+}
+
+export function sortBlogPostsNewestFirst(posts: BlogPost[]): BlogPost[] {
+  return [...posts].sort((a, b) => getPostSortTime(b) - getPostSortTime(a))
+}
+
 export async function fetchBlogPostsForPage(blogPageSlug: string): Promise<BlogPost[]> {
   const pageParams = new URLSearchParams({
     depth: '0',
@@ -57,7 +67,7 @@ export async function fetchBlogPostsForPage(blogPageSlug: string): Promise<BlogP
     if (!response.ok) return []
 
     const data = (await response.json()) as BlogPostsResponse
-    return data.docs ?? []
+    return sortBlogPostsNewestFirst(data.docs ?? [])
   } catch (error) {
     console.warn('Blog posts API unreachable:', error)
     return []

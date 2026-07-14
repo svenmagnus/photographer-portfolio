@@ -54,10 +54,7 @@ const description = page.metaDescription || settings.metaDescription || page.tit
     />
     {
       page.pageType === 'blog' ? (
-        <>
-          <BlockRenderer blocks={page.layout} pageType={page.pageType} settings={settings} />
-          <BlogPostList posts={blogPosts} blogSlug={page.slug} />
-        </>
+        <BlogPostList posts={blogPosts} blogSlug={page.slug} />
       ) : (
         <BlockRenderer blocks={page.layout} pageType={page.pageType} settings={settings} />
       )
