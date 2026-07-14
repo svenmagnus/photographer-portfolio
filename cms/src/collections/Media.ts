@@ -10,7 +10,7 @@ export const Media: CollectionConfig = {
   slug: 'media',
   admin: {
     useAsTitle: 'alt',
-    defaultColumns: ['listPreview', 'alt', 'filename', 'updatedAt'],
+    defaultColumns: ['alt', 'filename', 'updatedAt'],
     description:
       'Alle hochgeladenen Dateien. Zum Löschen: Zeile anklicken → unten „Delete“ — oder mehrere markieren und „Delete“.',
   },
@@ -58,16 +58,6 @@ export const Media: CollectionConfig = {
     crop: false,
   },
   fields: [
-    {
-      name: 'listPreview',
-      type: 'ui',
-      label: 'Vorschau',
-      admin: {
-        components: {
-          Cell: '/components/MediaListPreviewCell#MediaListPreviewCell',
-        },
-      },
-    },
     {
       name: 'alt',
       type: 'text',
