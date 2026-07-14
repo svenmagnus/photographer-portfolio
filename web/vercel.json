@@ -1,5 +1,17 @@
 {
   "framework": "astro",
   "installCommand": "cd .. && npm install",
-  "buildCommand": "npm run build"
+  "buildCommand": "npm run build",
+  "redirects": [
+    {
+      "source": "/film-editor",
+      "destination": "/blog",
+      "permanent": true
+    },
+    {
+      "source": "/film-editor/:post",
+      "destination": "/blog/:post",
+      "permanent": true
+    }
+  ]
 }

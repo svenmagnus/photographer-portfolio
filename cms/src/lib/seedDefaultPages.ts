@@ -102,6 +102,7 @@ export async function seedDefaultPages(payload: Payload): Promise<void> {
     await seedDefaultPagesInner(payload)
     await seedGalleryPages(payload)
     await ensureBlogPage(payload)
+    await removeDuplicateLegacyBlogPage(payload)
     await syncContentPageNavigation(payload)
     await removeDuplicateContactInfoBlock(payload)
   } catch (error) {
@@ -228,6 +229,50 @@ async function ensureBlogPage(payload: Payload): Promise<void> {
   })
 
   payload.logger.info(`Updated ${BLOG_PAGE_SLUG} page to blog type`)
+}
+
+async function removeDuplicateLegacyBlogPage(payload: Payload): Promise<void> {
+  const [existingBlog, legacyBlog] = await Promise.all([
+    payload.find({
+      collection: 'pages',
+      where: { slug: { equals: BLOG_PAGE_SLUG } },
+      limit: 1,
+      depth: 0,
+    }),
+    payload.find({
+      collection: 'pages',
+      where: { slug: { equals: LEGACY_BLOG_PAGE_SLUG } },
+      limit: 1,
+      depth: 0,
+    }),
+  ])
+
+  const blog = existingBlog.docs[0]
+  const legacy = legacyBlog.docs[0]
+
+  if (!blog || !legacy) return
+
+  const posts = await payload.find({
+    collection: 'blog-posts',
+    where: { blogPage: { equals: legacy.id } },
+    limit: 200,
+    depth: 0,
+  })
+
+  for (const post of posts.docs) {
+    await payload.update({
+      collection: 'blog-posts',
+      id: post.id,
+      data: { blogPage: blog.id },
+    })
+  }
+
+  await payload.delete({
+    collection: 'pages',
+    id: legacy.id,
+  })
+
+  payload.logger.info(`Removed duplicate legacy blog page: ${LEGACY_BLOG_PAGE_SLUG}`)
 }
 
 async function syncContentPageNavigation(payload: Payload): Promise<void> {
