@@ -37,7 +37,7 @@ export const BlogPosts: CollectionConfig = {
       unique: true,
       label: 'URL-Slug',
       admin: {
-        description: 'z. B. schnittakademie-berlin → /film-editor/schnittakademie-berlin',
+        description: 'z. B. schnittakademie-berlin → /blog/schnittakademie-berlin',
       },
     },
     {

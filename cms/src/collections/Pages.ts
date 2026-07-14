@@ -62,7 +62,7 @@ export const Pages: CollectionConfig = {
       unique: true,
       label: 'URL-Slug',
       admin: {
-        description: 'z. B. publications, contact, film-editor — wird zu /slug auf der Website',
+        description: 'z. B. publications, contact, blog — wird zu /slug auf der Website',
       },
     },
     {

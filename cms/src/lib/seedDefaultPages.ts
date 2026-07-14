@@ -3,10 +3,12 @@ import type { Payload } from 'payload'
 import { PHOTO_CATEGORIES } from '@/collections/Photos'
 import { lexicalParagraphs } from './defaultLexical'
 
-/** Gallery pages on the homepage — film-editor is a blog page instead. */
+/** Gallery pages on the homepage — the blog lives at /blog instead. */
 const GALLERY_PAGE_CATEGORIES = PHOTO_CATEGORIES.filter((category) => category.value !== 'film-editor')
 const GALLERY_COUNT = GALLERY_PAGE_CATEGORIES.length
-const FILM_EDITOR_NAV_ORDER =
+const BLOG_PAGE_SLUG = 'blog'
+const LEGACY_BLOG_PAGE_SLUG = 'film-editor'
+const BLOG_NAV_ORDER =
   PHOTO_CATEGORIES.findIndex((category) => category.value === 'film-editor') + 1
 
 const DEFAULT_PAGES = [
@@ -80,14 +82,14 @@ const DEFAULT_PAGES = [
     ],
   },
   {
-    title: 'Film Editor',
-    slug: 'film-editor',
+    title: 'Blog',
+    slug: BLOG_PAGE_SLUG,
     pageType: 'blog' as const,
-    navOrder: FILM_EDITOR_NAV_ORDER,
+    navOrder: BLOG_NAV_ORDER,
     layout: [
       {
         blockType: 'heading',
-        text: 'Film Editor',
+        text: 'Blog',
         level: 'h1',
         align: 'center',
       },
@@ -99,7 +101,7 @@ export async function seedDefaultPages(payload: Payload): Promise<void> {
   try {
     await seedDefaultPagesInner(payload)
     await seedGalleryPages(payload)
-    await ensureFilmEditorBlogPage(payload)
+    await ensureBlogPage(payload)
     await syncContentPageNavigation(payload)
     await removeDuplicateContactInfoBlock(payload)
   } catch (error) {
@@ -144,18 +146,43 @@ async function seedGalleryPages(payload: Payload): Promise<void> {
   }
 }
 
-async function ensureFilmEditorBlogPage(payload: Payload): Promise<void> {
-  const blogPage = DEFAULT_PAGES.find((page) => page.slug === 'film-editor')
+async function ensureBlogPage(payload: Payload): Promise<void> {
+  const blogPage = DEFAULT_PAGES.find((page) => page.slug === BLOG_PAGE_SLUG)
   if (!blogPage) return
 
-  const existing = await payload.find({
-    collection: 'pages',
-    where: { slug: { equals: 'film-editor' } },
-    limit: 1,
-    depth: 0,
-  })
+  const [existingBlog, legacyBlog] = await Promise.all([
+    payload.find({
+      collection: 'pages',
+      where: { slug: { equals: BLOG_PAGE_SLUG } },
+      limit: 1,
+      depth: 0,
+    }),
+    payload.find({
+      collection: 'pages',
+      where: { slug: { equals: LEGACY_BLOG_PAGE_SLUG } },
+      limit: 1,
+      depth: 0,
+    }),
+  ])
 
-  const doc = existing.docs[0]
+  let doc = existingBlog.docs[0]
+
+  if (!doc && legacyBlog.docs[0]) {
+    await payload.update({
+      collection: 'pages',
+      id: legacyBlog.docs[0].id,
+      data: {
+        slug: BLOG_PAGE_SLUG,
+        pageType: 'blog',
+        galleryCategory: null,
+        showInNavigation: true,
+        navOrder: blogPage.navOrder,
+      },
+    })
+    payload.logger.info(`Renamed blog page slug: ${LEGACY_BLOG_PAGE_SLUG} → ${BLOG_PAGE_SLUG}`)
+    return
+  }
+
   if (!doc) {
     await payload.create({
       collection: 'pages',
@@ -169,7 +196,7 @@ async function ensureFilmEditorBlogPage(payload: Payload): Promise<void> {
         layout: [...blogPage.layout],
       },
     })
-    payload.logger.info('Created blog page: film-editor')
+    payload.logger.info(`Created blog page: ${BLOG_PAGE_SLUG}`)
     return
   }
 
@@ -200,7 +227,7 @@ async function ensureFilmEditorBlogPage(payload: Payload): Promise<void> {
     },
   })
 
-  payload.logger.info('Updated film-editor page to blog type')
+  payload.logger.info(`Updated ${BLOG_PAGE_SLUG} page to blog type`)
 }
 
 async function syncContentPageNavigation(payload: Payload): Promise<void> {

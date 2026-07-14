@@ -17,6 +17,10 @@ if (!blogSlug || !postSlug) {
   return new Response(null, { status: 404, statusText: 'Not Found' })
 }
 
+if (blogSlug === 'film-editor') {
+  return Astro.redirect(`/blog/${postSlug}`, 301)
+}
+
 const [blogPage, post, settings, mainMenu, navPages] = await Promise.all([
   fetchPageBySlug(blogSlug),
   fetchBlogPost(blogSlug, postSlug),

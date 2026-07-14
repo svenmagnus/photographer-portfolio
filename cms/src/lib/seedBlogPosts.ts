@@ -6,7 +6,7 @@ const DEFAULT_BLOG_POSTS = [
   {
     title: 'Schnittakademie Berlin',
     slug: 'schnittakademie-berlin',
-    blogPageSlug: 'film-editor',
+    blogPageSlug: 'blog',
     excerpt: 'Film editing academy in Berlin.',
     content: lexicalParagraphs(
       'Inhalte zu Schnittakademie Berlin — hier im CMS bearbeiten.',
@@ -28,7 +28,12 @@ export async function seedBlogPosts(payload: Payload): Promise<void> {
 
       const blogPage = await payload.find({
         collection: 'pages',
-        where: { slug: { equals: post.blogPageSlug } },
+        where: {
+          or: [
+            { slug: { equals: post.blogPageSlug } },
+            { slug: { equals: 'film-editor' } },
+          ],
+        },
         limit: 1,
         depth: 0,
       })

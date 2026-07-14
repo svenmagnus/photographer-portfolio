@@ -18,6 +18,10 @@ if (!slug) {
   return new Response(null, { status: 404, statusText: 'Not Found' })
 }
 
+if (slug === 'film-editor') {
+  return Astro.redirect('/blog', 301)
+}
+
 const [page, settings, mainMenu, navPages] = await Promise.all([
   fetchPageBySlug(slug),
   fetchSiteSettings(),
