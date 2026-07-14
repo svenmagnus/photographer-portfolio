@@ -9,7 +9,9 @@ const isVercel = process.env.VERCEL === '1'
 export const Media: CollectionConfig = {
   slug: 'media',
   admin: {
-    defaultColumns: ['filename', 'alt', 'updatedAt'],
+    useAsTitle: 'filename',
+    defaultColumns: ['listPreview', 'filename', 'alt', 'updatedAt'],
+    description: 'Im Auswahl-Dialog: Dateiname oder Zeile anklicken — kein Häkchen nötig.',
   },
   access: {
     read: () => true,
@@ -53,11 +55,12 @@ export const Media: CollectionConfig = {
   },
   fields: [
     {
-      name: 'filename',
-      type: 'text',
+      name: 'listPreview',
+      type: 'ui',
+      label: 'Vorschau',
       admin: {
         components: {
-          Cell: '/components/MediaFilenameCell#MediaFilenameCell',
+          Cell: '/components/MediaListPreviewCell#MediaListPreviewCell',
         },
       },
     },

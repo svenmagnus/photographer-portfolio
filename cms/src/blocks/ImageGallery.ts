@@ -20,6 +20,9 @@ export const ImageGalleryBlock: Block = {
           type: 'upload',
           relationTo: 'media',
           required: true,
+          admin: {
+            description: '„Choose from existing“: Dateiname in der Liste anklicken (kein Häkchen).',
+          },
         },
         {
           name: 'caption',
