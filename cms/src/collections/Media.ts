@@ -10,11 +10,13 @@ export const Media: CollectionConfig = {
   slug: 'media',
   admin: {
     useAsTitle: 'filename',
-    defaultColumns: ['listPreview', 'filename', 'alt', 'updatedAt'],
-    description: 'Im Auswahl-Dialog: Dateiname oder Zeile anklicken — kein Häkchen nötig.',
+    defaultColumns: ['filename', 'alt', 'updatedAt'],
   },
   access: {
     read: () => true,
+    create: ({ req: { user } }) => Boolean(user),
+    update: ({ req: { user } }) => Boolean(user),
+    delete: ({ req: { user } }) => Boolean(user),
   },
   upload: {
     ...(useVercelBlob || isVercel
@@ -54,16 +56,6 @@ export const Media: CollectionConfig = {
     crop: false,
   },
   fields: [
-    {
-      name: 'listPreview',
-      type: 'ui',
-      label: 'Vorschau',
-      admin: {
-        components: {
-          Cell: '/components/MediaListPreviewCell#MediaListPreviewCell',
-        },
-      },
-    },
     {
       name: 'alt',
       type: 'text',

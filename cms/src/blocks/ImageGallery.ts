@@ -9,27 +9,16 @@ export const ImageGalleryBlock: Block = {
   fields: [
     {
       name: 'images',
-      type: 'array',
+      type: 'relationship',
+      relationTo: 'media',
+      hasMany: true,
       required: true,
-      minRows: 1,
-      maxRows: 6,
       label: 'Bilder',
-      fields: [
-        {
-          name: 'image',
-          type: 'upload',
-          relationTo: 'media',
-          required: true,
-          admin: {
-            description: '„Choose from existing“: Dateiname in der Liste anklicken (kein Häkchen).',
-          },
-        },
-        {
-          name: 'caption',
-          type: 'text',
-          label: 'Bildunterschrift',
-        },
-      ],
+      admin: {
+        description:
+          '„Choose from existing“ → Häkchen bei den Bildern setzen → unten „Select“ klicken. Reihenfolge per Drag & Drop.',
+        isSortable: true,
+      },
     },
     {
       name: 'columns',

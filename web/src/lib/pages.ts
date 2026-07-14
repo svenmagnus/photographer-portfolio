@@ -22,10 +22,14 @@ export type PageBlock =
     }
   | {
       blockType: 'imageGallery'
-      images: Array<{
-        image: Media | number
-        caption?: string | null
-      }>
+      images: Array<
+        | Media
+        | number
+        | {
+            image?: Media | number
+            caption?: string | null
+          }
+      >
       columns?: '2' | '3' | '4' | null
       fullWidth?: boolean | null
     }

@@ -81,6 +81,23 @@ function getMediaTextLayout(
   }
 }
 
+function getGalleryEntryMedia(entry: unknown): Media | null {
+  if (isMedia(entry)) return entry
+  if (entry && typeof entry === 'object' && 'image' in entry) {
+    const image = (entry as { image?: unknown }).image
+    return isMedia(image) ? image : null
+  }
+  return null
+}
+
+function getGalleryEntryCaption(entry: unknown): string | null {
+  if (entry && typeof entry === 'object' && 'caption' in entry) {
+    const caption = (entry as { caption?: string | null }).caption
+    return caption || null
+  }
+  return null
+}
+
 const sectionWidth = pageType === 'landing' ? 'max-w-[1400px]' : 'max-w-5xl'
 ---
 
@@ -148,11 +165,12 @@ const sectionWidth = pageType === 'landing' ? 'max-w-[1400px]' : 'max-w-5xl'
             >
               {
                 block.images.map((entry) => {
-                  const media = isMedia(entry.image) ? entry.image : null
+                  const media = getGalleryEntryMedia(entry)
                   const src = getMediaUrl(media)
                   const fullSrc = getFullMediaUrl(media)
                   if (!src) return null
-                  const alt = media?.alt || entry.caption || ''
+                  const caption = getGalleryEntryCaption(entry)
+                  const alt = media?.alt || caption || ''
 
                   return (
                     <figure class="relative overflow-hidden bg-neutral-100">
@@ -175,9 +193,9 @@ const sectionWidth = pageType === 'landing' ? 'max-w-[1400px]' : 'max-w-5xl'
                         />
                       </button>
                       {
-                        entry.caption ? (
+                        caption ? (
                           <figcaption class="px-2 py-2 text-[11px] text-portfolio-muted text-center">
-                            {entry.caption}
+                            {caption}
                           </figcaption>
                         ) : null
                       }
