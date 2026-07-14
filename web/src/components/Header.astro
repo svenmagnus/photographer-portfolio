@@ -1,5 +1,5 @@
 ---
-import { buildNavigation, splitNavigation, type NavItem } from '../lib/navigation'
+import { buildNavigation, type NavItem } from '../lib/navigation'
 import type { SiteSettingsData } from '../lib/siteSettings'
 
 interface Props {
@@ -26,8 +26,6 @@ const navigation = navItems?.length
       navigation: null,
     })
 
-const { rowOne, rowTwo } = splitNavigation(navigation)
-
 function isActive(item: NavItem): boolean {
   if (activeSlug && item.slug) {
     return item.slug === activeSlug
@@ -42,17 +40,9 @@ function isActive(item: NavItem): boolean {
 
 function navItemClasses(active: boolean) {
   return [
-    'nav-link lowercase text-black hover:opacity-60 transition-opacity font-normal',
-    active && 'underline underline-offset-[4px] decoration-[0.5px]',
+    'nav-link lowercase font-normal transition-colors',
+    active && 'nav-link-active underline underline-offset-[4px] decoration-[0.5px]',
   ]
-}
-
-function renderNavItems(items: NavItem[]) {
-  return items.map((item, index) => ({
-    item,
-    index,
-    active: isActive(item),
-  }))
 }
 ---
 
@@ -80,59 +70,26 @@ function renderNavItems(items: NavItem[]) {
   </div>
 
   <nav class="site-nav site-nav-desktop mt-7" aria-label="Hauptnavigation">
-    {
-      rowOne.length > 0 && (
-        <ul class="site-nav-row flex flex-wrap justify-center items-center gap-x-0 gap-y-1.5">
-          {renderNavItems(rowOne).map(({ item, index, active }) => (
-            <>
-              {index > 0 && (
-                <li class="nav-separator select-none px-1.5" aria-hidden="true">
-                  ·
-                </li>
-              )}
-              <li>
-                <a
-                  href={item.href}
-                  data-category={item.categoryValue}
-                  class:list={navItemClasses(active)}
-                  target={item.openInNewTab ? '_blank' : undefined}
-                  rel={item.openInNewTab ? 'noopener noreferrer' : undefined}
-                >
-                  {item.label}
-                </a>
-              </li>
-            </>
-          ))}
-        </ul>
-      )
-    }
-
-    {
-      rowTwo.length > 0 && (
-        <ul class="site-nav-row flex flex-wrap justify-center items-center gap-x-0 gap-y-1.5 mt-2">
-          {renderNavItems(rowTwo).map(({ item, index, active }) => (
-            <>
-              {index > 0 && (
-                <li class="nav-separator select-none px-1.5" aria-hidden="true">
-                  ·
-                </li>
-              )}
-              <li>
-                <a
-                  href={item.href}
-                  data-category={item.categoryValue}
-                  class:list={navItemClasses(active)}
-                  target={item.openInNewTab ? '_blank' : undefined}
-                  rel={item.openInNewTab ? 'noopener noreferrer' : undefined}
-                >
-                  {item.label}
-                </a>
-              </li>
-            </>
-          ))}
-        </ul>
-      )
-    }
+    <ul class="site-nav-list">
+      {
+        navigation.map((item) => {
+          const active = isActive(item)
+          return (
+            <li class="site-nav-item">
+              <a
+                href={item.href}
+                data-category={item.categoryValue}
+                class:list={navItemClasses(active)}
+                target={item.openInNewTab ? '_blank' : undefined}
+                rel={item.openInNewTab ? 'noopener noreferrer' : undefined}
+              >
+                {item.label}
+              </a>
+            </li>
+          )
+        })
+      }
+    </ul>
   </nav>
 
   <nav
@@ -300,15 +257,49 @@ function renderNavItems(items: NavItem[]) {
     display: block;
   }
 
-  .site-nav-row {
-    font-size: clamp(1.0625rem, 2.4vw, 1.125rem);
-    line-height: 1.55;
-    letter-spacing: 0.01em;
+  .site-nav-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    position: relative;
   }
 
-  .nav-separator {
+  .site-nav-item {
+    padding: 0 30px 0 20px;
+    margin-bottom: 10px;
+    text-align: center;
+    position: relative;
+    line-height: 20px;
+    font-size: 20px;
+  }
+
+  .site-nav-item::before {
+    content: '';
+    position: absolute;
+    top: 49%;
+    left: -7px;
+    margin-top: -2px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #dedede;
+  }
+
+  .site-nav-item:first-child::before {
+    display: none;
+  }
+
+  .nav-link {
     color: #000;
-    opacity: 0.55;
+    text-decoration: none;
+  }
+
+  .nav-link:hover,
+  .nav-link.nav-link-active {
+    color: #919191;
   }
 
   .site-social {
@@ -400,8 +391,8 @@ function renderNavItems(items: NavItem[]) {
   .site-nav-mobile-link {
     display: block;
     padding: 0.65rem 0.25rem;
-    font-size: 1.0625rem;
-    line-height: 1.4;
+    font-size: 16px;
+    line-height: 1.5;
     text-decoration: none;
     text-align: left;
   }

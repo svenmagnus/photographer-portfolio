@@ -92,14 +92,3 @@ export function buildNavigation(settings: SiteSettingsData, navPages?: CmsPage[]
 
   return [...categoryItems, ...staticItems]
 }
-
-export function splitNavigation(items: NavItem[]): { rowOne: NavItem[]; rowTwo: NavItem[] } {
-  if (items.length <= 10) {
-    return { rowOne: items, rowTwo: [] }
-  }
-
-  return {
-    rowOne: items.slice(0, 10),
-    rowTwo: items.slice(10),
-  }
-}
