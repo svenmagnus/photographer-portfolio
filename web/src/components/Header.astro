@@ -42,8 +42,8 @@ function isActive(item: NavItem): boolean {
 
 function navItemClasses(active: boolean) {
   return [
-    'nav-link lowercase text-black hover:opacity-60 transition-opacity',
-    active && 'underline underline-offset-[3px]',
+    'nav-link lowercase text-black hover:opacity-60 transition-opacity font-normal',
+    active && 'underline underline-offset-[4px] decoration-[0.5px]',
   ]
 }
 
@@ -56,22 +56,22 @@ function renderNavItems(items: NavItem[]) {
 }
 ---
 
-<header class="pt-10 pb-6 px-4 text-center">
-  <h1 class="text-[17px] font-normal tracking-normal text-black leading-tight">
+<header class="site-header pt-12 pb-7 px-4 text-center font-serif">
+  <h1 class="site-name text-[clamp(1.875rem,4vw,2.125rem)] font-normal tracking-[0.01em] text-black leading-[1.15]">
     {photographerName}
   </h1>
-  <p class="text-[15px] font-normal text-portfolio-muted mt-0.5 leading-tight">
+  <p class="site-title text-[clamp(1.25rem,2.5vw,1.5rem)] font-normal text-black mt-1 leading-[1.2]">
     {photographerTitle}
   </p>
 
-  <nav class="mt-5" aria-label="Hauptnavigation">
+  <nav class="site-nav mt-6" aria-label="Hauptnavigation">
     {
       rowOne.length > 0 && (
-        <ul class="flex flex-wrap justify-center items-center gap-x-1 gap-y-0 text-[13px] leading-relaxed">
+        <ul class="flex flex-wrap justify-center items-center gap-x-0 gap-y-1 text-[14px] leading-[1.65] tracking-[0.015em]">
           {renderNavItems(rowOne).map(({ item, index, active }) => (
             <>
               {index > 0 && (
-                <li class="text-portfolio-muted select-none px-0.5" aria-hidden="true">
+                <li class="nav-separator select-none px-1.5" aria-hidden="true">
                   ·
                 </li>
               )}
@@ -94,11 +94,11 @@ function renderNavItems(items: NavItem[]) {
 
     {
       rowTwo.length > 0 && (
-        <ul class="flex flex-wrap justify-center items-center gap-x-1 gap-y-0 text-[13px] leading-relaxed mt-0.5">
+        <ul class="flex flex-wrap justify-center items-center gap-x-0 gap-y-1 text-[14px] leading-[1.65] tracking-[0.015em] mt-1.5">
           {renderNavItems(rowTwo).map(({ item, index, active }) => (
             <>
               {index > 0 && (
-                <li class="text-portfolio-muted select-none px-0.5" aria-hidden="true">
+                <li class="nav-separator select-none px-1.5" aria-hidden="true">
                   ·
                 </li>
               )}
@@ -120,7 +120,7 @@ function renderNavItems(items: NavItem[]) {
     }
   </nav>
 
-  <div class="mt-4 flex justify-center items-center gap-3 text-portfolio-muted">
+  <div class="site-social mt-5 flex justify-center items-center gap-3 text-black">
     <a
       href={facebookUrl}
       target={facebookUrl !== '#' ? '_blank' : undefined}
@@ -147,7 +147,7 @@ function renderNavItems(items: NavItem[]) {
       <button
         type="button"
         id="share-button"
-        class="text-[11px] lowercase hover:opacity-60 transition-opacity"
+        class="share-trigger text-[11px] lowercase tracking-[0.02em] hover:opacity-60 transition-opacity"
         aria-expanded="false"
         aria-haspopup="true"
         aria-controls="share-dropdown"
@@ -197,6 +197,15 @@ function renderNavItems(items: NavItem[]) {
 </header>
 
 <style>
+  .nav-separator {
+    color: #000;
+    opacity: 0.55;
+  }
+
+  .site-social svg {
+    opacity: 0.75;
+  }
+
   .share-dropdown::before {
     content: '';
     position: absolute;

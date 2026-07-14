@@ -12,6 +12,12 @@ export default {
           '-apple-system',
           'sans-serif',
         ],
+        serif: [
+          '"EB Garamond"',
+          'Georgia',
+          'Times New Roman',
+          'serif',
+        ],
       },
       colors: {
         portfolio: {
