@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload'
 
+import { getMediaPreviewUrl } from '@/lib/mediaPreviewUrl'
 import { isVercelBlobConfigured } from '@/lib/vercelBlob'
 
 const useVercelBlob = isVercelBlobConfigured()
@@ -7,6 +8,9 @@ const isVercel = process.env.VERCEL === '1'
 
 export const Media: CollectionConfig = {
   slug: 'media',
+  admin: {
+    defaultColumns: ['filename', 'alt', 'updatedAt'],
+  },
   access: {
     read: () => true,
   },
@@ -43,7 +47,7 @@ export const Media: CollectionConfig = {
         },
       },
     ],
-    adminThumbnail: 'thumbnail',
+    adminThumbnail: ({ doc }) => getMediaPreviewUrl(doc) || '',
     focalPoint: true,
     crop: false,
   },

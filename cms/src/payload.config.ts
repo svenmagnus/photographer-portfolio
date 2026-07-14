@@ -77,7 +77,10 @@ const plugins = useVercelBlob
   ? [
       vercelBlobStorage({
         collections: {
-          media: true,
+          media: {
+            // Serve images directly from the public Blob CDN (proxy /api/media/file/* returns 404 on Vercel).
+            disablePayloadAccessControl: true,
+          },
         },
         clientUploads: true,
         addRandomSuffix: true,

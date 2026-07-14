@@ -2,26 +2,13 @@
 
 import React, { useEffect, useState } from 'react'
 
-type MediaLike = {
-  alt?: string | null
-  thumbnailURL?: string | null
-  url?: string | null
-  sizes?: {
-    thumbnail?: {
-      url?: string | null
-    }
-  }
-}
+import { getMediaPreviewUrl, type MediaPreviewSource } from '@/lib/mediaPreviewUrl'
 
 type PhotoImageCellProps = {
-  cellData?: MediaLike | number | string | null
+  cellData?: MediaPreviewSource | number | string | null
   rowData?: {
-    image?: MediaLike | number | string | null
+    image?: MediaPreviewSource | number | string | null
   }
-}
-
-function getThumbnailUrl(media: MediaLike): string | null {
-  return media.thumbnailURL || media.sizes?.thumbnail?.url || media.url || null
 }
 
 function getMediaId(
@@ -35,37 +22,30 @@ function getMediaId(
   return null
 }
 
-export function PhotoImageCell({ cellData, rowData }: PhotoImageCellProps) {
-  const [src, setSrc] = useState<string | null>(() => {
-    const media =
-      cellData && typeof cellData === 'object'
-        ? cellData
-        : rowData?.image && typeof rowData.image === 'object'
-          ? rowData.image
-          : null
+function getPopulatedMedia(
+  cellData: PhotoImageCellProps['cellData'],
+  rowData: PhotoImageCellProps['rowData'],
+): MediaPreviewSource | null {
+  if (cellData && typeof cellData === 'object') return cellData
+  if (rowData?.image && typeof rowData.image === 'object') return rowData.image
+  return null
+}
 
-    return media ? getThumbnailUrl(media) : null
-  })
-  const [alt, setAlt] = useState('')
+export function PhotoImageCell({ cellData, rowData }: PhotoImageCellProps) {
+  const [media, setMedia] = useState<MediaPreviewSource | null>(() =>
+    getPopulatedMedia(cellData, rowData),
+  )
 
   useEffect(() => {
-    const populated =
-      cellData && typeof cellData === 'object'
-        ? cellData
-        : rowData?.image && typeof rowData.image === 'object'
-          ? rowData.image
-          : null
-
+    const populated = getPopulatedMedia(cellData, rowData)
     if (populated) {
-      setSrc(getThumbnailUrl(populated))
-      setAlt(populated.alt || '')
+      setMedia(populated)
       return
     }
 
     const mediaId = getMediaId(cellData, rowData)
     if (!mediaId) {
-      setSrc(null)
-      setAlt('')
+      setMedia(null)
       return
     }
 
@@ -73,22 +53,21 @@ export function PhotoImageCell({ cellData, rowData }: PhotoImageCellProps) {
 
     void fetch(`/api/media/${mediaId}?depth=0`, { credentials: 'include' })
       .then((response) => (response.ok ? response.json() : null))
-      .then((media: MediaLike | null) => {
-        if (cancelled || !media) return
-        setSrc(getThumbnailUrl(media))
-        setAlt(media.alt || '')
+      .then((fetched: MediaPreviewSource | null) => {
+        if (!cancelled) setMedia(fetched)
       })
       .catch(() => {
-        if (!cancelled) {
-          setSrc(null)
-          setAlt('')
-        }
+        if (!cancelled) setMedia(null)
       })
 
     return () => {
       cancelled = true
     }
   }, [cellData, rowData])
+
+  const src = getMediaPreviewUrl(media)
+  const alt =
+    media && 'alt' in media && typeof media.alt === 'string' ? media.alt : 'Foto-Vorschau'
 
   if (!src) {
     return <span style={{ color: 'var(--theme-elevation-400)', fontSize: '12px' }}>—</span>

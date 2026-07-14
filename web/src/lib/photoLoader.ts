@@ -59,6 +59,11 @@ export function getMediaUrl(
     media.sizes?.fullscreen?.url,
   ]
 
+  const directBlobUrl = fallbacks.find(
+    (candidate) => candidate && candidate.includes('.blob.vercel-storage.com/'),
+  )
+  if (directBlobUrl) return resolveMediaUrl(directBlobUrl)
+
   for (const candidate of fallbacks) {
     const resolved = resolveMediaUrl(candidate)
     if (resolved) return resolved
