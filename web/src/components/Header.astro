@@ -56,13 +56,28 @@ function renderNavItems(items: NavItem[]) {
 }
 ---
 
-<header class="site-header pt-12 pb-7 px-4 text-center">
+<header class="site-header pt-10 pb-6 px-4 text-center md:pt-12 md:pb-7">
   <h1 class="site-logo">
-    <span class="site-logo-line">{photographerName}</span>
-    <span class="site-logo-line">{photographerTitle}</span>
+    <a href="/" class="site-logo-link">
+      <span class="site-logo-line">{photographerName}</span>
+      <span class="site-logo-line">{photographerTitle}</span>
+    </a>
   </h1>
 
-  <nav class="site-nav mt-7" aria-label="Hauptnavigation">
+  <button
+    type="button"
+    id="site-nav-toggle"
+    class="site-nav-toggle"
+    aria-expanded="false"
+    aria-controls="site-nav-mobile"
+    aria-label="Menü öffnen"
+  >
+    <span class="site-nav-toggle-bar" aria-hidden="true"></span>
+    <span class="site-nav-toggle-bar" aria-hidden="true"></span>
+    <span class="site-nav-toggle-bar" aria-hidden="true"></span>
+  </button>
+
+  <nav class="site-nav site-nav-desktop mt-7" aria-label="Hauptnavigation">
     {
       rowOne.length > 0 && (
         <ul class="site-nav-row flex flex-wrap justify-center items-center gap-x-0 gap-y-1.5">
@@ -116,6 +131,34 @@ function renderNavItems(items: NavItem[]) {
         </ul>
       )
     }
+  </nav>
+
+  <nav
+    id="site-nav-mobile"
+    class="site-nav-mobile hidden"
+    aria-label="Mobile Navigation"
+    aria-hidden="true"
+  >
+    <ul class="site-nav-mobile-list">
+      {
+        navigation.map((item) => {
+          const active = isActive(item)
+          return (
+            <li>
+              <a
+                href={item.href}
+                data-category={item.categoryValue}
+                class:list={['site-nav-mobile-link', navItemClasses(active)]}
+                target={item.openInNewTab ? '_blank' : undefined}
+                rel={item.openInNewTab ? 'noopener noreferrer' : undefined}
+              >
+                {item.label}
+              </a>
+            </li>
+          )
+        })
+      }
+    </ul>
   </nav>
 
   <div class="site-social mt-5 flex justify-center items-center gap-4 text-black">
@@ -197,11 +240,20 @@ function renderNavItems(items: NavItem[]) {
 <style>
   .site-header {
     font-family: Georgia, 'Times New Roman', serif;
+    position: relative;
+  }
+
+  .site-logo {
+    margin: 0;
+  }
+
+  .site-logo-link {
+    color: inherit;
+    text-decoration: none;
   }
 
   /* Format.com: Logo 39px, line-height 1.2, mobile 75% */
-  .site-logo {
-    margin: 0;
+  .site-logo-link {
     font-size: clamp(1.8125rem, 5vw, 2.4375rem);
     line-height: 1.2;
     font-weight: 400;
@@ -236,6 +288,86 @@ function renderNavItems(items: NavItem[]) {
 
   .site-social svg {
     opacity: 0.85;
+  }
+
+  .site-nav-toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    width: 44px;
+    height: 44px;
+    margin: 1rem auto 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .site-nav-toggle-bar {
+    display: block;
+    width: 22px;
+    height: 1.5px;
+    background: #000;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+  }
+
+  .site-nav-toggle.is-open .site-nav-toggle-bar:nth-child(1) {
+    transform: translateY(6.5px) rotate(45deg);
+  }
+
+  .site-nav-toggle.is-open .site-nav-toggle-bar:nth-child(2) {
+    opacity: 0;
+  }
+
+  .site-nav-toggle.is-open .site-nav-toggle-bar:nth-child(3) {
+    transform: translateY(-6.5px) rotate(-45deg);
+  }
+
+  .site-nav-mobile {
+    margin-top: 0.5rem;
+    padding: 0.5rem 0 0.25rem;
+    border-top: 1px solid #e5e5e5;
+  }
+
+  .site-nav-mobile-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .site-nav-mobile-link {
+    display: block;
+    padding: 0.65rem 0.5rem;
+    font-size: 1.0625rem;
+    line-height: 1.4;
+    text-decoration: none;
+  }
+
+  .site-nav-mobile:not(.hidden) + .site-social,
+  .site-header:has(.site-nav-toggle.is-open) .site-social {
+    margin-top: 1rem;
+  }
+
+  @media (max-width: 1023px) {
+    .site-nav-desktop {
+      display: none;
+    }
+
+    .site-nav-toggle {
+      display: flex;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .site-nav-mobile {
+      display: none !important;
+    }
+
+    .site-nav-toggle {
+      display: none !important;
+    }
   }
 
   .share-dropdown::before {
@@ -350,6 +482,63 @@ function renderNavItems(items: NavItem[]) {
     })
   }
 
-  initShareMenu()
-  document.addEventListener('astro:page-load', initShareMenu)
+  function initMobileNav() {
+    const toggle = document.getElementById('site-nav-toggle')
+    const panel = document.getElementById('site-nav-mobile')
+
+    if (!toggle || !panel) return
+
+    const close = () => {
+      panel.classList.add('hidden')
+      panel.setAttribute('aria-hidden', 'true')
+      toggle.classList.remove('is-open')
+      toggle.setAttribute('aria-expanded', 'false')
+      toggle.setAttribute('aria-label', 'Menü öffnen')
+      document.body.classList.remove('site-nav-open')
+    }
+
+    const open = () => {
+      panel.classList.remove('hidden')
+      panel.setAttribute('aria-hidden', 'false')
+      toggle.classList.add('is-open')
+      toggle.setAttribute('aria-expanded', 'true')
+      toggle.setAttribute('aria-label', 'Menü schließen')
+      document.body.classList.add('site-nav-open')
+    }
+
+    toggle.addEventListener('click', () => {
+      const isOpen = !panel.classList.contains('hidden')
+      if (isOpen) {
+        close()
+      } else {
+        open()
+      }
+    })
+
+    panel.querySelectorAll('a').forEach((link) => {
+      link.addEventListener('click', () => {
+        close()
+      })
+    })
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        close()
+      }
+    })
+
+    window.addEventListener('resize', () => {
+      if (window.matchMedia('(min-width: 1024px)').matches) {
+        close()
+      }
+    })
+  }
+
+  function initHeader() {
+    initShareMenu()
+    initMobileNav()
+  }
+
+  initHeader()
+  document.addEventListener('astro:page-load', initHeader)
 </script>
