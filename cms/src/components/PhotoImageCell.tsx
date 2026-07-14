@@ -1,53 +1,94 @@
-import type { Media } from '@/payload-types'
+'use client'
 
-type PhotoImageCellProps = {
-  cellData?: Media | number | string | null
-  payload: {
-    findByID: (args: { collection: 'media'; id: number | string }) => Promise<Media>
-  }
-  rowData?: {
-    image?: Media | number | string | null
+import React, { useEffect, useState } from 'react'
+
+type MediaLike = {
+  alt?: string | null
+  thumbnailURL?: string | null
+  url?: string | null
+  sizes?: {
+    thumbnail?: {
+      url?: string | null
+    }
   }
 }
 
-function getThumbnailUrl(media: Media): string | null {
+type PhotoImageCellProps = {
+  cellData?: MediaLike | number | string | null
+  rowData?: {
+    image?: MediaLike | number | string | null
+  }
+}
+
+function getThumbnailUrl(media: MediaLike): string | null {
   return media.thumbnailURL || media.sizes?.thumbnail?.url || media.url || null
 }
 
-async function resolveMedia(
+function getMediaId(
   cellData: PhotoImageCellProps['cellData'],
   rowData: PhotoImageCellProps['rowData'],
-  payload: PhotoImageCellProps['payload'],
-): Promise<Media | null> {
-  if (cellData && typeof cellData === 'object') {
-    return cellData
-  }
-
-  if (rowData?.image && typeof rowData.image === 'object') {
+): number | string | null {
+  if (typeof cellData === 'number' || typeof cellData === 'string') return cellData
+  if (typeof rowData?.image === 'number' || typeof rowData?.image === 'string') {
     return rowData.image
   }
-
-  const mediaId =
-    (typeof cellData === 'number' || typeof cellData === 'string' ? cellData : null) ??
-    (typeof rowData?.image === 'number' || typeof rowData?.image === 'string'
-      ? rowData.image
-      : null)
-
-  if (!mediaId) return null
-
-  try {
-    return await payload.findByID({
-      collection: 'media',
-      id: mediaId,
-    })
-  } catch {
-    return null
-  }
+  return null
 }
 
-export async function PhotoImageCell({ cellData, payload, rowData }: PhotoImageCellProps) {
-  const media = await resolveMedia(cellData, rowData, payload)
-  const src = media ? getThumbnailUrl(media) : null
+export function PhotoImageCell({ cellData, rowData }: PhotoImageCellProps) {
+  const [src, setSrc] = useState<string | null>(() => {
+    const media =
+      cellData && typeof cellData === 'object'
+        ? cellData
+        : rowData?.image && typeof rowData.image === 'object'
+          ? rowData.image
+          : null
+
+    return media ? getThumbnailUrl(media) : null
+  })
+  const [alt, setAlt] = useState('')
+
+  useEffect(() => {
+    const populated =
+      cellData && typeof cellData === 'object'
+        ? cellData
+        : rowData?.image && typeof rowData.image === 'object'
+          ? rowData.image
+          : null
+
+    if (populated) {
+      setSrc(getThumbnailUrl(populated))
+      setAlt(populated.alt || '')
+      return
+    }
+
+    const mediaId = getMediaId(cellData, rowData)
+    if (!mediaId) {
+      setSrc(null)
+      setAlt('')
+      return
+    }
+
+    let cancelled = false
+
+    void fetch(`/api/media/${mediaId}?depth=0`, { credentials: 'include' })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((media: MediaLike | null) => {
+        if (cancelled || !media) return
+        setSrc(getThumbnailUrl(media))
+        setAlt(media.alt || '')
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setSrc(null)
+          setAlt('')
+        }
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [cellData, rowData])
 
   if (!src) {
     return <span style={{ color: 'var(--theme-elevation-400)', fontSize: '12px' }}>—</span>
@@ -56,7 +97,7 @@ export async function PhotoImageCell({ cellData, payload, rowData }: PhotoImageC
   return (
     <img
       src={src}
-      alt={media?.alt || ''}
+      alt={alt}
       width={48}
       height={48}
       loading="lazy"
