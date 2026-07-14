@@ -1,5 +1,5 @@
 ---
-import { buildNavigation, type NavItem } from '../lib/navigation'
+import { buildNavigation, splitNavigation, type NavItem } from '../lib/navigation'
 import type { SiteSettingsData } from '../lib/siteSettings'
 
 interface Props {
@@ -25,6 +25,8 @@ const navigation = navItems?.length
       photographerTitle,
       navigation: null,
     })
+
+const { rowOne, rowTwo } = splitNavigation(navigation)
 
 function isActive(item: NavItem): boolean {
   if (activeSlug && item.slug) {
@@ -70,26 +72,31 @@ function navItemClasses(active: boolean) {
   </div>
 
   <nav class="site-nav site-nav-desktop mt-7" aria-label="Hauptnavigation">
-    <ul class="site-nav-list">
-      {
-        navigation.map((item) => {
-          const active = isActive(item)
-          return (
-            <li class="site-nav-item">
-              <a
-                href={item.href}
-                data-category={item.categoryValue}
-                class:list={navItemClasses(active)}
-                target={item.openInNewTab ? '_blank' : undefined}
-                rel={item.openInNewTab ? 'noopener noreferrer' : undefined}
-              >
-                {item.label}
-              </a>
-            </li>
-          )
-        })
-      }
-    </ul>
+    {
+      [rowOne, rowTwo].map(
+        (row) =>
+          row.length > 0 && (
+            <ul class="site-nav-list">
+              {row.map((item) => {
+                const active = isActive(item)
+                return (
+                  <li class="site-nav-item">
+                    <a
+                      href={item.href}
+                      data-category={item.categoryValue}
+                      class:list={navItemClasses(active)}
+                      target={item.openInNewTab ? '_blank' : undefined}
+                      rel={item.openInNewTab ? 'noopener noreferrer' : undefined}
+                    >
+                      {item.label}
+                    </a>
+                  </li>
+                )
+              })}
+            </ul>
+          ),
+      )
+    }
   </nav>
 
   <nav
@@ -259,7 +266,7 @@ function navItemClasses(active: boolean) {
 
   .site-nav-list {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     justify-content: center;
     list-style: none;
     margin: 0;
@@ -399,6 +406,9 @@ function navItemClasses(active: boolean) {
 
   .site-nav-desktop {
     display: none;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   .site-social-mobile {

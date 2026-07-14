@@ -92,3 +92,37 @@ export function buildNavigation(settings: SiteSettingsData, navPages?: CmsPage[]
 
   return [...categoryItems, ...staticItems]
 }
+
+function estimateNavItemWidth(label: string): number {
+  // Match Format menu item width at 20px Georgia (≈11px per char + horizontal padding).
+  return label.trim().toLowerCase().length * 11 + 50
+}
+
+export function splitNavigation(items: NavItem[]): { rowOne: NavItem[]; rowTwo: NavItem[] } {
+  if (items.length <= 5) {
+    return { rowOne: items, rowTwo: [] }
+  }
+
+  const widths = items.map((item) => estimateNavItemWidth(item.label))
+  const totalWidth = widths.reduce((sum, width) => sum + width, 0)
+  const targetWidth = totalWidth / 2
+
+  let rowOneWidth = 0
+  let splitIndex = Math.ceil(items.length / 2)
+
+  for (let index = 0; index < items.length - 1; index += 1) {
+    rowOneWidth += widths[index]
+
+    if (rowOneWidth >= targetWidth) {
+      splitIndex = index + 1
+      break
+    }
+
+    splitIndex = index + 1
+  }
+
+  return {
+    rowOne: items.slice(0, splitIndex),
+    rowTwo: items.slice(splitIndex),
+  }
+}
