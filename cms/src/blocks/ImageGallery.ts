@@ -16,7 +16,7 @@ export const ImageGalleryBlock: Block = {
       label: 'Bilder',
       admin: {
         description:
-          '„Choose from existing“ → Häkchen bei den Bildern setzen → unten „Select“ klicken. Reihenfolge per Drag & Drop.',
+          'Bilder hinzufügen: Auf „+“ oder das Dropdown klicken → Dateiname anklicken (jedes Bild einzeln). Reihenfolge per Drag & Drop. Nicht benutzte Dateien unter Media (Sidebar) löschen.',
         isSortable: true,
       },
     },

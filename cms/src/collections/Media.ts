@@ -11,6 +11,8 @@ export const Media: CollectionConfig = {
   admin: {
     useAsTitle: 'filename',
     defaultColumns: ['filename', 'alt', 'updatedAt'],
+    description:
+      'Alle hochgeladenen Dateien. Zum Löschen: Zeile anklicken → unten „Delete“ — oder mehrere markieren und „Delete“.',
   },
   access: {
     read: () => true,
