@@ -1,0 +1,83 @@
+.cms-rich-text {
+  font-size: 15px;
+  line-height: 1.8;
+  color: #000;
+}
+
+.cms-rich-text p {
+  margin: 0 0 1.25rem;
+}
+
+.cms-rich-text p:last-child {
+  margin-bottom: 0;
+}
+
+.cms-rich-text a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: opacity 0.15s ease;
+}
+
+.cms-rich-text a:hover {
+  opacity: 0.65;
+}
+
+.cms-rich-text strong {
+  font-weight: 600;
+}
+
+.cms-rich-text h1 {
+  margin: 0 0 0.75rem;
+  font-size: clamp(1.625rem, 3.5vw, 2.125rem);
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+.cms-rich-text h2 {
+  margin: 1.75rem 0 0.75rem;
+  font-size: clamp(1.375rem, 2.75vw, 1.75rem);
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.cms-rich-text h3 {
+  margin: 1.5rem 0 0.625rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.cms-rich-text h1:first-child,
+.cms-rich-text h2:first-child,
+.cms-rich-text h3:first-child {
+  margin-top: 0;
+}
+
+.cms-rich-text ul,
+.cms-rich-text ol {
+  margin: 0 0 1.25rem 1.35rem;
+  padding: 0;
+}
+
+.cms-rich-text li {
+  margin-bottom: 0.35rem;
+}
+
+.cms-rich-text li:last-child {
+  margin-bottom: 0;
+}
+
+.cms-rich-text blockquote {
+  margin: 0 0 1.25rem;
+  padding-left: 1rem;
+  border-left: 2px solid #d4d4d4;
+  color: #404040;
+}
+
+.cms-rich-text hr {
+  margin: 1.75rem 0;
+  border: 0;
+  border-top: 1px solid #e5e5e5;
+}

@@ -1,4 +1,4 @@
-import { lexicalEditor } from '@payloadcms/richtext-lexical'
+import { contentLexicalEditor } from '@/lib/contentLexicalEditor'
 import type { Block } from 'payload'
 
 export const RichTextBlock: Block = {
@@ -13,7 +13,7 @@ export const RichTextBlock: Block = {
       type: 'richText',
       required: true,
       label: 'Inhalt',
-      editor: lexicalEditor(),
+      editor: contentLexicalEditor,
     },
     {
       name: 'width',

@@ -32,7 +32,7 @@ const formId = `contact-form-${blockId}`
   {
     introHtml ? (
       <div
-        class="cms-rich-text mb-10 text-[15px] leading-relaxed text-black text-center md:text-left"
+        class="cms-rich-text mb-10 text-center md:text-left"
         set:html={introHtml}
       />
     ) : null
@@ -235,13 +235,5 @@ const formId = `contact-form-${blockId}`
   .contact-submit:disabled {
     opacity: 0.5;
     cursor: wait;
-  }
-
-  .cms-rich-text :global(p) {
-    margin: 0 0 1rem;
-  }
-
-  .cms-rich-text :global(p:last-child) {
-    margin-bottom: 0;
   }
 </style>

@@ -120,7 +120,7 @@ const sectionWidth = pageType === 'landing' ? 'max-w-[1400px]' : 'max-w-5xl'
         const html = lexicalToHtml(block.content)
         return (
           <section class={`py-4 mx-auto ${getWidthClass(block.width)}`}>
-            <div class="cms-rich-text text-[15px] leading-relaxed text-black" set:html={html} />
+            <div class="cms-rich-text" set:html={html} />
           </section>
         )
       }
@@ -131,8 +131,8 @@ const sectionWidth = pageType === 'landing' ? 'max-w-[1400px]' : 'max-w-5xl'
         const src = getMediaUrl(block.image)
 
         return (
-          <section class="py-8">
-            <div class={layout.container}>
+          <section class="py-10">
+            <div class={`${layout.container} md:gap-12`}>
               <div class={layout.image}>
                 {
                   src ? (
@@ -147,7 +147,7 @@ const sectionWidth = pageType === 'landing' ? 'max-w-[1400px]' : 'max-w-5xl'
                 }
               </div>
               <div class={layout.text}>
-                <div class="cms-rich-text text-[15px] leading-relaxed text-black" set:html={html} />
+                <div class="cms-rich-text" set:html={html} />
               </div>
             </div>
           </section>
@@ -339,28 +339,5 @@ const sectionWidth = pageType === 'landing' ? 'max-w-[1400px]' : 'max-w-5xl'
     max-width: 100vw;
     margin-left: calc(50% - 50vw);
     margin-right: calc(50% - 50vw);
-  }
-
-  .cms-rich-text :global(p) {
-    margin: 0 0 1rem;
-  }
-
-  .cms-rich-text :global(p:last-child) {
-    margin-bottom: 0;
-  }
-
-  .cms-rich-text :global(a) {
-    text-decoration: underline;
-  }
-
-  .cms-rich-text :global(h2),
-  .cms-rich-text :global(h3) {
-    margin: 1.5rem 0 0.75rem;
-    font-weight: 400;
-  }
-
-  .cms-rich-text :global(ul),
-  .cms-rich-text :global(ol) {
-    margin: 0 0 1rem 1.25rem;
   }
 </style>

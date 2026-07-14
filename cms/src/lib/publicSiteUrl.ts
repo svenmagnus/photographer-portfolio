@@ -11,6 +11,15 @@ function pickPreferredOrigin(origins: string[]): string | undefined {
   return https ?? normalized[0]
 }
 
+export function buildPageUrl(baseUrl: string, slug: string): string {
+  const base = normalizeOrigin(baseUrl)
+  const cleanSlug = slug.replace(/^\/+|\/+$/g, '')
+
+  if (!cleanSlug || cleanSlug === 'home') return base
+
+  return `${base}/${cleanSlug}`
+}
+
 export function getPublicSiteUrl(): string {
   const fromEnv =
     process.env.NEXT_PUBLIC_SITE_URL ||

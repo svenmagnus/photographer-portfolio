@@ -7,7 +7,24 @@ type LexicalNode = {
   url?: string
   newTab?: boolean
   listType?: 'bullet' | 'number'
+  fields?: LinkFields
   [key: string]: unknown
+}
+
+type LinkFields = {
+  url?: string
+  newTab?: boolean
+  linkType?: 'custom' | 'internal'
+  doc?: {
+    relationTo?: string
+    value?:
+      | number
+      | string
+      | {
+          slug?: string
+          id?: number | string
+        }
+  } | null
 }
 
 type LexicalContent = {
@@ -34,6 +51,52 @@ function wrapText(text: string, format: number): string {
   return result
 }
 
+function getLinkFields(node: LexicalNode): LinkFields {
+  if (node.fields && typeof node.fields === 'object') {
+    return node.fields
+  }
+
+  return {
+    url: typeof node.url === 'string' ? node.url : undefined,
+    newTab: Boolean(node.newTab),
+    linkType: 'custom',
+  }
+}
+
+function resolveInternalLinkHref(doc: LinkFields['doc']): string | null {
+  if (!doc?.value) return null
+
+  const value = doc.value
+
+  if (typeof value === 'object' && typeof value.slug === 'string' && value.slug.trim()) {
+    const slug = value.slug.trim()
+    return slug === 'home' ? '/' : `/${slug}`
+  }
+
+  return null
+}
+
+function getLinkHref(node: LexicalNode): string {
+  const fields = getLinkFields(node)
+
+  if (fields.linkType === 'internal') {
+    const internalHref = resolveInternalLinkHref(fields.doc)
+    if (internalHref) return internalHref
+  }
+
+  const href = fields.url ?? (typeof node.url === 'string' ? node.url : '')
+  return href.trim() || '#'
+}
+
+function renderLink(node: LexicalNode): string {
+  const fields = getLinkFields(node)
+  const href = escapeHtml(getLinkHref(node))
+  const openInNewTab = fields.newTab ?? Boolean(node.newTab)
+  const target = openInNewTab ? ' target="_blank" rel="noopener noreferrer"' : ''
+
+  return `<a href="${href}"${target}>${renderNodes(node.children)}</a>`
+}
+
 function renderNodes(nodes: LexicalNode[] | undefined): string {
   if (!nodes?.length) return ''
 
@@ -52,11 +115,9 @@ function renderNodes(nodes: LexicalNode[] | undefined): string {
           const tag = typeof node.tag === 'string' ? node.tag : 'h2'
           return `<${tag}>${renderNodes(node.children)}</${tag}>`
         }
-        case 'link': {
-          const href = escapeHtml(String(node.url || '#'))
-          const target = node.newTab ? ' target="_blank" rel="noopener noreferrer"' : ''
-          return `<a href="${href}"${target}>${renderNodes(node.children)}</a>`
-        }
+        case 'link':
+        case 'autolink':
+          return renderLink(node)
         case 'list': {
           const tag = node.listType === 'number' ? 'ol' : 'ul'
           return `<${tag}>${renderNodes(node.children)}</${tag}>`

@@ -1,4 +1,4 @@
-import { lexicalEditor } from '@payloadcms/richtext-lexical'
+import { contentLexicalEditor } from '@/lib/contentLexicalEditor'
 import type { Block } from 'payload'
 
 export const ContactFormBlock: Block = {
@@ -15,7 +15,7 @@ export const ContactFormBlock: Block = {
       admin: {
         description: 'Optionaler Text über dem Formular, z. B. Verfügbarkeit oder Anfrage-Hinweis.',
       },
-      editor: lexicalEditor(),
+      editor: contentLexicalEditor,
     },
     {
       name: 'showPhone',
