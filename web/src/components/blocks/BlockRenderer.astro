@@ -46,12 +46,12 @@ function getSpacerClass(size?: string | null): string {
 function getGalleryCols(columns?: string | null): string {
   switch (columns) {
     case '2':
-      return 'grid-cols-1 sm:grid-cols-2'
+      return 'content-gallery-grid content-gallery-grid--max-2'
     case '3':
-      return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+      return 'content-gallery-grid content-gallery-grid--max-3'
     case '4':
     default:
-      return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'
+      return 'content-gallery-grid'
   }
 }
 
@@ -160,7 +160,7 @@ const sectionWidth = pageType === 'landing' ? 'max-w-[1400px]' : 'max-w-5xl'
         return (
           <section class={`py-4 ${fullWidth ? 'gallery-full-bleed' : ''}`}>
             <div
-              class={`grid gap-[2px] ${getGalleryCols(block.columns)}`}
+              class={getGalleryCols(block.columns)}
               data-lightbox-group={galleryId}
             >
               {
