@@ -42,6 +42,7 @@ const buttonStyle: React.CSSProperties = {
 
 const primaryButtonStyle: React.CSSProperties = {
   ...buttonStyle,
+  padding: '0.65rem 1.15rem',
   background: 'var(--theme-success-500)',
   borderColor: 'var(--theme-success-500)',
   color: '#fff',
@@ -467,7 +468,7 @@ export function MenuBuilder() {
         </section>
       </div>
 
-      <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', marginTop: '1rem' }}>
+      <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', marginTop: '0.35rem' }}>
         <button type="button" style={primaryButtonStyle} onClick={() => void handleSave()} disabled={isSaving}>
           {isSaving ? 'Speichern …' : 'Menü speichern'}
         </button>
