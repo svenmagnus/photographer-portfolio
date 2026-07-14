@@ -41,21 +41,19 @@ function formatPostDate(value?: string | null): string | null {
 
             return (
               <li class="blog-post-card">
-                <a href={postUrl} class="blog-post-image-link">
-                  {
-                    imageUrl ? (
+                {
+                  imageUrl ? (
+                    <a href={postUrl} class="blog-post-image-link">
                       <img
                         src={imageUrl}
-                          alt={listImage?.alt || post.title}
+                        alt={listImage?.alt || post.title}
                         loading="lazy"
                         decoding="async"
                         class="blog-post-image"
                       />
-                    ) : (
-                      <div class="blog-post-image blog-post-image--placeholder" aria-hidden="true" />
-                    )
-                  }
-                </a>
+                    </a>
+                  ) : null
+                }
 
                 <div class="blog-post-body">
                   <h2 class="blog-post-title">
@@ -125,11 +123,6 @@ function formatPostDate(value?: string | null): string | null {
     width: 100%;
     aspect-ratio: 16 / 10;
     object-fit: cover;
-    background: #f0f0f0;
-  }
-
-  .blog-post-image--placeholder {
-    background: linear-gradient(135deg, #efefef 0%, #e2e2e2 100%);
   }
 
   .blog-post-body {
