@@ -60,13 +60,28 @@ export function getFirstMediaFromLexical(
   return collectMediaFromLexical(content)[0] ?? null
 }
 
+export function normalizeFeaturedImages(
+  featuredImage?: Media | Media[] | number | number[] | null,
+): Media[] {
+  if (!featuredImage) return []
+
+  if (Array.isArray(featuredImage)) {
+    return featuredImage.filter((item): item is Media => typeof item === 'object' && item !== null)
+  }
+
+  if (typeof featuredImage === 'object') {
+    return [featuredImage]
+  }
+
+  return []
+}
+
 export function getBlogPostListImage(post: {
-  featuredImage?: Media | number | null
+  featuredImage?: Media | Media[] | number | number[] | null
   content: Record<string, unknown>
 }): Media | null {
-  if (post.featuredImage && typeof post.featuredImage === 'object') {
-    return post.featuredImage
-  }
+  const featured = normalizeFeaturedImages(post.featuredImage)[0]
+  if (featured) return featured
 
   return getFirstMediaFromLexical(post.content)
 }

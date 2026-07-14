@@ -8,7 +8,7 @@ export interface BlogPost {
   content: Record<string, unknown>
   status: 'draft' | 'published'
   publishedAt?: string | null
-  featuredImage?: Media | number | null
+  featuredImage?: Media | Media[] | number | number[] | null
   metaTitle?: string | null
   metaDescription?: string | null
   blogPage?: {

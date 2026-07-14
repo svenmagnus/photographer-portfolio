@@ -10,7 +10,7 @@ export const BlogPosts: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'title',
-    defaultColumns: ['featuredImage', 'title', 'blogPage', 'status', 'publishedAt', 'updatedAt'],
+    defaultColumns: ['title', 'featuredImage', 'blogPage', 'status', 'publishedAt', 'updatedAt'],
     description: 'Beiträge für Blog-Seiten wie Film Editor — erscheinen als Liste auf der Blog-Seite.',
   },
   access: {
@@ -29,6 +29,18 @@ export const BlogPosts: CollectionConfig = {
       type: 'text',
       required: true,
       label: 'Titel',
+    },
+    {
+      name: 'featuredImage',
+      type: 'upload',
+      relationTo: 'media',
+      hasMany: true,
+      label: 'Beitragsbilder',
+      admin: {
+        isSortable: true,
+        description:
+          'Mehrere Bilder möglich. Das erste erscheint in der Blog-Liste; alle werden oben im Artikel angezeigt.',
+      },
     },
     {
       name: 'slug',
@@ -79,15 +91,6 @@ export const BlogPosts: CollectionConfig = {
         date: {
           pickerAppearance: 'dayAndTime',
         },
-      },
-    },
-    {
-      name: 'featuredImage',
-      type: 'upload',
-      relationTo: 'media',
-      label: 'Beitragsbild',
-      admin: {
-        description: 'Wird in der Blog-Liste und oben im Artikel angezeigt. Alternativ: Bilder im Inhalt einfügen.',
       },
     },
     {

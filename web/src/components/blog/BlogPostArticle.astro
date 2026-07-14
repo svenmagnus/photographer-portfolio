@@ -1,5 +1,6 @@
 ---
 import type { BlogPost } from '../../lib/blogPosts'
+import { normalizeFeaturedImages } from '../../lib/blogPostMedia'
 import { lexicalToHtml } from '../../lib/lexicalToHtml'
 import { getMediaUrl } from '../../lib/photoLoader'
 
@@ -11,9 +12,7 @@ interface Props {
 
 const { post, blogSlug, blogTitle } = Astro.props
 
-const image =
-  post.featuredImage && typeof post.featuredImage === 'object' ? post.featuredImage : null
-const imageUrl = getMediaUrl(image)
+const heroImages = normalizeFeaturedImages(post.featuredImage)
 const html = lexicalToHtml(post.content)
 ---
 
@@ -26,10 +25,21 @@ const html = lexicalToHtml(post.content)
   </header>
 
   {
-    imageUrl ? (
-      <figure class="blog-article-hero">
-        <img src={imageUrl} alt={image?.alt || post.title} loading="eager" decoding="async" />
-      </figure>
+    heroImages.length > 0 ? (
+      <div class="blog-article-heroes">
+        {
+          heroImages.map((image) => {
+            const imageUrl = getMediaUrl(image)
+            if (!imageUrl) return null
+
+            return (
+              <figure class="blog-article-hero">
+                <img src={imageUrl} alt={image.alt || post.title} loading="eager" decoding="async" />
+              </figure>
+            )
+          })
+        }
+      </div>
     ) : null
   }
 
@@ -67,8 +77,14 @@ const html = lexicalToHtml(post.content)
     color: #000;
   }
 
-  .blog-article-hero {
+  .blog-article-heroes {
     margin: 2rem 0 0;
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  .blog-article-hero {
+    margin: 0;
   }
 
   .blog-article-hero img {
