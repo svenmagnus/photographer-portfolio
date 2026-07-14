@@ -19,6 +19,14 @@ const panelStyle: React.CSSProperties = {
   border: '1px solid var(--theme-elevation-250)',
   borderRadius: '4px',
   background: 'var(--theme-elevation-0)',
+}
+
+const leftPanelStyle: React.CSSProperties = {
+  ...panelStyle,
+}
+
+const rightPanelStyle: React.CSSProperties = {
+  ...panelStyle,
   minHeight: '420px',
 }
 
@@ -386,62 +394,72 @@ export function MenuBuilder() {
           alignItems: 'start',
         }}
       >
-        <section style={panelStyle}>
-          <div style={panelHeaderStyle}>Seiten hinzufügen</div>
-          <div style={panelBodyStyle}>
-            <input
-              type="search"
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Seiten suchen …"
-              style={{
-                width: '100%',
-                marginBottom: '0.75rem',
-                padding: '0.55rem 0.65rem',
-                border: '1px solid var(--theme-elevation-250)',
-                borderRadius: '4px',
-              }}
-            />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          <section style={leftPanelStyle}>
+            <div style={panelHeaderStyle}>Seiten hinzufügen</div>
+            <div style={panelBodyStyle}>
+              <input
+                type="search"
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder="Seiten suchen …"
+                style={{
+                  width: '100%',
+                  marginBottom: '0.75rem',
+                  padding: '0.55rem 0.65rem',
+                  border: '1px solid var(--theme-elevation-250)',
+                  borderRadius: '4px',
+                }}
+              />
 
-            <div style={{ maxHeight: '420px', overflowY: 'auto', marginBottom: '0.75rem' }}>
-              {availablePages.length === 0 ? (
-                <p style={{ opacity: 0.7, margin: 0 }}>Keine weiteren Seiten verfügbar.</p>
-              ) : (
-                availablePages.map((page) => (
-                  <label
-                    key={String(page.id)}
-                    style={{
-                      display: 'flex',
-                      gap: '0.65rem',
-                      alignItems: 'flex-start',
-                      padding: '0.45rem 0',
-                      borderBottom: '1px solid var(--theme-elevation-100)',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={selectedPageIds.has(String(page.id))}
-                      onChange={() => togglePageSelection(page.id)}
-                    />
-                    <span>
-                      <strong>{page.title}</strong>
-                      <div style={{ fontSize: '0.85rem', opacity: 0.7 }}>
-                        {page.pageType === 'gallery' ? 'Galerie' : 'Seite'} · /{page.slug}
-                      </div>
-                    </span>
-                  </label>
-                ))
-              )}
+              <div style={{ maxHeight: '420px', overflowY: 'auto', marginBottom: '0.75rem' }}>
+                {availablePages.length === 0 ? (
+                  <p style={{ opacity: 0.7, margin: 0 }}>Keine weiteren Seiten verfügbar.</p>
+                ) : (
+                  availablePages.map((page) => (
+                    <label
+                      key={String(page.id)}
+                      style={{
+                        display: 'flex',
+                        gap: '0.65rem',
+                        alignItems: 'flex-start',
+                        padding: '0.45rem 0',
+                        borderBottom: '1px solid var(--theme-elevation-100)',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedPageIds.has(String(page.id))}
+                        onChange={() => togglePageSelection(page.id)}
+                      />
+                      <span>
+                        <strong>{page.title}</strong>
+                        <div style={{ fontSize: '0.85rem', opacity: 0.7 }}>
+                          {page.pageType === 'gallery' ? 'Galerie' : 'Seite'} · /{page.slug}
+                        </div>
+                      </span>
+                    </label>
+                  ))
+                )}
+              </div>
+
+              <button type="button" style={buttonStyle} onClick={addSelectedPages} disabled={selectedPageIds.size === 0}>
+                Zum Menü hinzufügen
+              </button>
             </div>
+          </section>
 
-            <button type="button" style={buttonStyle} onClick={addSelectedPages} disabled={selectedPageIds.size === 0}>
-              Zum Menü hinzufügen
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'flex-start' }}>
+            <button type="button" style={primaryButtonStyle} onClick={() => void handleSave()} disabled={isSaving}>
+              {isSaving ? 'Speichern …' : 'Menü speichern'}
             </button>
+            {message && <span style={{ color: 'var(--theme-success-500)' }}>{message}</span>}
+            {error && <span style={{ color: 'var(--theme-error-500)' }}>{error}</span>}
           </div>
-        </section>
+        </div>
 
-        <section style={panelStyle}>
+        <section style={rightPanelStyle}>
           <div style={panelHeaderStyle}>Menü-Struktur</div>
           <div style={panelBodyStyle}>
             {menuItems.length === 0 ? (
@@ -466,14 +484,6 @@ export function MenuBuilder() {
             )}
           </div>
         </section>
-      </div>
-
-      <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', marginTop: '0.35rem' }}>
-        <button type="button" style={primaryButtonStyle} onClick={() => void handleSave()} disabled={isSaving}>
-          {isSaving ? 'Speichern …' : 'Menü speichern'}
-        </button>
-        {message && <span style={{ color: 'var(--theme-success-500)' }}>{message}</span>}
-        {error && <span style={{ color: 'var(--theme-error-500)' }}>{error}</span>}
       </div>
     </div>
   )
