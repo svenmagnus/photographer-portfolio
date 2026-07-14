@@ -1,5 +1,6 @@
 ---
 import type { BlogPost } from '../../lib/blogPosts'
+import { getBlogPostIntro } from '../../lib/blogPostIntro'
 import { getMediaUrl } from '../../lib/photoLoader'
 
 interface Props {
@@ -31,35 +32,47 @@ function formatPostDate(value?: string | null): string | null {
       <ul class="blog-post-rows">
         {
           posts.map((post) => {
+            const postUrl = `/${blogSlug}/${post.slug}`
             const image =
               post.featuredImage && typeof post.featuredImage === 'object'
                 ? post.featuredImage
                 : null
             const imageUrl = getMediaUrl(image)
             const dateLabel = formatPostDate(post.publishedAt)
+            const { intro, showReadMore } = getBlogPostIntro(post)
 
             return (
-              <li>
-                <a href={`/${blogSlug}/${post.slug}`} class="blog-post-row">
+              <li class="blog-post-card">
+                <a href={postUrl} class="blog-post-image-link">
                   {
                     imageUrl ? (
-                      <div class="blog-post-thumb-wrap">
-                        <img
-                          src={imageUrl}
-                          alt={image?.alt || post.title}
-                          loading="lazy"
-                          decoding="async"
-                          class="blog-post-thumb"
-                        />
-                      </div>
+                      <img
+                        src={imageUrl}
+                        alt={image?.alt || post.title}
+                        loading="lazy"
+                        decoding="async"
+                        class="blog-post-image"
+                      />
+                    ) : (
+                      <div class="blog-post-image blog-post-image--placeholder" aria-hidden="true" />
+                    )
+                  }
+                </a>
+
+                <div class="blog-post-body">
+                  <h2 class="blog-post-title">
+                    <a href={postUrl}>{post.title}</a>
+                  </h2>
+                  {dateLabel ? <p class="blog-post-date">{dateLabel}</p> : null}
+                  {intro ? <p class="blog-post-intro">{intro}</p> : null}
+                  {
+                    showReadMore ? (
+                      <a href={postUrl} class="blog-post-read-more">
+                        Weiterlesen …
+                      </a>
                     ) : null
                   }
-                  <div class="blog-post-copy">
-                    <h2 class="blog-post-title">{post.title}</h2>
-                    {dateLabel ? <p class="blog-post-date">{dateLabel}</p> : null}
-                    {post.excerpt ? <p class="blog-post-excerpt">{post.excerpt}</p> : null}
-                  </div>
-                </a>
+                </div>
               </li>
             )
           })
@@ -72,7 +85,7 @@ function formatPostDate(value?: string | null): string | null {
 <style>
   .blog-post-list {
     width: 100%;
-    max-width: 960px;
+    max-width: 760px;
     margin: 0 auto;
     padding: 2rem 0 4rem;
   }
@@ -91,70 +104,83 @@ function formatPostDate(value?: string | null): string | null {
     padding: 0;
   }
 
-  .blog-post-row {
-    display: flex;
-    gap: 1.25rem;
-    align-items: flex-start;
-    padding: 1.25rem 0;
+  .blog-post-card {
+    margin: 0 0 3rem;
+    padding: 0 0 3rem;
     border-bottom: 1px solid #e8e8e8;
+  }
+
+  .blog-post-card:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+  }
+
+  .blog-post-image-link {
+    display: block;
+    margin-bottom: 1.25rem;
     text-decoration: none;
-    color: inherit;
-    transition: opacity 0.15s ease;
   }
 
-  .blog-post-row:hover {
-    opacity: 0.65;
-  }
-
-  .blog-post-thumb-wrap {
-    flex-shrink: 0;
-    width: 140px;
-  }
-
-  .blog-post-thumb {
+  .blog-post-image {
     display: block;
     width: 100%;
     aspect-ratio: 16 / 10;
     object-fit: cover;
-    background: #f3f3f3;
+    background: #f0f0f0;
   }
 
-  .blog-post-copy {
-    min-width: 0;
-    flex: 1;
-    padding-top: 0.1rem;
+  .blog-post-image--placeholder {
+    background: linear-gradient(135deg, #efefef 0%, #e2e2e2 100%);
+  }
+
+  .blog-post-body {
+    font-family: Georgia, 'Times New Roman', serif;
   }
 
   .blog-post-title {
     margin: 0;
-    font-family: Georgia, 'Times New Roman', serif;
-    font-size: clamp(1.125rem, 2.2vw, 1.375rem);
+    font-size: clamp(1.25rem, 2.5vw, 1.5rem);
     font-weight: 400;
     line-height: 1.35;
+  }
+
+  .blog-post-title a {
     color: #000;
+    text-decoration: none;
+  }
+
+  .blog-post-title a:hover {
+    opacity: 0.65;
   }
 
   .blog-post-date {
-    margin: 0.35rem 0 0;
+    margin: 0.45rem 0 0;
     font-size: 13px;
     line-height: 1.4;
     color: #888;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   }
 
-  .blog-post-excerpt {
-    margin: 0.5rem 0 0;
+  .blog-post-intro {
+    margin: 1rem 0 0;
+    font-size: 15px;
+    line-height: 1.75;
+    color: #333;
+  }
+
+  .blog-post-read-more {
+    display: inline-block;
+    margin-top: 0.85rem;
     font-size: 14px;
-    line-height: 1.55;
-    color: #666;
+    line-height: 1.4;
+    color: #000;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   }
 
-  @media (max-width: 639px) {
-    .blog-post-thumb-wrap {
-      width: 96px;
-    }
-
-    .blog-post-row {
-      gap: 0.85rem;
-    }
+  .blog-post-read-more:hover {
+    opacity: 0.65;
   }
 </style>
