@@ -10,6 +10,7 @@ import { fileURLToPath } from 'url'
 import sharp from 'sharp'
 
 import { Media } from './collections/Media'
+import { Pages } from './collections/Pages'
 import { Photos } from './collections/Photos'
 import { Users } from './collections/Users'
 import { SiteSettings } from './globals/SiteSettings'
@@ -107,7 +108,7 @@ export default buildConfig({
       afterNavLinks: ['/components/AdminLogoutLink#AdminLogoutLink'],
     },
   },
-  collections: [Users, Media, Photos],
+  collections: [Users, Media, Photos, Pages],
   globals: [SiteSettings],
   cors: trustedOrigins,
   csrf: trustedOrigins,
@@ -121,7 +122,9 @@ export default buildConfig({
         pool: {
           connectionString: postgresConnectionString,
         },
+        blocksAsJSON: true,
         prodMigrations: migrations,
+        push: isVercel,
       })
     : sqliteAdapter({
         client: {

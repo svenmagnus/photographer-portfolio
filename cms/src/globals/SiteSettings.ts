@@ -1,5 +1,7 @@
 import type { GlobalConfig } from 'payload'
 
+import { PHOTO_CATEGORIES } from '@/collections/Photos'
+
 export const SiteSettings: GlobalConfig = {
   slug: 'site-settings',
   label: 'Domain & Kontakt',
@@ -112,7 +114,7 @@ export const SiteSettings: GlobalConfig = {
               type: 'email',
               label: 'Professionelle E-Mail',
               admin: {
-                description: 'z. B. mail@svenmagnus.com — Einrichtung erfolgt bei Strato/Google Workspace.',
+                description: 'z. B. info@svenmagnus.com — Einrichtung erfolgt bei Strato/Google Workspace.',
               },
             },
             {
@@ -129,6 +131,74 @@ export const SiteSettings: GlobalConfig = {
               name: 'emailNotes',
               type: 'textarea',
               label: 'Notizen zur E-Mail-Einrichtung',
+            },
+          ],
+        },
+        {
+          label: 'Navigation',
+          fields: [
+            {
+              name: 'navigation',
+              type: 'array',
+              label: 'Hauptmenü',
+              admin: {
+                description:
+                  'Reihenfolge und Einträge der Website-Navigation — analog zu Format „Pages → In Menu“. Leer lassen = Standard-Kategorien.',
+                initCollapsed: false,
+              },
+              fields: [
+                {
+                  name: 'label',
+                  type: 'text',
+                  required: true,
+                  label: 'Anzeigename',
+                },
+                {
+                  name: 'linkType',
+                  type: 'select',
+                  required: true,
+                  defaultValue: 'category',
+                  label: 'Link-Typ',
+                  options: [
+                    { label: 'Galerie-Kategorie', value: 'category' },
+                    { label: 'CMS-Seite', value: 'page' },
+                    { label: 'Externer Link', value: 'external' },
+                  ],
+                },
+                {
+                  name: 'category',
+                  type: 'select',
+                  label: 'Kategorie',
+                  options: [...PHOTO_CATEGORIES],
+                  admin: {
+                    condition: (_, siblingData) => siblingData?.linkType === 'category',
+                  },
+                },
+                {
+                  name: 'page',
+                  type: 'relationship',
+                  relationTo: 'pages',
+                  label: 'Seite',
+                  admin: {
+                    condition: (_, siblingData) => siblingData?.linkType === 'page',
+                  },
+                },
+                {
+                  name: 'url',
+                  type: 'text',
+                  label: 'URL',
+                  admin: {
+                    condition: (_, siblingData) => siblingData?.linkType === 'external',
+                    description: 'Vollständige URL oder Pfad, z. B. /store',
+                  },
+                },
+                {
+                  name: 'openInNewTab',
+                  type: 'checkbox',
+                  defaultValue: false,
+                  label: 'In neuem Tab öffnen',
+                },
+              ],
             },
           ],
         },
