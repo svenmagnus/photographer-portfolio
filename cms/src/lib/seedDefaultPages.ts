@@ -74,6 +74,16 @@ const DEFAULT_PAGES = [
 ] as const
 
 export async function seedDefaultPages(payload: Payload): Promise<void> {
+  try {
+    await seedDefaultPagesInner(payload)
+  } catch (error) {
+    payload.logger.error(
+      `Default pages seed skipped: ${error instanceof Error ? error.message : String(error)}`,
+    )
+  }
+}
+
+async function seedDefaultPagesInner(payload: Payload): Promise<void> {
   for (const page of DEFAULT_PAGES) {
     const existing = await payload.find({
       collection: 'pages',
