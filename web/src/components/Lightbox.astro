@@ -21,7 +21,7 @@
     tabindex="-1"
   />
 
-  <figure class="pointer-events-none absolute inset-0 z-[1] flex items-center justify-center p-0">
+  <figure class="pointer-events-none absolute inset-0 z-[1] flex items-center justify-center p-4 md:p-8">
     <img
       id="lightbox-image"
       src=""
@@ -42,24 +42,22 @@
 <script>
   function initLightbox() {
     const lightbox = document.getElementById('lightbox')
-    const image = document.getElementById('lightbox-image') as HTMLImageElement | null
+    const image = document.getElementById('lightbox-image')
     const backdrop = document.getElementById('lightbox-backdrop')
     const prevBtn = document.getElementById('lightbox-prev')
     const nextBtn = document.getElementById('lightbox-next')
-    const grid = document.getElementById('photo-grid')
 
-    if (!lightbox || !image || !grid) return
+    if (!lightbox || !image) return
 
-    let visibleItems: HTMLButtonElement[] = []
+    let activeItems = []
     let currentIndex = 0
 
-    function getVisibleItems() {
-      return Array.from(grid.querySelectorAll<HTMLButtonElement>('.photo-item')).filter(
-        (item) => item.style.display !== 'none',
-      )
+    function getItemsInGroup(group) {
+      if (!group) return []
+      return Array.from(group.querySelectorAll('.lightbox-item'))
     }
 
-    function setHash(index: number) {
+    function setHash(index) {
       const nextHash = `#e-${index + 1}`
       if (window.location.hash !== nextHash) {
         history.replaceState(null, '', nextHash)
@@ -72,12 +70,11 @@
       }
     }
 
-    function open(index: number) {
-      visibleItems = getVisibleItems()
-      if (!visibleItems.length) return
+    function open(index) {
+      if (!activeItems.length) return
 
       currentIndex = index
-      const item = visibleItems[currentIndex]
+      const item = activeItems[currentIndex]
       const full = item.dataset.full
       const title = item.dataset.title || ''
 
@@ -95,14 +92,16 @@
       lightbox.hidden = true
       lightbox.classList.add('hidden')
       image.src = ''
+      image.alt = ''
       document.body.style.overflow = ''
       clearHash()
+      activeItems = []
     }
 
-    function show(delta: number) {
-      if (!visibleItems.length) return
-      currentIndex = (currentIndex + delta + visibleItems.length) % visibleItems.length
-      const item = visibleItems[currentIndex]
+    function show(delta) {
+      if (!activeItems.length) return
+      currentIndex = (currentIndex + delta + activeItems.length) % activeItems.length
+      const item = activeItems[currentIndex]
       image.src = item.dataset.full || ''
       image.alt = item.dataset.title || ''
       setHash(currentIndex)
@@ -112,47 +111,57 @@
       const match = window.location.hash.match(/^#e-(\d+)$/)
       if (!match) return
 
-      visibleItems = getVisibleItems()
-      const index = Number.parseInt(match[1], 10) - 1
-      if (index >= 0 && index < visibleItems.length) {
-        open(index)
+      const groups = document.querySelectorAll('[data-lightbox-group]')
+      for (const group of groups) {
+        const items = getItemsInGroup(group)
+        const index = Number.parseInt(match[1], 10) - 1
+        if (index >= 0 && index < items.length) {
+          activeItems = items
+          open(index)
+          return
+        }
       }
     }
 
-    grid.addEventListener('click', (event) => {
-      const target = (event.target as HTMLElement).closest<HTMLButtonElement>('.photo-item')
-      if (!target) return
+    if (!window.__lightboxBound) {
+      window.__lightboxBound = true
 
-      visibleItems = getVisibleItems()
-      const index = visibleItems.indexOf(target)
-      if (index >= 0) open(index)
-    })
+      document.addEventListener('click', (event) => {
+        const target = event.target.closest('.lightbox-item')
+        if (!target) return
 
-    backdrop?.addEventListener('click', close)
-    prevBtn?.addEventListener('click', (event) => {
-      event.stopPropagation()
-      show(-1)
-    })
-    nextBtn?.addEventListener('click', (event) => {
-      event.stopPropagation()
-      show(1)
-    })
+        const group = target.closest('[data-lightbox-group]')
+        activeItems = getItemsInGroup(group)
+        const index = activeItems.indexOf(target)
+        if (index >= 0) open(index)
+      })
 
-    document.addEventListener('keydown', (event) => {
-      if (lightbox.hidden) return
+      backdrop?.addEventListener('click', close)
+      prevBtn?.addEventListener('click', (event) => {
+        event.stopPropagation()
+        show(-1)
+      })
+      nextBtn?.addEventListener('click', (event) => {
+        event.stopPropagation()
+        show(1)
+      })
 
-      if (event.key === 'Escape') close()
-      if (event.key === 'ArrowLeft') show(-1)
-      if (event.key === 'ArrowRight') show(1)
-    })
+      document.addEventListener('keydown', (event) => {
+        if (lightbox.hidden) return
 
-    window.addEventListener('hashchange', () => {
-      if (window.location.hash.startsWith('#e-')) {
-        openFromHash()
-      } else if (!lightbox.hidden) {
-        close()
-      }
-    })
+        if (event.key === 'Escape') close()
+        if (event.key === 'ArrowLeft') show(-1)
+        if (event.key === 'ArrowRight') show(1)
+      })
+
+      window.addEventListener('hashchange', () => {
+        if (window.location.hash.startsWith('#e-')) {
+          openFromHash()
+        } else if (!lightbox.hidden) {
+          close()
+        }
+      })
+    }
 
     openFromHash()
   }

@@ -1,7 +1,7 @@
 ---
 import type { PageBlock } from '../../lib/pages'
 import { lexicalToHtml } from '../../lib/lexicalToHtml'
-import { getMediaUrl, type Media } from '../../lib/photoLoader'
+import { getMediaUrl, getFullMediaUrl, type Media } from '../../lib/photoLoader'
 import type { SiteSettingsData } from '../../lib/siteSettings'
 import { getVideoEmbedUrl, getAspectRatioClass } from '../../lib/videoEmbed'
 import CategoryPhotoGrid from './CategoryPhotoGrid.astro'
@@ -139,27 +139,41 @@ const sectionWidth = pageType === 'landing' ? 'max-w-[1400px]' : 'max-w-5xl'
 
       if (block.blockType === 'imageGallery' && block.images?.length) {
         const fullWidth = block.fullWidth !== false
+        const galleryId = `gallery-${index}`
         return (
           <section class={`py-4 ${fullWidth ? 'gallery-full-bleed' : ''}`}>
-            <div class={`grid gap-[2px] ${getGalleryCols(block.columns)}`}>
+            <div
+              class={`grid gap-[2px] ${getGalleryCols(block.columns)}`}
+              data-lightbox-group={galleryId}
+            >
               {
                 block.images.map((entry) => {
                   const media = isMedia(entry.image) ? entry.image : null
                   const src = getMediaUrl(media)
+                  const fullSrc = getFullMediaUrl(media)
                   if (!src) return null
+                  const alt = media?.alt || entry.caption || ''
 
                   return (
                     <figure class="relative overflow-hidden bg-neutral-100">
-                      <img
-                        src={src}
-                        alt={media?.alt || entry.caption || ''}
-                        loading="lazy"
-                        decoding="async"
-                        class:list={[
-                          'block w-full',
-                          fullWidth ? 'h-auto object-contain' : 'h-full object-cover',
-                        ]}
-                      />
+                      <button
+                        type="button"
+                        class="lightbox-item block w-full cursor-zoom-in border-0 bg-transparent p-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-black/30"
+                        data-full={fullSrc || src}
+                        data-title={alt}
+                        aria-label={`${alt} vergrößern`}
+                      >
+                        <img
+                          src={src}
+                          alt={alt}
+                          loading="lazy"
+                          decoding="async"
+                          class:list={[
+                            'block w-full pointer-events-none',
+                            fullWidth ? 'h-auto object-contain' : 'h-full object-cover',
+                          ]}
+                        />
+                      </button>
                       {
                         entry.caption ? (
                           <figcaption class="px-2 py-2 text-[11px] text-portfolio-muted text-center">

@@ -45,6 +45,30 @@ function resolveMediaUrl(url?: string | null): string {
   return `${payloadUrl}${url.startsWith('/') ? url : `/${url}`}`
 }
 
+export function getFullMediaUrl(media: Media | string | null | undefined): string {
+  if (!media) return ''
+  if (typeof media === 'string') return resolveMediaUrl(media)
+
+  const candidates = [
+    media.url,
+    media.sizes?.fullscreen?.url,
+    media.sizes?.grid?.url,
+    media.sizes?.thumbnail?.url,
+  ]
+
+  const directBlobUrl = candidates.find(
+    (candidate) => candidate && candidate.includes('.blob.vercel-storage.com/'),
+  )
+  if (directBlobUrl) return resolveMediaUrl(directBlobUrl)
+
+  for (const candidate of candidates) {
+    const resolved = resolveMediaUrl(candidate)
+    if (resolved) return resolved
+  }
+
+  return ''
+}
+
 export function getMediaUrl(
   media: Media | string | null | undefined,
   size?: 'thumbnail' | 'grid' | 'fullscreen',
@@ -102,7 +126,7 @@ export function renderPhotoGrid(container: HTMLElement, photos: Photo[]): void {
     .map((photo, index) => {
       const media = typeof photo.image === 'object' ? photo.image : null
       const gridUrl = getMediaUrl(media)
-      const fullUrl = getMediaUrl(media)
+      const fullUrl = getFullMediaUrl(media)
       const alt = media?.alt || photo.title
       const isPortrait =
         media?.height && media?.width ? media.height > media.width * 1.15 : false
@@ -113,7 +137,7 @@ export function renderPhotoGrid(container: HTMLElement, photos: Photo[]): void {
         ? `<img src="${escapeHtml(gridUrl)}" alt="${escapeHtml(alt)}" loading="lazy" decoding="async" class="absolute inset-0 h-full w-full object-cover" />`
         : `<div class="flex h-full min-h-[140px] items-center justify-center text-[13px] text-portfolio-muted">Kein Bild</div>`
 
-      return `<button type="button" class="photo-item relative block h-full min-h-0 w-full overflow-hidden bg-white p-0 border-0 cursor-pointer focus:outline-none ${rowClass}" data-index="${index}" data-full="${escapeHtml(fullUrl)}" data-title="${escapeHtml(photo.title)}" data-category="${escapeHtml(photo.category)}" aria-label="${escapeHtml(`${photo.title} öffnen`)}">${imageMarkup}</button>`
+      return `<button type="button" class="lightbox-item photo-item relative block h-full min-h-0 w-full overflow-hidden bg-white p-0 border-0 cursor-pointer focus:outline-none ${rowClass}" data-index="${index}" data-full="${escapeHtml(fullUrl)}" data-title="${escapeHtml(photo.title)}" data-category="${escapeHtml(photo.category)}" aria-label="${escapeHtml(`${photo.title} öffnen`)}">${imageMarkup}</button>`
     })
     .join('')
 }
