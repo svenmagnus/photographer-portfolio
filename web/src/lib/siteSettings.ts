@@ -41,8 +41,7 @@ export async function fetchSiteSettings(): Promise<SiteSettingsData> {
   }
 }
 
-export function getAdminLoginUrl(settings: SiteSettingsData): string {
-  const isDev = import.meta.env.DEV
-  const cmsUrl = (isDev ? payloadUrl : settings.cmsUrl || payloadUrl).replace(/\/$/, '')
-  return `${cmsUrl}/admin`
+export function getAdminLoginUrl(_settings: SiteSettingsData): string {
+  // Always use PUBLIC_PAYLOAD_URL — cms.svenmagnus.com may not have valid SSL yet.
+  return `${payloadUrl}/admin`
 }

@@ -49,16 +49,11 @@ export function getMediaUrl(
   if (!media) return ''
   if (typeof media === 'string') return resolveMediaUrl(media)
 
-  if (size) {
-    const sized = media.sizes?.[size]?.url
-    if (sized) return resolveMediaUrl(sized)
-  }
-
   const fallbacks = [
-    media.sizes?.grid?.url,
-    media.sizes?.fullscreen?.url,
-    media.sizes?.thumbnail?.url,
     media.url,
+    media.sizes?.grid?.url,
+    media.sizes?.thumbnail?.url,
+    media.sizes?.fullscreen?.url,
   ]
 
   for (const candidate of fallbacks) {

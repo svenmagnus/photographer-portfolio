@@ -35,7 +35,8 @@ Vercel setzt `DATABASE_URL` automatisch.
 | `PAYLOAD_SECRET` | z. B. Ausgabe von `openssl rand -base64 32` | **Ja** |
 | `DATABASE_URL` | *(automatisch von Vercel Postgres/Neon)* | **Ja** |
 | `PAYLOAD_PUBLIC_SERVER_URL` | `https://photographer-portfolio-cms.vercel.app` (später `https://cms.svenmagnus.com`) | Empfohlen |
-| `CORS_ORIGINS` | `https://svenmagnus.com,https://www.svenmagnus.com` | Empfohlen |
+| `CORS_ORIGINS` | `https://svenmagnus.com,https://www.svenmagnus.com,https://photographer-portfolio-web.vercel.app` | **Ja** (Live-Fotos) |
+| `WEB_ORIGINS` | *(optional, nur wenn weitere Frontend-URLs nötig)* | Optional |
 | `DATABASE_ADAPTER` | `postgres` | Optional (Auto-Erkennung) |
 
 Optional für Bild-Uploads:

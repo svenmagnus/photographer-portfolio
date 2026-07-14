@@ -53,10 +53,18 @@ const serverURL =
   process.env.PAYLOAD_PUBLIC_SERVER_URL ||
   (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000')
 
-const frontendOrigins =
-  process.env.CORS_ORIGINS?.split(',').map((origin) => origin.trim()).filter(Boolean) ?? [
-    'http://localhost:4321',
-  ]
+const envCorsOrigins =
+  process.env.CORS_ORIGINS?.split(',').map((origin) => origin.trim()).filter(Boolean) ?? []
+
+const defaultFrontendOrigins = isVercel
+  ? [
+      'https://svenmagnus.com',
+      'https://www.svenmagnus.com',
+      'https://photographer-portfolio-web.vercel.app',
+    ]
+  : ['http://localhost:4321']
+
+const frontendOrigins = envCorsOrigins.length > 0 ? envCorsOrigins : defaultFrontendOrigins
 
 const webOrigins =
   process.env.WEB_ORIGINS?.split(',').map((origin) => origin.trim()).filter(Boolean) ?? []
