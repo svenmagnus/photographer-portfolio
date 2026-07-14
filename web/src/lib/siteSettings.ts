@@ -10,6 +10,14 @@ export interface SiteSettingsData {
   facebookUrl?: string | null
   professionalEmail?: string | null
   metaDescription?: string | null
+  navigation?: Array<{
+    label: string
+    linkType: 'category' | 'page' | 'external'
+    category?: string | null
+    page?: { slug?: string } | number | string | null
+    url?: string | null
+    openInNewTab?: boolean | null
+  }> | null
 }
 
 const payloadUrl = (import.meta.env.PUBLIC_PAYLOAD_URL || 'http://localhost:3000').replace(/\/$/, '')
@@ -28,7 +36,7 @@ const defaults: SiteSettingsData = {
 
 export async function fetchSiteSettings(): Promise<SiteSettingsData> {
   try {
-    const response = await fetch(`${payloadUrl}/api/globals/site-settings?depth=0`)
+    const response = await fetch(`${payloadUrl}/api/globals/site-settings?depth=1`)
 
     if (!response.ok) {
       return defaults

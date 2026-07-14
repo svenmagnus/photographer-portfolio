@@ -4,13 +4,17 @@ import Header from '../components/Header.astro'
 import PhotoGrid from '../components/PhotoGrid.astro'
 import Lightbox from '../components/Lightbox.astro'
 import CategoryFilter from '../components/CategoryFilter.astro'
+import { fetchSiteSettings } from '../lib/siteSettings'
+import { buildNavigation } from '../lib/navigation'
 
 const activeCategory = Astro.url.searchParams.get('category') ?? 'hollywood'
+const settings = await fetchSiteSettings()
+const navItems = buildNavigation(settings)
 ---
 
 <Layout>
   <main class="min-h-screen bg-white">
-    <Header activeCategory={activeCategory} />
+    <Header activeCategory={activeCategory} navItems={navItems} settings={settings} />
     <PhotoGrid />
     <Lightbox />
     <CategoryFilter />

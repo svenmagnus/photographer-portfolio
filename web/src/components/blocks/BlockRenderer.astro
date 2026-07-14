@@ -1,0 +1,248 @@
+---
+import type { PageBlock } from '../../lib/pages'
+import { lexicalToHtml } from '../../lib/lexicalToHtml'
+import { getMediaUrl, type Media } from '../../lib/photoLoader'
+import { getVideoEmbedUrl, getAspectRatioClass } from '../../lib/videoEmbed'
+import CategoryPhotoGrid from './CategoryPhotoGrid.astro'
+
+interface Props {
+  blocks: PageBlock[]
+  pageType?: 'content' | 'gallery' | 'landing' | 'blog'
+}
+
+const { blocks, pageType = 'content' } = Astro.props
+
+function isMedia(value: unknown): value is Media {
+  return Boolean(value && typeof value === 'object' && 'id' in value)
+}
+
+function getWidthClass(width?: string | null): string {
+  switch (width) {
+    case 'narrow':
+      return 'max-w-prose'
+    case 'full':
+      return 'max-w-none w-full'
+    case 'normal':
+    default:
+      return 'max-w-3xl'
+  }
+}
+
+function getSpacerClass(size?: string | null): string {
+  switch (size) {
+    case 'small':
+      return 'h-6 md:h-8'
+    case 'large':
+      return 'h-16 md:h-24'
+    case 'medium':
+    default:
+      return 'h-10 md:h-14'
+  }
+}
+
+function getGalleryCols(columns?: string | null): string {
+  switch (columns) {
+    case '2':
+      return 'grid-cols-1 sm:grid-cols-2'
+    case '3':
+      return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+    case '4':
+    default:
+      return 'grid-cols-2 lg:grid-cols-4'
+  }
+}
+
+function getMediaTextLayout(
+  layout?: string | null,
+  imageWidth?: string | null,
+): { container: string; image: string; text: string } {
+  if (layout === 'stacked') {
+    return {
+      container: 'flex flex-col gap-8',
+      image: 'w-full',
+      text: 'w-full',
+    }
+  }
+
+  const imageBasis =
+    imageWidth === 'third'
+      ? 'md:basis-1/3'
+      : imageWidth === 'twoThirds'
+        ? 'md:basis-2/3'
+        : 'md:basis-1/2'
+
+  return {
+    container: `flex flex-col gap-8 md:flex-row md:items-start ${layout === 'imageRight' ? 'md:flex-row-reverse' : ''}`,
+    image: `w-full shrink-0 ${imageBasis}`,
+    text: 'w-full flex-1',
+  }
+}
+
+const sectionWidth = pageType === 'landing' ? 'max-w-[1400px]' : 'max-w-5xl'
+---
+
+<div class={`mx-auto px-4 ${sectionWidth}`}>
+  {
+    blocks.map((block, index) => {
+      if (block.blockType === 'heading') {
+        const Tag = block.level === 'h2' ? 'h2' : 'h1'
+        const align = block.align === 'left' ? 'text-left' : 'text-center'
+        return (
+          <section class={`py-6 ${align}`}>
+            <Tag class="font-normal tracking-tight text-black text-[clamp(1.75rem,4vw,2.75rem)] leading-tight">
+              {block.text}
+            </Tag>
+          </section>
+        )
+      }
+
+      if (block.blockType === 'richText') {
+        const html = lexicalToHtml(block.content)
+        return (
+          <section class={`py-4 mx-auto ${getWidthClass(block.width)}`}>
+            <div class="cms-rich-text text-[15px] leading-relaxed text-black" set:html={html} />
+          </section>
+        )
+      }
+
+      if (block.blockType === 'mediaText' && isMedia(block.image)) {
+        const html = lexicalToHtml(block.content)
+        const layout = getMediaTextLayout(block.layout, block.imageWidth)
+        const src = getMediaUrl(block.image)
+
+        return (
+          <section class="py-8">
+            <div class={layout.container}>
+              <div class={layout.image}>
+                {
+                  src ? (
+                    <img
+                      src={src}
+                      alt={block.image.alt || ''}
+                      loading="lazy"
+                      decoding="async"
+                      class="w-full h-auto object-cover"
+                    />
+                  ) : null
+                }
+              </div>
+              <div class={layout.text}>
+                <div class="cms-rich-text text-[15px] leading-relaxed text-black" set:html={html} />
+              </div>
+            </div>
+          </section>
+        )
+      }
+
+      if (block.blockType === 'imageGallery' && block.images?.length) {
+        const fullWidth = block.fullWidth !== false
+        return (
+          <section class={`py-4 ${fullWidth ? '-mx-4 px-4 md:-mx-8 md:px-8' : ''}`}>
+            <div class={`grid gap-[2px] ${getGalleryCols(block.columns)}`}>
+              {
+                block.images.map((entry) => {
+                  const media = isMedia(entry.image) ? entry.image : null
+                  const src = getMediaUrl(media)
+                  if (!src) return null
+
+                  return (
+                    <figure class="relative overflow-hidden bg-neutral-100">
+                      <img
+                        src={src}
+                        alt={media?.alt || entry.caption || ''}
+                        loading="lazy"
+                        decoding="async"
+                        class="block w-full h-full object-cover"
+                      />
+                      {
+                        entry.caption ? (
+                          <figcaption class="px-2 py-2 text-[11px] text-portfolio-muted text-center">
+                            {entry.caption}
+                          </figcaption>
+                        ) : null
+                      }
+                    </figure>
+                  )
+                })
+              }
+            </div>
+          </section>
+        )
+      }
+
+      if (block.blockType === 'photoGrid') {
+        const gridId = `page-grid-${index}`
+        return (
+          <section class="py-4">
+            {block.showTitle ? <h2 class="mb-4 text-center text-xl">{block.category}</h2> : null}
+            <CategoryPhotoGrid category={block.category} rootId={gridId} />
+          </section>
+        )
+      }
+
+      if (block.blockType === 'video') {
+        const embedUrl = getVideoEmbedUrl(block.url)
+        const posterMedia = isMedia(block.poster) ? block.poster : null
+        const posterUrl = getMediaUrl(posterMedia)
+
+        return (
+          <section class="py-8 max-w-4xl mx-auto">
+            {
+              embedUrl ? (
+                <div class={`relative w-full overflow-hidden bg-black ${getAspectRatioClass(block.aspectRatio)}`}>
+                  <iframe
+                    src={embedUrl}
+                    title={block.caption || 'Video'}
+                    class="absolute inset-0 h-full w-full border-0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen
+                  />
+                </div>
+              ) : posterUrl ? (
+                <img src={posterUrl} alt={block.caption || 'Video'} class="w-full h-auto" loading="lazy" />
+              ) : (
+                <p class="text-center text-[13px] text-portfolio-muted">
+                  <a href={block.url} class="underline" target="_blank" rel="noopener noreferrer">
+                    Video öffnen
+                  </a>
+                </p>
+              )
+            }
+            {block.caption ? <p class="mt-3 text-center text-[13px] text-portfolio-muted">{block.caption}</p> : null}
+          </section>
+        )
+      }
+
+      if (block.blockType === 'spacer') {
+        return <div class={getSpacerClass(block.size)} aria-hidden="true" />
+      }
+
+      return null
+    })
+  }
+</div>
+
+<style>
+  .cms-rich-text :global(p) {
+    margin: 0 0 1rem;
+  }
+
+  .cms-rich-text :global(p:last-child) {
+    margin-bottom: 0;
+  }
+
+  .cms-rich-text :global(a) {
+    text-decoration: underline;
+  }
+
+  .cms-rich-text :global(h2),
+  .cms-rich-text :global(h3) {
+    margin: 1.5rem 0 0.75rem;
+    font-weight: 400;
+  }
+
+  .cms-rich-text :global(ul),
+  .cms-rich-text :global(ol) {
+    margin: 0 0 1rem 1.25rem;
+  }
+</style>

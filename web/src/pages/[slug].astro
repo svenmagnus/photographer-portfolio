@@ -1,0 +1,33 @@
+---
+import Layout from '../layouts/Layout.astro'
+import Header from '../components/Header.astro'
+import BlockRenderer from '../components/blocks/BlockRenderer.astro'
+import Lightbox from '../components/Lightbox.astro'
+import { fetchPublishedPages } from '../lib/pages'
+import { fetchSiteSettings } from '../lib/siteSettings'
+import { buildNavigation } from '../lib/navigation'
+
+export async function getStaticPaths() {
+  const pages = await fetchPublishedPages()
+
+  return pages.map((page) => ({
+    params: { slug: page.slug },
+    props: { page },
+  }))
+}
+
+const { page } = Astro.props
+const settings = await fetchSiteSettings()
+const navItems = buildNavigation(settings)
+
+const pageTitle = page.metaTitle || `${page.title} — ${settings.photographerName || 'Sven Magnus Hanefeld'}`
+const description = page.metaDescription || settings.metaDescription || page.title
+---
+
+<Layout title={pageTitle} description={description}>
+  <main class="min-h-screen bg-white pb-16">
+    <Header activeSlug={page.slug} navItems={navItems} settings={settings} />
+    <BlockRenderer blocks={page.layout} pageType={page.pageType} />
+    <Lightbox />
+  </main>
+</Layout>

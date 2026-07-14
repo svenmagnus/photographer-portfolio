@@ -1,0 +1,42 @@
+---
+import type { PhotoCategory } from '../lib/categories'
+
+interface Props {
+  category: PhotoCategory
+  rootId: string
+}
+
+const { category, rootId } = Astro.props
+---
+
+<div
+  id={`${rootId}-grid`}
+  class="grid grid-cols-2 md:grid-cols-4 gap-[2px] auto-rows-[minmax(140px,1fr)] md:auto-rows-[200px]"
+></div>
+
+<p
+  id={`${rootId}-loading`}
+  class="py-12 text-center text-[13px] text-portfolio-muted"
+>
+  Fotografien werden geladen…
+</p>
+
+<p
+  id={`${rootId}-empty`}
+  class="hidden py-12 text-center text-[13px] text-portfolio-muted"
+>
+  Noch keine Fotografien in dieser Kategorie.
+</p>
+
+<p
+  id={`${rootId}-error`}
+  class="hidden py-12 text-center text-[13px] text-red-700"
+  role="alert"
+></p>
+
+<script define:vars={{ category, rootId }}>
+  import { loadCategoryPhotoGrid } from '../../lib/photoLoader'
+
+  loadCategoryPhotoGrid(category, rootId)
+  document.addEventListener('astro:page-load', () => loadCategoryPhotoGrid(category, rootId))
+</script>

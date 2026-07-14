@@ -118,6 +118,55 @@ export function renderPhotoGrid(container: HTMLElement, photos: Photo[]): void {
     .join('')
 }
 
+export async function loadCategoryPhotoGrid(category: string, rootId: string): Promise<void> {
+  const grid = document.getElementById(`${rootId}-grid`)
+  const loading = document.getElementById(`${rootId}-loading`)
+  const empty = document.getElementById(`${rootId}-empty`)
+  const error = document.getElementById(`${rootId}-error`)
+
+  if (!grid) return
+
+  loading?.classList.remove('hidden')
+  empty?.classList.add('hidden')
+  error?.classList.add('hidden')
+  grid.innerHTML = ''
+
+  try {
+    const params = new URLSearchParams({
+      depth: '1',
+      limit: '200',
+      sort: '-date',
+      'where[category][equals]': category,
+    })
+
+    const response = await fetch(`${getPayloadUrl()}/api/photos?${params.toString()}`)
+    if (!response.ok) {
+      throw new Error(`CMS antwortet mit Status ${response.status}`)
+    }
+
+    const data = (await response.json()) as PhotosResponse
+    const photos = data.docs ?? []
+
+    loading?.classList.add('hidden')
+
+    if (!photos.length) {
+      empty?.classList.remove('hidden')
+      return
+    }
+
+    renderPhotoGrid(grid, photos)
+  } catch (loadError) {
+    loading?.classList.add('hidden')
+    if (error) {
+      error.textContent =
+        loadError instanceof Error
+          ? loadError.message
+          : 'Fotografien konnten nicht geladen werden.'
+      error.classList.remove('hidden')
+    }
+  }
+}
+
 export async function loadPhotoGrid(): Promise<void> {
   const grid = document.getElementById('photo-grid')
   const loading = document.getElementById('photo-grid-loading')
