@@ -13,18 +13,25 @@ function isDirectBlobUrl(url: string): boolean {
   return url.includes('.blob.vercel-storage.com/')
 }
 
-export function getMediaPreviewUrl(media?: MediaPreviewSource | null): string | null {
-  if (!media) return null
+function isBrokenPayloadProxyUrl(url: string): boolean {
+  return url.includes('/api/media/file/')
+}
 
-  const candidates = [
+function getUsableCandidates(media: MediaPreviewSource): string[] {
+  return [
     media.url,
     media.thumbnailURL,
     media.sizes?.thumbnail?.url,
     media.sizes?.grid?.url,
     media.sizes?.fullscreen?.url,
-  ].filter((value): value is string => Boolean(value))
+  ].filter((value): value is string => typeof value === 'string' && !isBrokenPayloadProxyUrl(value))
+}
 
-  // Prefer direct Blob CDN URLs — resized variants and the Payload proxy often 404.
+export function getMediaPreviewUrl(media?: MediaPreviewSource | null): string | null {
+  if (!media) return null
+
+  const candidates = getUsableCandidates(media)
+
   const directBlobUrl = candidates.find(isDirectBlobUrl)
   if (directBlobUrl) return directBlobUrl
 

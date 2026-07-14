@@ -53,6 +53,15 @@ export const Media: CollectionConfig = {
   },
   fields: [
     {
+      name: 'filename',
+      type: 'text',
+      admin: {
+        components: {
+          Cell: '/components/MediaFilenameCell#MediaFilenameCell',
+        },
+      },
+    },
+    {
       name: 'alt',
       type: 'text',
       required: true,
