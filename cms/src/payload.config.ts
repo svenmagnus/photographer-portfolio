@@ -109,7 +109,10 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
     components: {
-      beforeNavLinks: ['/components/AdminViewSiteLink#AdminViewSiteLink'],
+      beforeNavLinks: [
+        '/components/AdminViewSiteLink#AdminViewSiteLink',
+        '/components/AdminMenuLink#AdminMenuLink',
+      ],
       actions: ['/components/AdminViewSiteAction#AdminViewSiteAction'],
       afterNavLinks: ['/components/AdminLogoutLink#AdminLogoutLink'],
     },
