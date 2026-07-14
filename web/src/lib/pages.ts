@@ -45,6 +45,11 @@ export type PageBlock =
       blockType: 'spacer'
       size?: 'small' | 'medium' | 'large' | null
     }
+  | {
+      blockType: 'contactInfo'
+      showSocial?: boolean | null
+      align?: 'center' | 'left' | null
+    }
 
 export interface CmsPage {
   id: string | number

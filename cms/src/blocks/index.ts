@@ -1,3 +1,4 @@
+import { ContactInfoBlock } from './ContactInfo'
 import { HeadingBlock } from './Heading'
 import { ImageGalleryBlock } from './ImageGallery'
 import { MediaTextBlock } from './MediaText'
@@ -13,10 +14,12 @@ export const pageBlocks = [
   ImageGalleryBlock,
   PhotoGridBlock,
   VideoBlock,
+  ContactInfoBlock,
   SpacerBlock,
 ]
 
 export {
+  ContactInfoBlock,
   HeadingBlock,
   ImageGalleryBlock,
   MediaTextBlock,

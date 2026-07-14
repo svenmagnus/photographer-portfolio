@@ -20,7 +20,9 @@ const contentBlocks = pageBlocks.filter((block) => block.slug !== 'photoGrid')
 const landingBlocks = pageBlocks
 
 const blogBlocks = pageBlocks.filter((block) =>
-  ['heading', 'richText', 'mediaText', 'imageGallery', 'video', 'spacer'].includes(block.slug),
+  ['heading', 'richText', 'mediaText', 'imageGallery', 'video', 'contactInfo', 'spacer'].includes(
+    block.slug,
+  ),
 )
 
 export const Pages: CollectionConfig = {

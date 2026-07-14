@@ -27,7 +27,7 @@ const description = page.metaDescription || settings.metaDescription || page.tit
 <Layout title={pageTitle} description={description}>
   <main class="min-h-screen bg-white pb-16">
     <Header activeSlug={page.slug} navItems={navItems} settings={settings} />
-    <BlockRenderer blocks={page.layout} pageType={page.pageType} />
+    <BlockRenderer blocks={page.layout} pageType={page.pageType} settings={settings} />
     <Lightbox />
   </main>
 </Layout>

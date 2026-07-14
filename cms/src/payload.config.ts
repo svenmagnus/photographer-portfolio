@@ -14,6 +14,7 @@ import { Pages } from './collections/Pages'
 import { Photos } from './collections/Photos'
 import { Users } from './collections/Users'
 import { SiteSettings } from './globals/SiteSettings'
+import { seedDefaultPages } from './lib/seedDefaultPages'
 import { migrations } from './migrations'
 
 const filename = fileURLToPath(import.meta.url)
@@ -134,4 +135,7 @@ export default buildConfig({
   plugins,
   sharp,
   serverURL,
+  onInit: async (payload) => {
+    await seedDefaultPages(payload)
+  },
 })

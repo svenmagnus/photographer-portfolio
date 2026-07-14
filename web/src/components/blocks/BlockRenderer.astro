@@ -2,15 +2,17 @@
 import type { PageBlock } from '../../lib/pages'
 import { lexicalToHtml } from '../../lib/lexicalToHtml'
 import { getMediaUrl, type Media } from '../../lib/photoLoader'
+import type { SiteSettingsData } from '../../lib/siteSettings'
 import { getVideoEmbedUrl, getAspectRatioClass } from '../../lib/videoEmbed'
 import CategoryPhotoGrid from './CategoryPhotoGrid.astro'
 
 interface Props {
   blocks: PageBlock[]
   pageType?: 'content' | 'gallery' | 'landing' | 'blog'
+  settings?: SiteSettingsData
 }
 
-const { blocks, pageType = 'content' } = Astro.props
+const { blocks, pageType = 'content', settings } = Astro.props
 
 function isMedia(value: unknown): value is Media {
   return Boolean(value && typeof value === 'object' && 'id' in value)
@@ -215,6 +217,61 @@ const sectionWidth = pageType === 'landing' ? 'max-w-[1400px]' : 'max-w-5xl'
 
       if (block.blockType === 'spacer') {
         return <div class={getSpacerClass(block.size)} aria-hidden="true" />
+      }
+
+      if (block.blockType === 'contactInfo') {
+        const email = settings?.contactEmail || settings?.professionalEmail
+        const align = block.align === 'left' ? 'text-left' : 'text-center'
+        const socialAlign =
+          block.align === 'left' ? 'justify-start' : 'justify-center'
+
+        return (
+          <section class={`py-4 max-w-2xl mx-auto text-[15px] leading-relaxed ${align}`}>
+            {
+              email ? (
+                <p>
+                  <a href={`mailto:${email}`} class="underline hover:opacity-60 transition-opacity">
+                    {email}
+                  </a>
+                </p>
+              ) : (
+                <p class="text-portfolio-muted">
+                  E-Mail unter Website-Einstellungen → Kontakt & Social hinterlegen.
+                </p>
+              )
+            }
+            {
+              block.showSocial !== false && (settings?.instagramUrl || settings?.facebookUrl) ? (
+                <div class={`mt-4 flex flex-wrap gap-4 text-[13px] ${socialAlign}`}>
+                  {
+                    settings?.instagramUrl ? (
+                      <a
+                        href={settings.instagramUrl}
+                        class="underline hover:opacity-60 transition-opacity"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Instagram
+                      </a>
+                    ) : null
+                  }
+                  {
+                    settings?.facebookUrl ? (
+                      <a
+                        href={settings.facebookUrl}
+                        class="underline hover:opacity-60 transition-opacity"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Facebook
+                      </a>
+                    ) : null
+                  }
+                </div>
+              ) : null
+            }
+          </section>
+        )
       }
 
       return null
