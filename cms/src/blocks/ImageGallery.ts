@@ -15,8 +15,9 @@ export const ImageGalleryBlock: Block = {
       required: true,
       label: 'Bilder',
       admin: {
+        appearance: 'drawer',
         description:
-          'Bilder hinzufügen: Auf „+“ oder das Dropdown klicken → Dateiname anklicken (jedes Bild einzeln). Reihenfolge per Drag & Drop. Nicht benutzte Dateien unter Media (Sidebar) löschen.',
+          'Auf das Feld klicken → Mediathek mit Vorschaubildern öffnet sich → Zeile anklicken zum Hinzufügen. Für jedes weitere Bild wiederholen.',
         isSortable: true,
       },
     },
