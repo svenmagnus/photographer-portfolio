@@ -1,6 +1,7 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import { sqliteAdapter } from '@payloadcms/db-sqlite'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
+import { getEmailConfig, isEmailConfigured } from './lib/email'
 import { isVercelBlobConfigured } from './lib/vercelBlob'
 import { vercelBlobStorage } from './storage/vercelBlobStorage'
 import path from 'path'
@@ -84,7 +85,16 @@ const plugins = useVercelBlob
     ]
   : []
 
+const email = getEmailConfig()
+
+if (isVercel && !isEmailConfigured()) {
+  console.warn(
+    'WARN: E-Mail ist nicht konfiguriert — „Forgot password“ sendet keine Mails. SMTP_* Variablen in Vercel setzen oder cms/scripts/reset-password.mjs nutzen.',
+  )
+}
+
 export default buildConfig({
+  ...(email ? { email } : {}),
   admin: {
     user: Users.slug,
     importMap: {

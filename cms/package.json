@@ -15,11 +15,12 @@
   "dependencies": {
     "@payloadcms/db-postgres": "3.85.2",
     "@payloadcms/db-sqlite": "3.85.2",
+    "@payloadcms/email-nodemailer": "^3.85.2",
     "@payloadcms/next": "3.85.2",
     "@payloadcms/richtext-lexical": "3.85.2",
     "@payloadcms/storage-vercel-blob": "3.85.2",
-    "@vercel/blob": "^2.6.1",
     "@payloadcms/ui": "3.85.2",
+    "@vercel/blob": "^2.6.1",
     "cross-env": "^7.0.3",
     "graphql": "^16.12.0",
     "next": "15.4.11",
