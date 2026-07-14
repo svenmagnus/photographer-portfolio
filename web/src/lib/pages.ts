@@ -66,6 +66,9 @@ export interface CmsPage {
   pageType: 'content' | 'gallery' | 'landing' | 'blog'
   status: 'draft' | 'published'
   layout: PageBlock[]
+  galleryCategory?: string | null
+  showInNavigation?: boolean | null
+  navOrder?: number | null
   metaTitle?: string | null
   metaDescription?: string | null
 }
@@ -77,6 +80,33 @@ interface PagesResponse {
 
 function getPayloadUrl(): string {
   return (import.meta.env.PUBLIC_PAYLOAD_URL || 'http://localhost:3000').replace(/\/$/, '')
+}
+
+export async function fetchNavigationPages(): Promise<CmsPage[]> {
+  const params = new URLSearchParams({
+    depth: '0',
+    limit: '100',
+    sort: 'navOrder',
+    'where[status][equals]': 'published',
+    'where[showInNavigation][equals]': 'true',
+  })
+
+  try {
+    const response = await fetch(`${getPayloadUrl()}/api/pages?${params.toString()}`)
+
+    if (!response.ok) {
+      console.warn(`Navigation pages API error: ${response.status}`)
+      return []
+    }
+
+    const data = (await response.json()) as PagesResponse
+    const docs = data.docs ?? []
+
+    return [...docs].sort((a, b) => (a.navOrder ?? 999) - (b.navOrder ?? 999))
+  } catch (error) {
+    console.warn('Navigation pages API unreachable:', error)
+    return []
+  }
 }
 
 export async function fetchPublishedPages(): Promise<CmsPage[]> {

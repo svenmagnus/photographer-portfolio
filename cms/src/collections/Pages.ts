@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
 import { pageBlocks } from '@/blocks'
+import { PHOTO_CATEGORIES } from '@/collections/Photos'
 
 export const PAGE_TYPES = [
   { label: 'Inhalt (Text, Bilder, Medien)', value: 'content' },
@@ -33,9 +34,9 @@ export const Pages: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'title',
-    defaultColumns: ['title', 'slug', 'pageType', 'status', 'updatedAt'],
+    defaultColumns: ['title', 'slug', 'pageType', 'status', 'showInNavigation', 'navOrder', 'updatedAt'],
     description:
-      'Gestaltete Seiten mit Blöcken — Text, Bilder, Galerien, Videos. Analog zu Format.com „Pages“.',
+      'Alle Website-Seiten und Menüeinträge — Galerien, Textseiten, Landingpages. Reihenfolge über „Menü-Reihenfolge“ und „In Navigation anzeigen“.',
   },
   access: {
     read: ({ req: { user } }) => {
@@ -73,6 +74,18 @@ export const Pages: CollectionConfig = {
       options: [...PAGE_TYPES],
       admin: {
         position: 'sidebar',
+        description: 'Galerie = Foto-Grid einer Kategorie, Inhalt = Text/Formular/Blöcke',
+      },
+    },
+    {
+      name: 'galleryCategory',
+      type: 'select',
+      label: 'Foto-Kategorie',
+      options: [...PHOTO_CATEGORIES],
+      admin: {
+        position: 'sidebar',
+        condition: (_, siblingData) => siblingData?.pageType === 'gallery',
+        description: 'Welche Fotos in der Galerie angezeigt werden',
       },
     },
     {
@@ -96,7 +109,17 @@ export const Pages: CollectionConfig = {
       label: 'In Navigation anzeigen',
       admin: {
         position: 'sidebar',
-        description: 'Alternativ: Navigation unter Website-Einstellungen pflegen',
+        description: 'Menüeintrag auf der Website — Reihenfolge über „Menü-Reihenfolge“',
+      },
+    },
+    {
+      name: 'navOrder',
+      type: 'number',
+      label: 'Menü-Reihenfolge',
+      defaultValue: 100,
+      admin: {
+        position: 'sidebar',
+        description: 'Kleinere Zahl = weiter links im Menü',
       },
     },
     {

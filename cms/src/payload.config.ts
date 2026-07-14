@@ -109,7 +109,7 @@ export default buildConfig({
       afterNavLinks: ['/components/AdminLogoutLink#AdminLogoutLink'],
     },
   },
-  collections: [Users, Media, Photos, Pages],
+  collections: [Users, Pages, Media, Photos],
   globals: [SiteSettings],
   cors: trustedOrigins,
   csrf: trustedOrigins,

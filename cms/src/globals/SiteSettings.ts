@@ -151,8 +151,8 @@ export const SiteSettings: GlobalConfig = {
               label: 'Hauptmenü',
               admin: {
                 description:
-                  'Reihenfolge und Einträge der Website-Navigation — analog zu Format „Pages → In Menu“. Leer lassen = Standard-Kategorien.',
-                initCollapsed: false,
+                  'Optional: Manuelles Menü überschreibt die Navigation aus Seiten (mit „In Navigation anzeigen“). Leer lassen = Menü aus Seiten.',
+                initCollapsed: true,
               },
               fields: [
                 {

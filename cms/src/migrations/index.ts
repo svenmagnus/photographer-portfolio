@@ -1,6 +1,7 @@
 import * as migration_20260710_184534_initial from './20260710_184534_initial';
 import * as migration_20260714_113926_pages_and_navigation from './20260714_113926_pages_and_navigation';
 import * as migration_20260714_120431_contact_phone from './20260714_120431_contact_phone';
+import * as migration_20260714_122702_pages_gallery_nav from './20260714_122702_pages_gallery_nav';
 
 export const migrations = [
   {
@@ -16,6 +17,11 @@ export const migrations = [
   {
     up: migration_20260714_120431_contact_phone.up,
     down: migration_20260714_120431_contact_phone.down,
-    name: '20260714_120431_contact_phone'
+    name: '20260714_120431_contact_phone',
+  },
+  {
+    up: migration_20260714_122702_pages_gallery_nav.up,
+    down: migration_20260714_122702_pages_gallery_nav.down,
+    name: '20260714_122702_pages_gallery_nav'
   },
 ];

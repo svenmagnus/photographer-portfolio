@@ -1,4 +1,5 @@
 import { PHOTO_CATEGORIES, STATIC_NAV_LINKS } from './categories'
+import type { CmsPage } from './pages'
 import type { SiteSettingsData } from './siteSettings'
 
 export interface NavItem {
@@ -10,13 +11,33 @@ export interface NavItem {
 }
 
 function getPageSlug(page: unknown): string | undefined {
-  if (!page || typeof page === 'object' && 'slug' in page && typeof page.slug === 'string') {
+  if (page && typeof page === 'object' && 'slug' in page && typeof page.slug === 'string') {
     return page.slug
   }
   return undefined
 }
 
-export function buildNavigation(settings: SiteSettingsData): NavItem[] {
+function buildNavigationFromPages(pages: CmsPage[]): NavItem[] {
+  return pages
+    .filter((page) => page.showInNavigation !== false)
+    .map((page) => {
+      const categoryValue =
+        page.pageType === 'gallery' ? page.galleryCategory || page.slug : undefined
+
+      return {
+        label: page.title,
+        href: page.pageType === 'gallery' && categoryValue ? `/?category=${categoryValue}` : `/${page.slug}`,
+        categoryValue,
+        slug: page.slug,
+      }
+    })
+}
+
+export function buildNavigation(settings: SiteSettingsData, navPages?: CmsPage[]): NavItem[] {
+  if (navPages?.length) {
+    return buildNavigationFromPages(navPages)
+  }
+
   const custom = settings.navigation
 
   if (custom?.length) {

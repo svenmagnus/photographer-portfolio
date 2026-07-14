@@ -7,11 +7,12 @@ import PhotoGrid from '../components/PhotoGrid.astro'
 import Lightbox from '../components/Lightbox.astro'
 import CategoryFilter from '../components/CategoryFilter.astro'
 import { fetchSiteSettings } from '../lib/siteSettings'
+import { fetchNavigationPages } from '../lib/pages'
 import { buildNavigation } from '../lib/navigation'
 
 const activeCategory = Astro.url.searchParams.get('category') ?? 'hollywood'
-const settings = await fetchSiteSettings()
-const navItems = buildNavigation(settings)
+const [settings, navPages] = await Promise.all([fetchSiteSettings(), fetchNavigationPages()])
+const navItems = buildNavigation(settings, navPages)
 ---
 
 <Layout>

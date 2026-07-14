@@ -5,7 +5,7 @@ import Layout from '../layouts/Layout.astro'
 import Header from '../components/Header.astro'
 import BlockRenderer from '../components/blocks/BlockRenderer.astro'
 import Lightbox from '../components/Lightbox.astro'
-import { fetchPageBySlug } from '../lib/pages'
+import { fetchPageBySlug, fetchNavigationPages } from '../lib/pages'
 import { fetchSiteSettings } from '../lib/siteSettings'
 import { buildNavigation } from '../lib/navigation'
 
@@ -15,13 +15,19 @@ if (!slug) {
   return new Response(null, { status: 404, statusText: 'Not Found' })
 }
 
-const page = await fetchPageBySlug(slug)
+const [page, settings, navPages] = await Promise.all([
+  fetchPageBySlug(slug),
+  fetchSiteSettings(),
+  fetchNavigationPages(),
+])
 
 if (!page) {
   return new Response(null, { status: 404, statusText: 'Not Found' })
 }
-const settings = await fetchSiteSettings()
-const navItems = buildNavigation(settings)
+
+const navItems = buildNavigation(settings, navPages)
+const activeCategory =
+  page.pageType === 'gallery' ? page.galleryCategory || page.slug : undefined
 
 const pageTitle = page.metaTitle || `${page.title} — ${settings.photographerName || 'Sven Magnus Hanefeld'}`
 const description = page.metaDescription || settings.metaDescription || page.title
@@ -29,7 +35,12 @@ const description = page.metaDescription || settings.metaDescription || page.tit
 
 <Layout title={pageTitle} description={description}>
   <main class="min-h-screen bg-white pb-16">
-    <Header activeSlug={page.slug} navItems={navItems} settings={settings} />
+    <Header
+      activeSlug={page.pageType !== 'gallery' ? page.slug : undefined}
+      activeCategory={activeCategory}
+      navItems={navItems}
+      settings={settings}
+    />
     <BlockRenderer blocks={page.layout} pageType={page.pageType} settings={settings} />
     <Lightbox />
   </main>

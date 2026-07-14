@@ -1,12 +1,16 @@
 import type { Payload } from 'payload'
 
+import { PHOTO_CATEGORIES } from '@/collections/Photos'
 import { lexicalParagraphs } from './defaultLexical'
+
+const GALLERY_COUNT = PHOTO_CATEGORIES.length
 
 const DEFAULT_PAGES = [
   {
     title: 'Contact',
     slug: 'contact',
     pageType: 'content' as const,
+    navOrder: GALLERY_COUNT + 3,
     layout: [
       {
         blockType: 'heading',
@@ -30,6 +34,7 @@ const DEFAULT_PAGES = [
     title: 'Imprint',
     slug: 'imprint',
     pageType: 'content' as const,
+    navOrder: GALLERY_COUNT + 1,
     layout: [
       {
         blockType: 'heading',
@@ -53,6 +58,7 @@ const DEFAULT_PAGES = [
     title: 'Store',
     slug: 'store',
     pageType: 'content' as const,
+    navOrder: GALLERY_COUNT + 2,
     layout: [
       {
         blockType: 'heading',
@@ -74,11 +80,79 @@ const DEFAULT_PAGES = [
 export async function seedDefaultPages(payload: Payload): Promise<void> {
   try {
     await seedDefaultPagesInner(payload)
+    await seedGalleryPages(payload)
+    await syncContentPageNavigation(payload)
     await removeDuplicateContactInfoBlock(payload)
   } catch (error) {
     payload.logger.error(
       `Default pages seed skipped: ${error instanceof Error ? error.message : String(error)}`,
     )
+  }
+}
+
+async function seedGalleryPages(payload: Payload): Promise<void> {
+  for (const [index, category] of PHOTO_CATEGORIES.entries()) {
+    const existing = await payload.find({
+      collection: 'pages',
+      where: { slug: { equals: category.value } },
+      limit: 1,
+      depth: 0,
+    })
+
+    if (existing.docs.length > 0) continue
+
+    await payload.create({
+      collection: 'pages',
+      data: {
+        title: category.label,
+        slug: category.value,
+        pageType: 'gallery',
+        galleryCategory: category.value,
+        status: 'published',
+        showInNavigation: true,
+        navOrder: index + 1,
+        layout: [
+          {
+            blockType: 'photoGrid',
+            category: category.value,
+            showTitle: false,
+          },
+        ],
+      },
+    })
+
+    payload.logger.info(`Created gallery page: ${category.value}`)
+  }
+}
+
+async function syncContentPageNavigation(payload: Payload): Promise<void> {
+  for (const page of DEFAULT_PAGES) {
+    const existing = await payload.find({
+      collection: 'pages',
+      where: { slug: { equals: page.slug } },
+      limit: 1,
+      depth: 0,
+    })
+
+    const doc = existing.docs[0]
+    if (!doc) continue
+
+    const needsUpdate =
+      doc.showInNavigation !== true ||
+      doc.navOrder !== page.navOrder ||
+      doc.pageType !== page.pageType
+
+    if (!needsUpdate) continue
+
+    await payload.update({
+      collection: 'pages',
+      id: doc.id,
+      data: {
+        showInNavigation: true,
+        navOrder: page.navOrder,
+        pageType: page.pageType,
+      },
+    })
   }
 }
 
@@ -104,7 +178,7 @@ async function removeDuplicateContactInfoBlock(payload: Payload): Promise<void> 
     collection: 'pages',
     id: page.id,
     data: {
-      layout: layout.filter((block) => block.blockType !== 'contactInfo'),
+      layout: layout.filter((block) => block.blockType !== 'contactInfo') as typeof page.layout,
     },
   })
 
@@ -130,6 +204,7 @@ async function seedDefaultPagesInner(payload: Payload): Promise<void> {
         pageType: page.pageType,
         status: 'published',
         showInNavigation: true,
+        navOrder: page.navOrder,
         layout: [...page.layout],
       },
     })
