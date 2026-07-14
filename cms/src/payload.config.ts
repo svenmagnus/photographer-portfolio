@@ -16,7 +16,7 @@ import { Users } from './collections/Users'
 import { SiteSettings } from './globals/SiteSettings'
 import { MainMenu } from './globals/MainMenu'
 import { seedDefaultPages } from './lib/seedDefaultPages'
-import { seedMainMenuFromPages } from './lib/seedMainMenu'
+import { seedMainMenuFromPages, repairMainMenuDuplicates } from './lib/seedMainMenu'
 import { repairImageGalleryBlocks } from './lib/repairImageGalleryBlocks'
 import { migrations } from './migrations'
 
@@ -146,6 +146,7 @@ export default buildConfig({
   onInit: async (payload) => {
     await seedDefaultPages(payload)
     await seedMainMenuFromPages(payload)
+    await repairMainMenuDuplicates(payload)
     await repairImageGalleryBlocks(payload)
   },
 })

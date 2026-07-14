@@ -48,6 +48,27 @@ const primaryButtonStyle: React.CSSProperties = {
   fontWeight: 600,
 }
 
+function dedupeLoadedMenuItems(items: BuilderMenuItem[]): BuilderMenuItem[] {
+  const seenPageIds = new Set<string>()
+  const result: BuilderMenuItem[] = []
+
+  for (const item of items) {
+    const pageId = item.page?.id != null ? String(item.page.id) : null
+
+    if (pageId) {
+      if (seenPageIds.has(pageId)) continue
+      seenPageIds.add(pageId)
+    }
+
+    result.push({
+      ...item,
+      children: dedupeLoadedMenuItems(item.children),
+    })
+  }
+
+  return result
+}
+
 function cloneItems(items: BuilderMenuItem[]): BuilderMenuItem[] {
   return items.map((item) => ({
     ...item,
@@ -243,7 +264,8 @@ export function MenuBuilder() {
 
       if (menuResponse.ok) {
         const menuData = (await menuResponse.json()) as { items?: ApiMenuItem[] | null }
-        setMenuItems((menuData.items ?? []).map(menuItemFromApi))
+        const loaded = (menuData.items ?? []).map(menuItemFromApi)
+        setMenuItems(dedupeLoadedMenuItems(loaded))
       } else {
         setMenuItems([])
       }
