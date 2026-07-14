@@ -3,6 +3,7 @@ import * as migration_20260714_113926_pages_and_navigation from './20260714_1139
 import * as migration_20260714_120431_contact_phone from './20260714_120431_contact_phone';
 import * as migration_20260714_122702_pages_gallery_nav from './20260714_122702_pages_gallery_nav';
 import * as migration_20260714_202800_main_menu from './20260714_202800_main_menu';
+import * as migration_20260714_222400_blog_posts from './20260714_222400_blog_posts';
 
 export const migrations = [
   {
@@ -29,5 +30,10 @@ export const migrations = [
     up: migration_20260714_202800_main_menu.up,
     down: migration_20260714_202800_main_menu.down,
     name: '20260714_202800_main_menu',
+  },
+  {
+    up: migration_20260714_222400_blog_posts.up,
+    down: migration_20260714_222400_blog_posts.down,
+    name: '20260714_222400_blog_posts',
   },
 ];
