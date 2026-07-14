@@ -134,12 +134,26 @@ function outdentItem(items: BuilderMenuItem[], clientId: string): BuilderMenuIte
   return next
 }
 
+function updateItemLabel(items: BuilderMenuItem[], clientId: string, label: string): BuilderMenuItem[] {
+  return items.map((item) => {
+    if (item.clientId === clientId) {
+      return { ...item, label }
+    }
+
+    return {
+      ...item,
+      children: updateItemLabel(item.children, clientId, label),
+    }
+  })
+}
+
 function MenuTreeItem({
   item,
   depth,
   onRemove,
   onIndent,
   onOutdent,
+  onLabelChange,
   onDragStart,
   onDragOver,
   onDrop,
@@ -150,6 +164,7 @@ function MenuTreeItem({
   onRemove: (clientId: string) => void
   onIndent: (clientId: string) => void
   onOutdent: (clientId: string) => void
+  onLabelChange: (clientId: string, label: string) => void
   onDragStart: (clientId: string) => void
   onDragOver: (clientId: string) => void
   onDrop: (targetId: string) => void
@@ -158,7 +173,7 @@ function MenuTreeItem({
   const subtitle =
     item.linkType === 'page'
       ? item.page?.slug
-        ? `Seite · /${item.page.slug}`
+        ? `${getPageTypeLabel(item.page.pageType)} · /${item.page.slug}`
         : 'Seite'
       : item.linkType === 'category'
         ? `Kategorie · ${item.category ?? '—'}`
@@ -192,9 +207,26 @@ function MenuTreeItem({
         }}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: '0.75rem' }}>
-          <div>
-            <strong>{item.label}</strong>
-            <div style={{ fontSize: '0.85rem', opacity: 0.7 }}>{subtitle}</div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <label style={{ display: 'block', fontSize: '0.75rem', opacity: 0.65, marginBottom: '0.25rem' }}>
+              Anzeigename im Menü
+            </label>
+            <input
+              type="text"
+              value={item.label}
+              onChange={(event) => onLabelChange(item.clientId, event.target.value)}
+              onMouseDown={(event) => event.stopPropagation()}
+              placeholder={item.page?.title || 'Menüpunkt'}
+              style={{
+                width: '100%',
+                padding: '0.4rem 0.5rem',
+                border: '1px solid var(--theme-elevation-250)',
+                borderRadius: '4px',
+                fontWeight: 600,
+                background: 'var(--theme-elevation-0)',
+              }}
+            />
+            <div style={{ fontSize: '0.85rem', opacity: 0.7, marginTop: '0.35rem' }}>{subtitle}</div>
             {depth > 0 && <div style={{ fontSize: '0.8rem', opacity: 0.65 }}>Unterpunkt</div>}
           </div>
           <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
@@ -224,6 +256,7 @@ function MenuTreeItem({
           onRemove={onRemove}
           onIndent={onIndent}
           onOutdent={onOutdent}
+          onLabelChange={onLabelChange}
           onDragStart={onDragStart}
           onDragOver={onDragOver}
           onDrop={onDrop}
@@ -334,6 +367,10 @@ export function MenuBuilder() {
 
   function handleOutdent(clientId: string) {
     setMenuItems((current) => outdentItem(current, clientId))
+  }
+
+  function handleLabelChange(clientId: string, label: string) {
+    setMenuItems((current) => updateItemLabel(current, clientId, label))
   }
 
   function handleDrop(targetId: string) {
@@ -487,6 +524,7 @@ export function MenuBuilder() {
                     onRemove={handleRemove}
                     onIndent={handleIndent}
                     onOutdent={handleOutdent}
+                    onLabelChange={handleLabelChange}
                     onDragStart={setDraggingId}
                     onDragOver={setDragOverId}
                     onDrop={handleDrop}
