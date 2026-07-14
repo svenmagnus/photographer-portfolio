@@ -36,7 +36,7 @@ export const Pages: CollectionConfig = {
     useAsTitle: 'title',
     defaultColumns: ['title', 'slug', 'pageType', 'status', 'showInNavigation', 'navOrder', 'updatedAt'],
     description:
-      'Alle Website-Seiten und Menüeinträge — Galerien, Textseiten, Landingpages. Reihenfolge über „Menü-Reihenfolge“ und „In Navigation anzeigen“.',
+      'Alle Website-Seiten — Galerien, Textseiten, Landingpages. Menü-Reihenfolge im Menü-Editor unter „Menü“.',
   },
   access: {
     read: ({ req: { user } }) => {

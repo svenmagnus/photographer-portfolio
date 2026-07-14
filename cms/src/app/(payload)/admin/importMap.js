@@ -24,6 +24,8 @@ import { InlineToolbarFeatureClient as InlineToolbarFeatureClient_e70f5e05f09f93
 import { PhotoImageCell as PhotoImageCell_14e3a21f245ae626c0e9a4ab192ebfe1 } from '../../../components/PhotoImageCell'
 import { BulkImportLink as BulkImportLink_e3f5c8bf53c8a9d48a567ab65f18800a } from '../../../components/BulkImport/BulkImportLink'
 import { BulkImportView as BulkImportView_6e3e9842fb22665ec7decef894e86266 } from '../../../components/BulkImport/BulkImportView'
+import { MenuBuilderView as MenuBuilderView_1b59d18a846524d3259b9e4e8fc79ac4 } from '../../../components/MenuBuilder/MenuBuilderView'
+import { MenuBuilderLink as MenuBuilderLink_15dd9a636cf28a3fc3e2030a5ea073e8 } from '../../../components/MenuBuilder/MenuBuilderLink'
 import { AdminViewSiteAction as AdminViewSiteAction_dc3b2bc47c64a17abaf83f287c45bbef } from '../../../components/AdminViewSiteAction'
 import { AdminLogoutLink as AdminLogoutLink_f544dbd6caab9ea341eb6cbe4db4e532 } from '../../../components/AdminLogoutLink'
 import { AdminViewSiteLink as AdminViewSiteLink_01e68676de7d23fab3bd2dfe9dcc4f74 } from '../../../components/AdminViewSiteLink'
@@ -57,6 +59,8 @@ export const importMap = {
   "/components/PhotoImageCell#PhotoImageCell": PhotoImageCell_14e3a21f245ae626c0e9a4ab192ebfe1,
   "/components/BulkImport/BulkImportLink#BulkImportLink": BulkImportLink_e3f5c8bf53c8a9d48a567ab65f18800a,
   "/components/BulkImport/BulkImportView#BulkImportView": BulkImportView_6e3e9842fb22665ec7decef894e86266,
+  "/components/MenuBuilder/MenuBuilderView#MenuBuilderView": MenuBuilderView_1b59d18a846524d3259b9e4e8fc79ac4,
+  "/components/MenuBuilder/MenuBuilderLink#MenuBuilderLink": MenuBuilderLink_15dd9a636cf28a3fc3e2030a5ea073e8,
   "/components/AdminViewSiteAction#AdminViewSiteAction": AdminViewSiteAction_dc3b2bc47c64a17abaf83f287c45bbef,
   "/components/AdminLogoutLink#AdminLogoutLink": AdminLogoutLink_f544dbd6caab9ea341eb6cbe4db4e532,
   "/components/AdminViewSiteLink#AdminViewSiteLink": AdminViewSiteLink_01e68676de7d23fab3bd2dfe9dcc4f74,

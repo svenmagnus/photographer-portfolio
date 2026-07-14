@@ -1,4 +1,5 @@
 import { PHOTO_CATEGORIES, STATIC_NAV_LINKS } from './categories'
+import type { MainMenuItem } from './mainMenu'
 import type { CmsPage } from './pages'
 import type { SiteSettingsData } from './siteSettings'
 
@@ -8,6 +9,7 @@ export interface NavItem {
   categoryValue?: string
   slug?: string
   openInNewTab?: boolean
+  isSubItem?: boolean
 }
 
 function getPageSlug(page: unknown): string | undefined {
@@ -15,6 +17,92 @@ function getPageSlug(page: unknown): string | undefined {
     return page.slug
   }
   return undefined
+}
+
+function getPageTitle(page: unknown): string | undefined {
+  if (page && typeof page === 'object' && 'title' in page && typeof page.title === 'string') {
+    return page.title
+  }
+  return undefined
+}
+
+function getPageType(page: unknown): string | undefined {
+  if (page && typeof page === 'object' && 'pageType' in page && typeof page.pageType === 'string') {
+    return page.pageType
+  }
+  return undefined
+}
+
+function getGalleryCategory(page: unknown): string | undefined {
+  if (
+    page &&
+    typeof page === 'object' &&
+    'galleryCategory' in page &&
+    typeof page.galleryCategory === 'string'
+  ) {
+    return page.galleryCategory
+  }
+  return undefined
+}
+
+function menuItemToNavItem(item: MainMenuItem, isSubItem = false): NavItem | null {
+  const label = item.label?.trim()
+  const linkType = item.linkType || 'page'
+
+  if (linkType === 'page') {
+    const slug = getPageSlug(item.page)
+    if (!slug) return null
+
+    const pageType = getPageType(item.page)
+    const categoryValue =
+      pageType === 'gallery' ? getGalleryCategory(item.page) || slug : undefined
+
+    return {
+      label: label || getPageTitle(item.page) || slug,
+      href: pageType === 'gallery' && categoryValue ? `/?category=${categoryValue}` : `/${slug}`,
+      categoryValue,
+      slug,
+      openInNewTab: Boolean(item.openInNewTab),
+      isSubItem,
+    }
+  }
+
+  if (linkType === 'category' && item.category) {
+    return {
+      label: label || item.category,
+      href: `/?category=${item.category}`,
+      categoryValue: item.category,
+      openInNewTab: Boolean(item.openInNewTab),
+      isSubItem,
+    }
+  }
+
+  if (linkType === 'external' && item.url) {
+    return {
+      label: label || item.url,
+      href: item.url,
+      openInNewTab: Boolean(item.openInNewTab),
+      isSubItem,
+    }
+  }
+
+  return null
+}
+
+function buildNavigationFromMainMenu(items: MainMenuItem[]): NavItem[] {
+  const result: NavItem[] = []
+
+  for (const item of items) {
+    const navItem = menuItemToNavItem(item, false)
+    if (navItem) result.push(navItem)
+
+    for (const child of item.children ?? []) {
+      const childItem = menuItemToNavItem(child, true)
+      if (childItem) result.push(childItem)
+    }
+  }
+
+  return result
 }
 
 function buildNavigationFromPages(pages: CmsPage[]): NavItem[] {
@@ -33,7 +121,15 @@ function buildNavigationFromPages(pages: CmsPage[]): NavItem[] {
     })
 }
 
-export function buildNavigation(settings: SiteSettingsData, navPages?: CmsPage[]): NavItem[] {
+export function buildNavigation(
+  settings: SiteSettingsData,
+  navPages?: CmsPage[],
+  mainMenuItems?: MainMenuItem[] | null,
+): NavItem[] {
+  if (mainMenuItems?.length) {
+    return buildNavigationFromMainMenu(mainMenuItems)
+  }
+
   if (navPages?.length) {
     return buildNavigationFromPages(navPages)
   }
@@ -94,7 +190,6 @@ export function buildNavigation(settings: SiteSettingsData, navPages?: CmsPage[]
 }
 
 function estimateNavItemWidth(label: string): number {
-  // Match Format menu item width at 20px Georgia (≈11px per char + horizontal padding).
   return label.trim().toLowerCase().length * 11 + 50
 }
 

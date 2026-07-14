@@ -14,7 +14,9 @@ import { Pages } from './collections/Pages'
 import { Photos } from './collections/Photos'
 import { Users } from './collections/Users'
 import { SiteSettings } from './globals/SiteSettings'
+import { MainMenu } from './globals/MainMenu'
 import { seedDefaultPages } from './lib/seedDefaultPages'
+import { seedMainMenuFromPages } from './lib/seedMainMenu'
 import { repairImageGalleryBlocks } from './lib/repairImageGalleryBlocks'
 import { migrations } from './migrations'
 
@@ -113,7 +115,7 @@ export default buildConfig({
     },
   },
   collections: [Users, Pages, Media, Photos],
-  globals: [SiteSettings],
+  globals: [MainMenu, SiteSettings],
   cors: trustedOrigins,
   csrf: trustedOrigins,
   editor: lexicalEditor(),
@@ -140,6 +142,7 @@ export default buildConfig({
   serverURL,
   onInit: async (payload) => {
     await seedDefaultPages(payload)
+    await seedMainMenuFromPages(payload)
     await repairImageGalleryBlocks(payload)
   },
 })

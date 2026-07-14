@@ -146,12 +146,21 @@ export const SiteSettings: GlobalConfig = {
           label: 'Navigation',
           fields: [
             {
+              name: 'navigationBuilderNote',
+              type: 'ui',
+              admin: {
+                components: {
+                  Field: '/components/MenuBuilder/MenuBuilderLink#MenuBuilderLink',
+                },
+              },
+            },
+            {
               name: 'navigation',
               type: 'array',
-              label: 'Hauptmenü',
+              label: 'Manuelles Menü (Legacy)',
               admin: {
                 description:
-                  'Optional: Manuelles Menü überschreibt die Navigation aus Seiten (mit „In Navigation anzeigen“). Leer lassen = Menü aus Seiten.',
+                  'Veraltet — bitte den Menü-Editor verwenden. Wird nur genutzt, wenn das Hauptmenü leer ist und keine Seiten-Navigation existiert.',
                 initCollapsed: true,
               },
               fields: [

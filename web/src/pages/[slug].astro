@@ -7,6 +7,7 @@ import BlockRenderer from '../components/blocks/BlockRenderer.astro'
 import Lightbox from '../components/Lightbox.astro'
 import { fetchPageBySlug, fetchNavigationPages } from '../lib/pages'
 import { fetchSiteSettings } from '../lib/siteSettings'
+import { fetchMainMenu } from '../lib/mainMenu'
 import { buildNavigation } from '../lib/navigation'
 
 const slug = Astro.params.slug
@@ -15,9 +16,10 @@ if (!slug) {
   return new Response(null, { status: 404, statusText: 'Not Found' })
 }
 
-const [page, settings, navPages] = await Promise.all([
+const [page, settings, mainMenu, navPages] = await Promise.all([
   fetchPageBySlug(slug),
   fetchSiteSettings(),
+  fetchMainMenu(),
   fetchNavigationPages(),
 ])
 
@@ -25,7 +27,7 @@ if (!page) {
   return new Response(null, { status: 404, statusText: 'Not Found' })
 }
 
-const navItems = buildNavigation(settings, navPages)
+const navItems = buildNavigation(settings, navPages, mainMenu.items)
 const activeCategory =
   page.pageType === 'gallery' ? page.galleryCategory || page.slug : undefined
 
