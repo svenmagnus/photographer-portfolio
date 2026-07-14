@@ -44,6 +44,9 @@ export const ImageGalleryBlock: Block = {
       type: 'checkbox',
       defaultValue: true,
       label: 'Volle Seitenbreite',
+      admin: {
+        description: 'Galerie über die gesamte Browserbreite — bei 4 Bildern „4 Spalten“ wählen.',
+      },
     },
   ],
 }
