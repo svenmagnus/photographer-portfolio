@@ -4,8 +4,10 @@ export const prerender = false
 import Layout from '../layouts/Layout.astro'
 import Header from '../components/Header.astro'
 import BlockRenderer from '../components/blocks/BlockRenderer.astro'
+import BlogPostList from '../components/blog/BlogPostList.astro'
 import Lightbox from '../components/Lightbox.astro'
 import { fetchPageBySlug, fetchNavigationPages } from '../lib/pages'
+import { fetchBlogPostsForPage } from '../lib/blogPosts'
 import { fetchSiteSettings } from '../lib/siteSettings'
 import { fetchMainMenu } from '../lib/mainMenu'
 import { buildNavigation } from '../lib/navigation'
@@ -22,6 +24,9 @@ const [page, settings, mainMenu, navPages] = await Promise.all([
   fetchMainMenu(),
   fetchNavigationPages(),
 ])
+
+const blogPosts =
+  page?.pageType === 'blog' ? await fetchBlogPostsForPage(page.slug) : []
 
 if (!page) {
   return new Response(null, { status: 404, statusText: 'Not Found' })
@@ -43,7 +48,16 @@ const description = page.metaDescription || settings.metaDescription || page.tit
       navItems={navItems}
       settings={settings}
     />
-    <BlockRenderer blocks={page.layout} pageType={page.pageType} settings={settings} />
+    {
+      page.pageType === 'blog' ? (
+        <>
+          <BlockRenderer blocks={page.layout} pageType={page.pageType} settings={settings} />
+          <BlogPostList posts={blogPosts} blogSlug={page.slug} />
+        </>
+      ) : (
+        <BlockRenderer blocks={page.layout} pageType={page.pageType} settings={settings} />
+      )
+    }
     <Lightbox />
   </main>
 </Layout>

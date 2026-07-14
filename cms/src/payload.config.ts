@@ -10,12 +10,14 @@ import { fileURLToPath } from 'url'
 import sharp from 'sharp'
 
 import { Media } from './collections/Media'
+import { BlogPosts } from './collections/BlogPosts'
 import { Pages } from './collections/Pages'
 import { Photos } from './collections/Photos'
 import { Users } from './collections/Users'
 import { SiteSettings } from './globals/SiteSettings'
 import { MainMenu } from './globals/MainMenu'
 import { seedDefaultPages } from './lib/seedDefaultPages'
+import { seedBlogPosts } from './lib/seedBlogPosts'
 import { seedMainMenuFromPages, repairMainMenuDuplicates } from './lib/seedMainMenu'
 import { repairImageGalleryBlocks } from './lib/repairImageGalleryBlocks'
 import { migrations } from './migrations'
@@ -112,12 +114,13 @@ export default buildConfig({
       beforeNavLinks: [
         '/components/AdminViewSiteLink#AdminViewSiteLink',
         '/components/AdminMenuLink#AdminMenuLink',
+        '/components/AdminBlogLink#AdminBlogLink',
       ],
       actions: ['/components/AdminViewSiteAction#AdminViewSiteAction'],
       afterNavLinks: ['/components/AdminLogoutLink#AdminLogoutLink'],
     },
   },
-  collections: [Users, Pages, Media, Photos],
+  collections: [Users, Pages, BlogPosts, Media, Photos],
   globals: [MainMenu, SiteSettings],
   cors: trustedOrigins,
   csrf: trustedOrigins,
@@ -145,6 +148,7 @@ export default buildConfig({
   serverURL,
   onInit: async (payload) => {
     await seedDefaultPages(payload)
+    await seedBlogPosts(payload)
     await seedMainMenuFromPages(payload)
     await repairMainMenuDuplicates(payload)
     await repairImageGalleryBlocks(payload)

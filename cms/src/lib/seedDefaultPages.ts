@@ -91,13 +91,6 @@ const DEFAULT_PAGES = [
         level: 'h1',
         align: 'center',
       },
-      {
-        blockType: 'richText',
-        width: 'narrow',
-        content: lexicalParagraphs(
-          'Artikel, Projekte und Notizen zum Filmschnitt — Inhalte kannst du hier im CMS bearbeiten.',
-        ),
-      },
     ],
   },
 ] as const

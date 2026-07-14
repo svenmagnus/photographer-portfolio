@@ -1,0 +1,44 @@
+---
+export const prerender = false
+
+import Layout from '../../layouts/Layout.astro'
+import Header from '../../components/Header.astro'
+import BlogPostArticle from '../../components/blog/BlogPostArticle.astro'
+import { fetchBlogPost } from '../../lib/blogPosts'
+import { fetchPageBySlug, fetchNavigationPages } from '../../lib/pages'
+import { fetchSiteSettings } from '../../lib/siteSettings'
+import { fetchMainMenu } from '../../lib/mainMenu'
+import { buildNavigation } from '../../lib/navigation'
+
+const blogSlug = Astro.params.slug
+const postSlug = Astro.params.postSlug
+
+if (!blogSlug || !postSlug) {
+  return new Response(null, { status: 404, statusText: 'Not Found' })
+}
+
+const [blogPage, post, settings, mainMenu, navPages] = await Promise.all([
+  fetchPageBySlug(blogSlug),
+  fetchBlogPost(blogSlug, postSlug),
+  fetchSiteSettings(),
+  fetchMainMenu(),
+  fetchNavigationPages(),
+])
+
+if (!blogPage || blogPage.pageType !== 'blog' || !post) {
+  return new Response(null, { status: 404, statusText: 'Not Found' })
+}
+
+const navItems = buildNavigation(settings, navPages, mainMenu.items)
+const pageTitle =
+  post.metaTitle ||
+  `${post.title} — ${blogPage.title} — ${settings.photographerName || 'Sven Magnus Hanefeld'}`
+const description = post.metaDescription || post.excerpt || post.title
+---
+
+<Layout title={pageTitle} description={description}>
+  <main class="min-h-screen bg-white pb-16">
+    <Header activeSlug={blogSlug} navItems={navItems} settings={settings} />
+    <BlogPostArticle post={post} blogSlug={blogSlug} blogTitle={blogPage.title} />
+  </main>
+</Layout>

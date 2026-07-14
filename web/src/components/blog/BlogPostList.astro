@@ -1,0 +1,143 @@
+---
+import type { BlogPost } from '../../lib/blogPosts'
+import { getMediaUrl } from '../../lib/photoLoader'
+
+interface Props {
+  posts: BlogPost[]
+  blogSlug: string
+}
+
+const { posts, blogSlug } = Astro.props
+---
+
+<section class="blog-post-list" aria-label="Blog-Beiträge">
+  {
+    posts.length === 0 ? (
+      <p class="blog-post-empty">Noch keine Beiträge veröffentlicht.</p>
+    ) : (
+      <ul class="blog-post-rows">
+        {
+          posts.map((post) => {
+            const image =
+              post.featuredImage && typeof post.featuredImage === 'object'
+                ? post.featuredImage
+                : null
+            const imageUrl = getMediaUrl(image)
+
+            return (
+              <li>
+                <a href={`/${blogSlug}/${post.slug}`} class="blog-post-row">
+                  <div class="blog-post-thumb-wrap">
+                    {
+                      imageUrl ? (
+                        <img
+                          src={imageUrl}
+                          alt={image?.alt || post.title}
+                          loading="lazy"
+                          decoding="async"
+                          class="blog-post-thumb"
+                        />
+                      ) : (
+                        <div class="blog-post-thumb blog-post-thumb--empty" aria-hidden="true" />
+                      )
+                    }
+                  </div>
+                  <div class="blog-post-copy">
+                    <h2 class="blog-post-title">{post.title}</h2>
+                    {post.excerpt ? <p class="blog-post-excerpt">{post.excerpt}</p> : null}
+                  </div>
+                </a>
+              </li>
+            )
+          })
+        }
+      </ul>
+    )
+  }
+</section>
+
+<style>
+  .blog-post-list {
+    width: 100%;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 1.5rem 0 4rem;
+  }
+
+  .blog-post-empty {
+    margin: 0;
+    padding: 3rem 0;
+    text-align: center;
+    font-size: 15px;
+    color: #666;
+  }
+
+  .blog-post-rows {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .blog-post-row {
+    display: flex;
+    gap: 1.25rem;
+    align-items: center;
+    padding: 1.1rem 0;
+    border-bottom: 1px solid #e8e8e8;
+    text-decoration: none;
+    color: inherit;
+    transition: opacity 0.15s ease;
+  }
+
+  .blog-post-row:hover {
+    opacity: 0.65;
+  }
+
+  .blog-post-thumb-wrap {
+    flex-shrink: 0;
+    width: 140px;
+  }
+
+  .blog-post-thumb {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    background: #f3f3f3;
+  }
+
+  .blog-post-thumb--empty {
+    min-height: 0;
+  }
+
+  .blog-post-copy {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .blog-post-title {
+    margin: 0;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: clamp(1.125rem, 2.2vw, 1.375rem);
+    font-weight: 400;
+    line-height: 1.35;
+    color: #000;
+  }
+
+  .blog-post-excerpt {
+    margin: 0.35rem 0 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #666;
+  }
+
+  @media (max-width: 639px) {
+    .blog-post-thumb-wrap {
+      width: 96px;
+    }
+
+    .blog-post-row {
+      gap: 0.85rem;
+    }
+  }
+</style>

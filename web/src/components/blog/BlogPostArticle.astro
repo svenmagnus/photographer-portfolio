@@ -1,0 +1,85 @@
+---
+import type { BlogPost } from '../../lib/blogPosts'
+import { lexicalToHtml } from '../../lib/lexicalToHtml'
+import { getMediaUrl } from '../../lib/photoLoader'
+
+interface Props {
+  post: BlogPost
+  blogSlug: string
+  blogTitle: string
+}
+
+const { post, blogSlug, blogTitle } = Astro.props
+
+const image =
+  post.featuredImage && typeof post.featuredImage === 'object' ? post.featuredImage : null
+const imageUrl = getMediaUrl(image)
+const html = lexicalToHtml(post.content)
+---
+
+<article class="blog-article">
+  <header class="blog-article-header">
+    <p class="blog-article-back">
+      <a href={`/${blogSlug}`}>← {blogTitle}</a>
+    </p>
+    <h1 class="blog-article-title">{post.title}</h1>
+  </header>
+
+  {
+    imageUrl ? (
+      <figure class="blog-article-hero">
+        <img src={imageUrl} alt={image?.alt || post.title} loading="eager" decoding="async" />
+      </figure>
+    ) : null
+  }
+
+  <div class="blog-article-body cms-rich-text" set:html={html} />
+</article>
+
+<style>
+  .blog-article {
+    width: 100%;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 1.5rem 0 4rem;
+  }
+
+  .blog-article-back {
+    margin: 0 0 1.25rem;
+    font-size: 14px;
+  }
+
+  .blog-article-back a {
+    color: #666;
+    text-decoration: none;
+  }
+
+  .blog-article-back a:hover {
+    color: #000;
+  }
+
+  .blog-article-title {
+    margin: 0;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    font-weight: 400;
+    line-height: 1.25;
+    color: #000;
+  }
+
+  .blog-article-hero {
+    margin: 2rem 0 0;
+  }
+
+  .blog-article-hero img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .blog-article-body {
+    margin-top: 2rem;
+    font-size: 15px;
+    line-height: 1.8;
+  }
+</style>
