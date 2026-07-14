@@ -56,26 +56,28 @@ function renderNavItems(items: NavItem[]) {
 }
 ---
 
-<header class="site-header pt-10 pb-6 px-4 text-center md:pt-12 md:pb-7">
-  <h1 class="site-logo">
-    <a href="/" class="site-logo-link">
-      <span class="site-logo-line">{photographerName}</span>
-      <span class="site-logo-line">{photographerTitle}</span>
-    </a>
-  </h1>
+<header class="site-header">
+  <div class="site-header-bar">
+    <h1 class="site-logo">
+      <a href="/" class="site-logo-link">
+        <span class="site-logo-line">{photographerName}</span>
+        <span class="site-logo-line">{photographerTitle}</span>
+      </a>
+    </h1>
 
-  <button
-    type="button"
-    id="site-nav-toggle"
-    class="site-nav-toggle"
-    aria-expanded="false"
-    aria-controls="site-nav-mobile"
-    aria-label="Menü öffnen"
-  >
-    <span class="site-nav-toggle-bar" aria-hidden="true"></span>
-    <span class="site-nav-toggle-bar" aria-hidden="true"></span>
-    <span class="site-nav-toggle-bar" aria-hidden="true"></span>
-  </button>
+    <button
+      type="button"
+      id="site-nav-toggle"
+      class="site-nav-toggle"
+      aria-expanded="false"
+      aria-controls="site-nav-mobile"
+      aria-label="Menü öffnen"
+    >
+      <span class="site-nav-toggle-bar" aria-hidden="true"></span>
+      <span class="site-nav-toggle-bar" aria-hidden="true"></span>
+      <span class="site-nav-toggle-bar" aria-hidden="true"></span>
+    </button>
+  </div>
 
   <nav class="site-nav site-nav-desktop mt-7" aria-label="Hauptnavigation">
     {
@@ -159,9 +161,34 @@ function renderNavItems(items: NavItem[]) {
         })
       }
     </ul>
+
+    <div class="site-social site-social-mobile">
+      <a
+        href={facebookUrl}
+        target={facebookUrl !== '#' ? '_blank' : undefined}
+        rel={facebookUrl !== '#' ? 'noopener noreferrer' : undefined}
+        aria-label="Facebook"
+        class="site-social-link hover:opacity-60 transition-opacity"
+      >
+        <svg class="site-social-icon fill-current" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+        </svg>
+      </a>
+      <a
+        href={instagramUrl}
+        target={instagramUrl !== '#' ? '_blank' : undefined}
+        rel={instagramUrl !== '#' ? 'noopener noreferrer' : undefined}
+        aria-label="Instagram"
+        class="site-social-link hover:opacity-60 transition-opacity"
+      >
+        <svg class="site-social-icon fill-current" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.227-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
+        </svg>
+      </a>
+    </div>
   </nav>
 
-  <div class="site-social mt-5 flex justify-center items-center gap-4 text-black">
+  <div class="site-social site-social-desktop mt-5 flex justify-center items-center gap-4 text-black">
     <a
       href={facebookUrl}
       target={facebookUrl !== '#' ? '_blank' : undefined}
@@ -241,20 +268,28 @@ function renderNavItems(items: NavItem[]) {
   .site-header {
     font-family: Georgia, 'Times New Roman', serif;
     position: relative;
+    padding: 1rem 1rem 1.25rem;
+  }
+
+  .site-header-bar {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
   }
 
   .site-logo {
     margin: 0;
+    flex: 1;
+    min-width: 0;
+    text-align: left;
   }
 
   .site-logo-link {
+    display: inline-block;
     color: inherit;
     text-decoration: none;
-  }
-
-  /* Format.com: Logo 39px, line-height 1.2, mobile 75% */
-  .site-logo-link {
-    font-size: clamp(1.8125rem, 5vw, 2.4375rem);
+    font-size: clamp(1.25rem, 4.5vw, 1.625rem);
     line-height: 1.2;
     font-weight: 400;
     letter-spacing: 0;
@@ -276,6 +311,24 @@ function renderNavItems(items: NavItem[]) {
     opacity: 0.55;
   }
 
+  .site-social {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: #000;
+  }
+
+  .site-social-mobile {
+    justify-content: center;
+    padding: 1rem 0 0.5rem;
+    margin-top: 0.5rem;
+    border-top: 1px solid #e5e5e5;
+  }
+
+  .site-social-desktop {
+    justify-content: center;
+  }
+
   .site-social-icon {
     width: clamp(15px, 2.2vw, 17px);
     height: clamp(15px, 2.2vw, 17px);
@@ -291,14 +344,15 @@ function renderNavItems(items: NavItem[]) {
   }
 
   .site-nav-toggle {
-    display: none;
+    display: flex;
+    flex-shrink: 0;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     gap: 5px;
     width: 44px;
     height: 44px;
-    margin: 1rem auto 0;
+    margin: 0;
     padding: 0;
     border: 0;
     background: transparent;
@@ -326,9 +380,15 @@ function renderNavItems(items: NavItem[]) {
   }
 
   .site-nav-mobile {
-    margin-top: 0.5rem;
-    padding: 0.5rem 0 0.25rem;
-    border-top: 1px solid #e5e5e5;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 40;
+    background: #fff;
+    padding: 0.75rem 1rem 1rem;
+    border-bottom: 1px solid #e5e5e5;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
   }
 
   .site-nav-mobile-list {
@@ -339,34 +399,63 @@ function renderNavItems(items: NavItem[]) {
 
   .site-nav-mobile-link {
     display: block;
-    padding: 0.65rem 0.5rem;
+    padding: 0.65rem 0.25rem;
     font-size: 1.0625rem;
     line-height: 1.4;
     text-decoration: none;
+    text-align: left;
   }
 
-  .site-nav-mobile:not(.hidden) + .site-social,
-  .site-header:has(.site-nav-toggle.is-open) .site-social {
-    margin-top: 1rem;
+  .site-nav-desktop {
+    display: none;
   }
 
-  @media (max-width: 1023px) {
-    .site-nav-desktop {
-      display: none;
-    }
+  .site-social-mobile {
+    display: flex;
+  }
 
-    .site-nav-toggle {
-      display: flex;
-    }
+  .site-social-desktop {
+    display: none;
   }
 
   @media (min-width: 1024px) {
+    .site-header {
+      padding: 3rem 1rem 1.75rem;
+      text-align: center;
+    }
+
+    .site-header-bar {
+      display: block;
+    }
+
+    .site-logo {
+      text-align: center;
+    }
+
+    .site-logo-link {
+      font-size: clamp(1.8125rem, 5vw, 2.4375rem);
+    }
+
+    .site-nav-toggle {
+      display: none;
+    }
+
     .site-nav-mobile {
       display: none !important;
     }
 
-    .site-nav-toggle {
-      display: none !important;
+    .site-nav-desktop {
+      display: block;
+      margin-top: 1.75rem;
+    }
+
+    .site-social-mobile {
+      display: none;
+    }
+
+    .site-social-desktop {
+      display: flex;
+      margin-top: 1.25rem;
     }
   }
 

@@ -51,7 +51,7 @@ function getGalleryCols(columns?: string | null): string {
       return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
     case '4':
     default:
-      return 'grid-cols-2 lg:grid-cols-4'
+      return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'
   }
 }
 
@@ -101,7 +101,7 @@ function getGalleryEntryCaption(entry: unknown): string | null {
 const sectionWidth = pageType === 'landing' ? 'max-w-[1400px]' : 'max-w-5xl'
 ---
 
-<div class={`mx-auto px-4 ${sectionWidth}`}>
+<div class={`page-content mx-auto px-4 md:px-6 ${sectionWidth}`}>
   {
     blocks.map((block, index) => {
       if (block.blockType === 'heading') {

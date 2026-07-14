@@ -1,0 +1,61 @@
+/* Homepage & gallery grids — single column on mobile like Format.com */
+@media (max-width: 1023px) {
+  .photo-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .photo-grid .photo-item {
+    width: 100%;
+    min-height: 0;
+    height: auto;
+  }
+
+  .photo-grid .photo-item.row-span-1,
+  .photo-grid .photo-item.row-span-2 {
+    grid-row: auto;
+  }
+
+  .photo-grid .photo-item img {
+    position: static;
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+  }
+
+  .photo-grid .photo-item > div {
+    min-height: 0;
+  }
+}
+
+@media (min-width: 1024px) {
+  .photo-grid {
+    display: grid;
+  }
+}
+
+/* Content pages */
+.page-content {
+  width: 100%;
+  max-width: 100%;
+}
+
+@media (max-width: 1023px) {
+  .page-content {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .gallery-full-bleed {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+img,
+video,
+iframe {
+  max-width: 100%;
+}
