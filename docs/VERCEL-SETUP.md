@@ -45,6 +45,22 @@ Optional für Bild-Uploads:
 |----------|------|
 | `BLOB_READ_WRITE_TOKEN` | Von Vercel Blob Storage |
 
+Optional für **„Forgot password“** (E-Mail via Strato):
+
+| Variable | Wert | Sensitive? |
+|----------|------|------------|
+| `SMTP_HOST` | `smtp.strato.de` | Nein |
+| `SMTP_PORT` | `465` | Nein |
+| `SMTP_SECURE` | `true` | Nein |
+| `SMTP_USER` | `mail@svenmagnus.com` | Nein |
+| `SMTP_PASS` | Postfach-Passwort aus Strato | **Ja** |
+| `SMTP_FROM_ADDRESS` | `mail@svenmagnus.com` | Nein |
+| `SMTP_FROM_NAME` | `Sven Magnus Portfolio` | Nein |
+
+**Environments:** Production + Preview für alle SMTP-Variablen anhaken.
+
+Falls Port 465 nicht funktioniert, alternativ testen: `SMTP_PORT=587`, `SMTP_SECURE=false`.
+
 ### Redeploy
 
 Nach dem Setzen der Variablen: **Deployments → … → Redeploy**
