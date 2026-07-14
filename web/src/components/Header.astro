@@ -143,29 +143,172 @@ function renderNavItems(items: NavItem[]) {
         <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.227-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
       </svg>
     </a>
-    <button
-      type="button"
-      id="share-button"
-      class="text-[11px] lowercase hover:opacity-60 transition-opacity"
-    >
-      Share
-    </button>
+    <div class="relative" id="share-menu">
+      <button
+        type="button"
+        id="share-button"
+        class="text-[11px] lowercase hover:opacity-60 transition-opacity"
+        aria-expanded="false"
+        aria-haspopup="true"
+        aria-controls="share-dropdown"
+      >
+        Share
+      </button>
+      <div
+        id="share-dropdown"
+        class="share-dropdown hidden absolute left-1/2 top-full z-50 mt-2 w-56 -translate-x-1/2 border border-neutral-200 bg-white text-left shadow-sm"
+        role="menu"
+        aria-labelledby="share-button"
+      >
+        <a
+          href="#"
+          data-share="facebook"
+          class="share-item"
+          role="menuitem"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <svg class="share-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="currentColor" d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+          </svg>
+          <span>Share to Facebook</span>
+        </a>
+        <a href="#" data-share="twitter" class="share-item" role="menuitem" target="_blank" rel="noopener noreferrer">
+          <svg class="share-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+          </svg>
+          <span>Share to Twitter</span>
+        </a>
+        <a href="#" data-share="tumblr" class="share-item" role="menuitem" target="_blank" rel="noopener noreferrer">
+          <svg class="share-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="currentColor" d="M14.563 24c-5.093 0-7.031-3.756-7.031-6.411V9.747H3.658V6.648c3.063-1.102 4.188-3.84 4.312-5.648H9.53v4.8h4.688v3.099H9.53v7.313c0 1.75.832 2.637 2.563 2.637.888 0 1.85-.281 2.47-.563z" />
+          </svg>
+          <span>Post to Tumblr</span>
+        </a>
+        <a href="#" data-share="pinterest" class="share-item" role="menuitem" target="_blank" rel="noopener noreferrer">
+          <svg class="share-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="currentColor" d="M12 0C5.373 0 0 5.372 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.247 3.772-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.741.099.12.112.225.085.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.401.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.357-.629-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z" />
+          </svg>
+          <span>Post to Pinterest</span>
+        </a>
+      </div>
+    </div>
   </div>
 </header>
 
-<script>
-  document.getElementById('share-button')?.addEventListener('click', async () => {
-    const url = window.location.href
+<style>
+  .share-dropdown::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    width: 10px;
+    height: 10px;
+    background: #fff;
+    border-top: 1px solid #e5e5e5;
+    border-left: 1px solid #e5e5e5;
+    transform: translateX(-50%) rotate(45deg);
+  }
 
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: document.title, url })
-      } catch {
-        /* user cancelled */
-      }
-      return
+  .share-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid #e5e5e5;
+    color: #000;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.15s ease;
+  }
+
+  .share-item:last-child {
+    border-bottom: none;
+  }
+
+  .share-item:hover {
+    background: #fafafa;
+  }
+
+  .share-icon {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+  }
+</style>
+
+<script>
+  function getShareUrl(network: string, pageUrl: string, title: string): string {
+    const encodedUrl = encodeURIComponent(pageUrl)
+    const encodedTitle = encodeURIComponent(title)
+
+    switch (network) {
+      case 'facebook':
+        return `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`
+      case 'twitter':
+        return `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`
+      case 'tumblr':
+        return `https://www.tumblr.com/widgets/share/tool?posttype=link&title=${encodedTitle}&content=${encodedUrl}&canonicalUrl=${encodedUrl}`
+      case 'pinterest':
+        return `https://pinterest.com/pin/create/button/?url=${encodedUrl}&description=${encodedTitle}`
+      default:
+        return pageUrl
+    }
+  }
+
+  function initShareMenu() {
+    const menu = document.getElementById('share-menu')
+    const button = document.getElementById('share-button')
+    const dropdown = document.getElementById('share-dropdown')
+
+    if (!menu || !button || !dropdown) return
+
+    const close = () => {
+      dropdown.classList.add('hidden')
+      button.setAttribute('aria-expanded', 'false')
     }
 
-    await navigator.clipboard.writeText(url)
-  })
+    const open = () => {
+      dropdown.classList.remove('hidden')
+      button.setAttribute('aria-expanded', 'true')
+    }
+
+    button.addEventListener('click', (event) => {
+      event.stopPropagation()
+      const isOpen = !dropdown.classList.contains('hidden')
+      if (isOpen) {
+        close()
+      } else {
+        open()
+      }
+    })
+
+    dropdown.querySelectorAll('[data-share]').forEach((link) => {
+      link.addEventListener('click', (event) => {
+        event.preventDefault()
+        const network = (link as HTMLElement).dataset.share
+        if (!network) return
+
+        const shareUrl = getShareUrl(network, window.location.href, document.title)
+        window.open(shareUrl, '_blank', 'noopener,noreferrer,width=600,height=500')
+        close()
+      })
+    })
+
+    document.addEventListener('click', (event) => {
+      if (!menu.contains(event.target as Node)) {
+        close()
+      }
+    })
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        close()
+      }
+    })
+  }
+
+  initShareMenu()
+  document.addEventListener('astro:page-load', initShareMenu)
 </script>
