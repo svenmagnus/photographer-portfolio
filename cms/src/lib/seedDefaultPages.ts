@@ -74,11 +74,41 @@ const DEFAULT_PAGES = [
 export async function seedDefaultPages(payload: Payload): Promise<void> {
   try {
     await seedDefaultPagesInner(payload)
+    await removeDuplicateContactInfoBlock(payload)
   } catch (error) {
     payload.logger.error(
       `Default pages seed skipped: ${error instanceof Error ? error.message : String(error)}`,
     )
   }
+}
+
+/** contactForm already shows email — drop legacy contactInfo on the contact page. */
+async function removeDuplicateContactInfoBlock(payload: Payload): Promise<void> {
+  const existing = await payload.find({
+    collection: 'pages',
+    where: { slug: { equals: 'contact' } },
+    limit: 1,
+    depth: 0,
+  })
+
+  const page = existing.docs[0]
+  if (!page || !Array.isArray(page.layout)) return
+
+  const layout = page.layout as Array<{ blockType?: string }>
+  const hasContactForm = layout.some((block) => block.blockType === 'contactForm')
+  const hasContactInfo = layout.some((block) => block.blockType === 'contactInfo')
+
+  if (!hasContactForm || !hasContactInfo) return
+
+  await payload.update({
+    collection: 'pages',
+    id: page.id,
+    data: {
+      layout: layout.filter((block) => block.blockType !== 'contactInfo'),
+    },
+  })
+
+  payload.logger.info('Removed duplicate contactInfo block from contact page')
 }
 
 async function seedDefaultPagesInner(payload: Payload): Promise<void> {
