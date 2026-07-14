@@ -13,7 +13,6 @@ export default {
           'sans-serif',
         ],
         serif: [
-          '"EB Garamond"',
           'Georgia',
           'Times New Roman',
           'serif',

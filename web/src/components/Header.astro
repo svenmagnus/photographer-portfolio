@@ -56,18 +56,16 @@ function renderNavItems(items: NavItem[]) {
 }
 ---
 
-<header class="site-header pt-12 pb-7 px-4 text-center font-serif">
-  <h1 class="site-name text-[clamp(1.875rem,4vw,2.125rem)] font-normal tracking-[0.01em] text-black leading-[1.15]">
-    {photographerName}
+<header class="site-header pt-12 pb-7 px-4 text-center">
+  <h1 class="site-logo">
+    <span class="site-logo-line">{photographerName}</span>
+    <span class="site-logo-line">{photographerTitle}</span>
   </h1>
-  <p class="site-title text-[clamp(1.25rem,2.5vw,1.5rem)] font-normal text-black mt-1 leading-[1.2]">
-    {photographerTitle}
-  </p>
 
-  <nav class="site-nav mt-6" aria-label="Hauptnavigation">
+  <nav class="site-nav mt-7" aria-label="Hauptnavigation">
     {
       rowOne.length > 0 && (
-        <ul class="flex flex-wrap justify-center items-center gap-x-0 gap-y-1 text-[14px] leading-[1.65] tracking-[0.015em]">
+        <ul class="site-nav-row flex flex-wrap justify-center items-center gap-x-0 gap-y-1.5">
           {renderNavItems(rowOne).map(({ item, index, active }) => (
             <>
               {index > 0 && (
@@ -94,7 +92,7 @@ function renderNavItems(items: NavItem[]) {
 
     {
       rowTwo.length > 0 && (
-        <ul class="flex flex-wrap justify-center items-center gap-x-0 gap-y-1 text-[14px] leading-[1.65] tracking-[0.015em] mt-1.5">
+        <ul class="site-nav-row flex flex-wrap justify-center items-center gap-x-0 gap-y-1.5 mt-2">
           {renderNavItems(rowTwo).map(({ item, index, active }) => (
             <>
               {index > 0 && (
@@ -197,6 +195,30 @@ function renderNavItems(items: NavItem[]) {
 </header>
 
 <style>
+  .site-header {
+    font-family: Georgia, 'Times New Roman', serif;
+  }
+
+  /* Format.com: Logo 39px, line-height 1.2, mobile 75% */
+  .site-logo {
+    margin: 0;
+    font-size: clamp(1.8125rem, 5vw, 2.4375rem);
+    line-height: 1.2;
+    font-weight: 400;
+    letter-spacing: 0;
+    color: #000;
+  }
+
+  .site-logo-line {
+    display: block;
+  }
+
+  .site-nav-row {
+    font-size: clamp(1.0625rem, 2.4vw, 1.125rem);
+    line-height: 1.55;
+    letter-spacing: 0.01em;
+  }
+
   .nav-separator {
     color: #000;
     opacity: 0.55;
