@@ -20,7 +20,7 @@ const contentBlocks = pageBlocks.filter((block) => block.slug !== 'photoGrid')
 const landingBlocks = pageBlocks
 
 const blogBlocks = pageBlocks.filter((block) =>
-  ['heading', 'richText', 'mediaText', 'imageGallery', 'video', 'contactInfo', 'spacer'].includes(
+  ['heading', 'richText', 'mediaText', 'imageGallery', 'video', 'contactInfo', 'contactForm', 'spacer'].includes(
     block.slug,
   ),
 )

@@ -95,6 +95,14 @@ export const SiteSettings: GlobalConfig = {
               label: 'Kontakt-E-Mail',
             },
             {
+              name: 'contactPhone',
+              type: 'text',
+              label: 'Telefon',
+              admin: {
+                description: 'Wird im Kontaktformular angezeigt, z. B. +49 162 2012929',
+              },
+            },
+            {
               name: 'instagramUrl',
               type: 'text',
               label: 'Instagram-URL',

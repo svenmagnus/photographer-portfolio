@@ -50,6 +50,14 @@ export type PageBlock =
       showSocial?: boolean | null
       align?: 'center' | 'left' | null
     }
+  | {
+      blockType: 'contactForm'
+      intro?: Record<string, unknown> | null
+      showPhone?: boolean | null
+      showEmail?: boolean | null
+      submitLabel?: string | null
+      successMessage?: string | null
+    }
 
 export interface CmsPage {
   id: string | number

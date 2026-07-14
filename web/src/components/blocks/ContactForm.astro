@@ -1,0 +1,247 @@
+---
+import { lexicalToHtml } from '../../lib/lexicalToHtml'
+
+interface Props {
+  blockId: string
+  intro?: Record<string, unknown> | null
+  showPhone?: boolean | null
+  showEmail?: boolean | null
+  submitLabel?: string | null
+  successMessage?: string | null
+  email?: string | null
+  phone?: string | null
+}
+
+const {
+  blockId,
+  intro,
+  showPhone = true,
+  showEmail = true,
+  submitLabel = 'Send Message',
+  successMessage = 'Thank you — your message has been sent.',
+  email,
+  phone,
+} = Astro.props
+
+const introHtml = intro ? lexicalToHtml(intro) : ''
+const payloadUrl = (import.meta.env.PUBLIC_PAYLOAD_URL || 'http://localhost:3000').replace(/\/$/, '')
+const formId = `contact-form-${blockId}`
+---
+
+<section class="py-8 max-w-3xl mx-auto">
+  {
+    introHtml ? (
+      <div
+        class="cms-rich-text mb-10 text-[15px] leading-relaxed text-black text-center md:text-left"
+        set:html={introHtml}
+      />
+    ) : null
+  }
+
+  <div class="grid gap-12 md:grid-cols-2 md:items-start">
+    <div class="space-y-8 text-[15px] leading-relaxed text-black">
+      {
+        showPhone !== false && phone ? (
+          <div>
+            <p class="font-semibold mb-1">Phone</p>
+            <p>
+              <a href={`tel:${phone.replace(/\s/g, '')}`} class="hover:opacity-60 transition-opacity">
+                {phone}
+              </a>
+            </p>
+          </div>
+        ) : null
+      }
+      {
+        showEmail !== false && email ? (
+          <div>
+            <p class="font-semibold mb-1">Email</p>
+            <p>
+              <a href={`mailto:${email}`} class="hover:opacity-60 transition-opacity">
+                {email}
+              </a>
+            </p>
+          </div>
+        ) : null
+      }
+    </div>
+
+    <form id={formId} class="contact-form space-y-0" novalidate>
+      <label class="sr-only" for={`${formId}-name`}>Name</label>
+      <input
+        id={`${formId}-name`}
+        type="text"
+        name="name"
+        placeholder="Name"
+        required
+        autocomplete="name"
+        class="contact-field"
+      />
+
+      <label class="sr-only" for={`${formId}-email`}>Email</label>
+      <input
+        id={`${formId}-email`}
+        type="email"
+        name="email"
+        placeholder="Email"
+        required
+        autocomplete="email"
+        class="contact-field"
+      />
+
+      <label class="sr-only" for={`${formId}-message`}>Message</label>
+      <textarea
+        id={`${formId}-message`}
+        name="message"
+        placeholder="Message"
+        required
+        rows="6"
+        class="contact-field contact-field-textarea"
+      />
+
+      <input
+        type="text"
+        name="website"
+        tabindex="-1"
+        autocomplete="off"
+        class="hidden"
+        aria-hidden="true"
+      />
+
+      <button type="submit" class="contact-submit">
+        {submitLabel}
+      </button>
+
+      <p class="contact-status hidden mt-4 text-[13px]" role="status" aria-live="polite" />
+    </form>
+  </div>
+</section>
+
+<script define:vars={{ formId, payloadUrl, successMessage }}>
+  const form = document.getElementById(formId)
+  if (!form) throw new Error('Contact form not found')
+
+  const statusEl = form.querySelector('.contact-status')
+  const submitBtn = form.querySelector('.contact-submit')
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault()
+
+    if (!(submitBtn instanceof HTMLButtonElement) || !(statusEl instanceof HTMLElement)) return
+
+    const formData = new FormData(form)
+    const name = String(formData.get('name') || '').trim()
+    const email = String(formData.get('email') || '').trim()
+    const message = String(formData.get('message') || '').trim()
+    const website = String(formData.get('website') || '').trim()
+
+    statusEl.classList.remove('hidden', 'text-red-700', 'text-black')
+    statusEl.textContent = ''
+
+    if (!name || !email || !message) {
+      statusEl.textContent = 'Bitte alle Felder ausfüllen.'
+      statusEl.classList.add('text-red-700')
+      return
+    }
+
+    submitBtn.disabled = true
+    submitBtn.textContent = 'Sending…'
+
+    try {
+      const response = await fetch(`${payloadUrl}/api/contact`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, message, website }),
+      })
+
+      const data = await response.json().catch(() => ({}))
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Senden fehlgeschlagen')
+      }
+
+      form.reset()
+      statusEl.textContent = successMessage
+      statusEl.classList.add('text-black')
+    } catch (error) {
+      statusEl.textContent =
+        error instanceof Error ? error.message : 'Senden fehlgeschlagen. Bitte später erneut versuchen.'
+      statusEl.classList.add('text-red-700')
+    } finally {
+      submitBtn.disabled = false
+      submitBtn.textContent = submitBtn.dataset.label || 'Send Message'
+      statusEl.classList.remove('hidden')
+    }
+  })
+
+  if (submitBtn instanceof HTMLButtonElement) {
+    submitBtn.dataset.label = submitBtn.textContent || 'Send Message'
+  }
+</script>
+
+<style>
+  .contact-field {
+    display: block;
+    width: 100%;
+    border: 1px solid #d4d4d4;
+    border-bottom: none;
+    background: #fff;
+    padding: 0.85rem 1rem;
+    font-size: 15px;
+    line-height: 1.4;
+    color: #000;
+    outline: none;
+    resize: vertical;
+    font-family: inherit;
+  }
+
+  .contact-field:first-of-type {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+  }
+
+  .contact-field-textarea {
+    border-bottom: 1px solid #d4d4d4;
+    min-height: 9rem;
+  }
+
+  .contact-field:focus {
+    border-color: #a3a3a3;
+    z-index: 1;
+    position: relative;
+  }
+
+  .contact-field::placeholder {
+    color: #a3a3a3;
+  }
+
+  .contact-submit {
+    margin-top: 1rem;
+    width: 100%;
+    border: 1px solid #d4d4d4;
+    background: #fff;
+    padding: 0.85rem 1rem;
+    font-size: 15px;
+    color: #000;
+    cursor: pointer;
+    font-family: inherit;
+    transition: opacity 0.15s ease;
+  }
+
+  .contact-submit:hover:not(:disabled) {
+    opacity: 0.7;
+  }
+
+  .contact-submit:disabled {
+    opacity: 0.5;
+    cursor: wait;
+  }
+
+  .cms-rich-text :global(p) {
+    margin: 0 0 1rem;
+  }
+
+  .cms-rich-text :global(p:last-child) {
+    margin-bottom: 0;
+  }
+</style>

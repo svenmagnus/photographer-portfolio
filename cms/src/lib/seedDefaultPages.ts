@@ -15,15 +15,13 @@ const DEFAULT_PAGES = [
         align: 'center',
       },
       {
-        blockType: 'contactInfo',
-        showSocial: true,
-        align: 'center',
-      },
-      {
-        blockType: 'richText',
-        width: 'narrow',
-        content: lexicalParagraphs(
-          'Für Anfragen zu Aufträgen, Prints oder Publikationen erreichst du mich per E-Mail.',
+        blockType: 'contactForm',
+        showPhone: true,
+        showEmail: true,
+        submitLabel: 'Send Message',
+        successMessage: 'Thank you — your message has been sent.',
+        intro: lexicalParagraphs(
+          "I'm available for local projects as well as potential employment opportunities. Use the form to inquire about rates and availability, or just to say hi.",
         ),
       },
     ],

@@ -5,6 +5,7 @@ import { getMediaUrl, type Media } from '../../lib/photoLoader'
 import type { SiteSettingsData } from '../../lib/siteSettings'
 import { getVideoEmbedUrl, getAspectRatioClass } from '../../lib/videoEmbed'
 import CategoryPhotoGrid from './CategoryPhotoGrid.astro'
+import ContactForm from './ContactForm.astro'
 
 interface Props {
   blocks: PageBlock[]
@@ -217,6 +218,24 @@ const sectionWidth = pageType === 'landing' ? 'max-w-[1400px]' : 'max-w-5xl'
 
       if (block.blockType === 'spacer') {
         return <div class={getSpacerClass(block.size)} aria-hidden="true" />
+      }
+
+      if (block.blockType === 'contactForm') {
+        const email = settings?.contactEmail || settings?.professionalEmail
+        const phone = settings?.contactPhone
+
+        return (
+          <ContactForm
+            blockId={String(index)}
+            intro={block.intro}
+            showPhone={block.showPhone}
+            showEmail={block.showEmail}
+            submitLabel={block.submitLabel}
+            successMessage={block.successMessage}
+            email={email}
+            phone={phone}
+          />
+        )
       }
 
       if (block.blockType === 'contactInfo') {

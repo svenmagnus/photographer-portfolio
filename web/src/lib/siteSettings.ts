@@ -6,6 +6,7 @@ export interface SiteSettingsData {
   photographerName?: string | null
   photographerTitle?: string | null
   contactEmail?: string | null
+  contactPhone?: string | null
   instagramUrl?: string | null
   facebookUrl?: string | null
   professionalEmail?: string | null
