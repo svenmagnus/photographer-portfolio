@@ -1,7 +1,7 @@
 ---
 export const prerender = false
 
-import CmsSlugPage from '../components/pages/CmsSlugPage.astro'
+import CmsSlugPage from '../../components/pages/CmsSlugPage.astro'
 
 const slug = Astro.params.slug
 
@@ -11,4 +11,4 @@ if (!slug) {
 
 ---
 
-<CmsSlugPage locale="de" slug={slug} />
+<CmsSlugPage locale="en" slug={slug} />

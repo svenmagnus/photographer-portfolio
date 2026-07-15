@@ -1,7 +1,7 @@
 ---
 export const prerender = false
 
-import BlogPostPage from '../../components/pages/BlogPostPage.astro'
+import BlogPostPage from '../../../components/pages/BlogPostPage.astro'
 
 const blogSlug = Astro.params.slug
 const postSlug = Astro.params.postSlug
@@ -12,4 +12,4 @@ if (!blogSlug || !postSlug) {
 
 ---
 
-<BlogPostPage locale="de" blogSlug={blogSlug} postSlug={postSlug} />
+<BlogPostPage locale="en" blogSlug={blogSlug} postSlug={postSlug} />

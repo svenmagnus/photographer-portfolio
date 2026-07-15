@@ -1,0 +1,49 @@
+---
+import Layout from '../../layouts/Layout.astro'
+import Header from '../Header.astro'
+import BlogPostArticle from '../blog/BlogPostArticle.astro'
+import type { Locale } from '../../i18n/locale'
+import { localePath } from '../../i18n/locale'
+import { fetchBlogPost } from '../../lib/blogPosts'
+import { fetchPageBySlug, fetchNavigationPages } from '../../lib/pages'
+import { fetchSiteSettings } from '../../lib/siteSettings'
+import { fetchMainMenu } from '../../lib/mainMenu'
+import { buildNavigation } from '../../lib/navigation'
+
+interface Props {
+  locale: Locale
+  blogSlug: string
+  postSlug: string
+}
+
+const { locale, blogSlug, postSlug } = Astro.props
+
+if (blogSlug === 'film-editor') {
+  return Astro.redirect(localePath(`/blog/${postSlug}`, locale), 301)
+}
+
+const [blogPage, post, settings, mainMenu, navPages] = await Promise.all([
+  fetchPageBySlug(blogSlug, locale),
+  fetchBlogPost(blogSlug, postSlug, locale),
+  fetchSiteSettings(locale),
+  fetchMainMenu(locale),
+  fetchNavigationPages(locale),
+])
+
+if (!blogPage || blogPage.pageType !== 'blog' || !post) {
+  return new Response(null, { status: 404, statusText: 'Not Found' })
+}
+
+const navItems = buildNavigation(settings, navPages, mainMenu.items, locale)
+const pageTitle =
+  post.metaTitle ||
+  `${post.title} — ${blogPage.title} — ${settings.photographerName || 'Sven Magnus Hanefeld'}`
+const description = post.metaDescription || post.excerpt || post.title
+---
+
+<Layout title={pageTitle} description={description} locale={locale}>
+  <main class="min-h-screen bg-white pb-16">
+    <Header activeSlug={blogSlug} navItems={navItems} settings={settings} locale={locale} />
+    <BlogPostArticle post={post} blogSlug={blogSlug} blogTitle={blogPage.title} locale={locale} />
+  </main>
+</Layout>

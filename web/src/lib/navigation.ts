@@ -2,6 +2,8 @@ import { PHOTO_CATEGORIES, STATIC_NAV_LINKS } from './categories'
 import type { MainMenuItem } from './mainMenu'
 import type { CmsPage } from './pages'
 import type { SiteSettingsData } from './siteSettings'
+import type { Locale } from '../i18n/locale'
+import { localePath } from '../i18n/locale'
 
 export interface NavItem {
   label: string
@@ -45,7 +47,19 @@ function getGalleryCategory(page: unknown): string | undefined {
   return undefined
 }
 
-function menuItemToNavItem(item: MainMenuItem, isSubItem = false): NavItem | null {
+function prefixHref(href: string, locale: Locale): string {
+  if (href.startsWith('http') || href.startsWith('mailto:') || href.startsWith('tel:')) {
+    return href
+  }
+
+  if (href.startsWith('/?')) {
+    return localePath('/', locale) + href.slice(1)
+  }
+
+  return localePath(href, locale)
+}
+
+function menuItemToNavItem(item: MainMenuItem, locale: Locale, isSubItem = false): NavItem | null {
   const label = item.label?.trim()
   const linkType = item.linkType || 'page'
 
@@ -59,7 +73,10 @@ function menuItemToNavItem(item: MainMenuItem, isSubItem = false): NavItem | nul
 
     return {
       label: label || getPageTitle(item.page) || slug,
-      href: pageType === 'gallery' && categoryValue ? `/?category=${categoryValue}` : `/${slug}`,
+      href: prefixHref(
+        pageType === 'gallery' && categoryValue ? `/?category=${categoryValue}` : `/${slug}`,
+        locale,
+      ),
       categoryValue,
       slug,
       openInNewTab: Boolean(item.openInNewTab),
@@ -70,7 +87,7 @@ function menuItemToNavItem(item: MainMenuItem, isSubItem = false): NavItem | nul
   if (linkType === 'category' && item.category) {
     return {
       label: label || item.category,
-      href: `/?category=${item.category}`,
+      href: prefixHref(`/?category=${item.category}`, locale),
       categoryValue: item.category,
       openInNewTab: Boolean(item.openInNewTab),
       isSubItem,
@@ -89,15 +106,15 @@ function menuItemToNavItem(item: MainMenuItem, isSubItem = false): NavItem | nul
   return null
 }
 
-function buildNavigationFromMainMenu(items: MainMenuItem[]): NavItem[] {
+function buildNavigationFromMainMenu(items: MainMenuItem[], locale: Locale): NavItem[] {
   const result: NavItem[] = []
 
   for (const item of items) {
-    const navItem = menuItemToNavItem(item, false)
+    const navItem = menuItemToNavItem(item, locale, false)
     if (navItem) result.push(navItem)
 
     for (const child of item.children ?? []) {
-      const childItem = menuItemToNavItem(child, true)
+      const childItem = menuItemToNavItem(child, locale, true)
       if (childItem) result.push(childItem)
     }
   }
@@ -105,7 +122,7 @@ function buildNavigationFromMainMenu(items: MainMenuItem[]): NavItem[] {
   return result
 }
 
-function buildNavigationFromPages(pages: CmsPage[]): NavItem[] {
+function buildNavigationFromPages(pages: CmsPage[], locale: Locale): NavItem[] {
   return pages
     .filter((page) => page.showInNavigation !== false)
     .map((page) => {
@@ -114,7 +131,10 @@ function buildNavigationFromPages(pages: CmsPage[]): NavItem[] {
 
       return {
         label: page.title,
-        href: page.pageType === 'gallery' && categoryValue ? `/?category=${categoryValue}` : `/${page.slug}`,
+        href: prefixHref(
+          page.pageType === 'gallery' && categoryValue ? `/?category=${categoryValue}` : `/${page.slug}`,
+          locale,
+        ),
         categoryValue,
         slug: page.slug,
       }
@@ -125,13 +145,14 @@ export function buildNavigation(
   settings: SiteSettingsData,
   navPages?: CmsPage[],
   mainMenuItems?: MainMenuItem[] | null,
+  locale: Locale = 'de',
 ): NavItem[] {
   if (mainMenuItems?.length) {
-    return buildNavigationFromMainMenu(mainMenuItems)
+    return buildNavigationFromMainMenu(mainMenuItems, locale)
   }
 
   if (navPages?.length) {
-    return buildNavigationFromPages(navPages)
+    return buildNavigationFromPages(navPages, locale)
   }
 
   const custom = settings.navigation
@@ -145,7 +166,7 @@ export function buildNavigation(
         if (item.linkType === 'category' && item.category) {
           return {
             label,
-            href: `/?category=${item.category}`,
+            href: prefixHref(`/?category=${item.category}`, locale),
             categoryValue: item.category,
           }
         }
@@ -155,7 +176,7 @@ export function buildNavigation(
           if (!slug) return null
           return {
             label,
-            href: `/${slug}`,
+            href: prefixHref(`/${slug}`, locale),
             slug,
           }
         }
@@ -176,13 +197,13 @@ export function buildNavigation(
 
   const categoryItems: NavItem[] = PHOTO_CATEGORIES.map((category) => ({
     label: category.label,
-    href: `/?category=${category.value}`,
+    href: prefixHref(`/?category=${category.value}`, locale),
     categoryValue: category.value,
   }))
 
   const staticItems: NavItem[] = STATIC_NAV_LINKS.map((link) => ({
     label: link.label,
-    href: link.href,
+    href: prefixHref(link.href, locale),
     slug: link.href.replace(/^\//, ''),
   }))
 

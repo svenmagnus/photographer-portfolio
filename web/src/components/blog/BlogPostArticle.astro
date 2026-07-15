@@ -4,13 +4,18 @@ import { normalizeFeaturedImages } from '../../lib/blogPostMedia'
 import { lexicalToHtml } from '../../lib/lexicalToHtml'
 import { getMediaUrl } from '../../lib/photoLoader'
 
+import type { Locale } from '../../i18n/locale'
+import { DEFAULT_LOCALE, localePath } from '../../i18n/locale'
+import { t } from '../../i18n/messages'
+
 interface Props {
   post: BlogPost
   blogSlug: string
   blogTitle: string
+  locale?: Locale
 }
 
-const { post, blogSlug, blogTitle } = Astro.props
+const { post, blogSlug, blogTitle, locale = DEFAULT_LOCALE } = Astro.props
 
 const heroImages = normalizeFeaturedImages(post.featuredImage)
 const html = lexicalToHtml(post.content)
@@ -19,7 +24,7 @@ const html = lexicalToHtml(post.content)
 <article class="blog-article">
   <header class="blog-article-header">
     <p class="blog-article-back">
-      <a href={`/${blogSlug}`}>← {blogTitle}</a>
+      <a href={localePath(`/${blogSlug}`, locale)}>{t(locale, 'blogBack', { title: blogTitle })}</a>
     </p>
     <h1 class="blog-article-title">{post.title}</h1>
   </header>

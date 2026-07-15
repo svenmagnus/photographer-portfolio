@@ -1,15 +1,24 @@
 ---
 import { buildNavigation, splitNavigation, type NavItem } from '../lib/navigation'
 import type { SiteSettingsData } from '../lib/siteSettings'
+import type { Locale } from '../i18n/locale'
+import { DEFAULT_LOCALE, localePath, switchLocalePath } from '../i18n/locale'
+import { t } from '../i18n/messages'
 
 interface Props {
   activeCategory?: string
   activeSlug?: string
   navItems?: NavItem[]
   settings?: SiteSettingsData
+  locale?: Locale
 }
 
-const { activeCategory, activeSlug, navItems, settings } = Astro.props
+const { activeCategory, activeSlug, navItems, settings, locale = DEFAULT_LOCALE } = Astro.props
+
+const homeHref = localePath('/', locale)
+const currentPath = Astro.url.pathname
+const deHref = switchLocalePath(currentPath, 'de')
+const enHref = switchLocalePath(currentPath, 'en')
 
 const photographerName =
   settings?.photographerName || import.meta.env.PUBLIC_PHOTOGRAPHER_NAME || 'Sven Magnus Hanefeld'
@@ -20,11 +29,16 @@ const facebookUrl = settings?.facebookUrl || import.meta.env.PUBLIC_FACEBOOK_URL
 
 const navigation = navItems?.length
   ? navItems
-  : buildNavigation({
-      photographerName,
-      photographerTitle,
-      navigation: null,
-    })
+  : buildNavigation(
+      {
+        photographerName,
+        photographerTitle,
+        navigation: null,
+      },
+      undefined,
+      undefined,
+      locale,
+    )
 
 const { rowOne, rowTwo } = splitNavigation(navigation)
 
@@ -51,27 +65,49 @@ function navItemClasses(active: boolean) {
 <header class="site-header">
   <div class="site-header-bar">
     <h1 class="site-logo">
-      <a href="/" class="site-logo-link">
+      <a href={homeHref} class="site-logo-link">
         <span class="site-logo-line">{photographerName}</span>
         <span class="site-logo-line">{photographerTitle}</span>
       </a>
     </h1>
 
-    <button
-      type="button"
-      id="site-nav-toggle"
-      class="site-nav-toggle"
-      aria-expanded="false"
-      aria-controls="site-nav-mobile"
-      aria-label="Menü öffnen"
-    >
+    <div class="site-header-actions">
+      <nav class="site-lang-switch" aria-label={t(locale, 'langSwitch')}>
+        <a
+          href={deHref}
+          class:list={['site-lang-link', locale === 'de' && 'site-lang-link-active']}
+          hreflang="de"
+          lang="de"
+        >
+          {t(locale, 'langDe')}
+        </a>
+        <span class="site-lang-sep" aria-hidden="true">/</span>
+        <a
+          href={enHref}
+          class:list={['site-lang-link', locale === 'en' && 'site-lang-link-active']}
+          hreflang="en"
+          lang="en"
+        >
+          {t(locale, 'langEn')}
+        </a>
+      </nav>
+
+      <button
+        type="button"
+        id="site-nav-toggle"
+        class="site-nav-toggle"
+        aria-expanded="false"
+        aria-controls="site-nav-mobile"
+        aria-label={t(locale, 'menuOpen')}
+      >
       <span class="site-nav-toggle-bar" aria-hidden="true"></span>
       <span class="site-nav-toggle-bar" aria-hidden="true"></span>
       <span class="site-nav-toggle-bar" aria-hidden="true"></span>
     </button>
+    </div>
   </div>
 
-  <nav class="site-nav site-nav-desktop mt-7" aria-label="Hauptnavigation">
+  <nav class="site-nav site-nav-desktop mt-7" aria-label={t(locale, 'mainNav')}>
     {
       [rowOne, rowTwo].map(
         (row) =>
@@ -240,6 +276,40 @@ function navItemClasses(active: boolean) {
     align-items: flex-start;
     justify-content: space-between;
     gap: 1rem;
+  }
+
+  .site-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;
+  }
+
+  .site-lang-switch {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+  }
+
+  .site-lang-link {
+    color: #888;
+    text-decoration: none;
+  }
+
+  .site-lang-link:hover {
+    color: #000;
+  }
+
+  .site-lang-link-active {
+    color: #000;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .site-lang-sep {
+    color: #ccc;
   }
 
   .site-logo {
@@ -498,7 +568,7 @@ function navItemClasses(active: boolean) {
   }
 </style>
 
-<script>
+<script define:vars={{ menuOpenLabel: t(locale, 'menuOpen'), menuCloseLabel: t(locale, 'menuClose') }}>
   function getShareUrl(network: string, pageUrl: string, title: string): string {
     const encodedUrl = encodeURIComponent(pageUrl)
     const encodedTitle = encodeURIComponent(title)
@@ -580,7 +650,7 @@ function navItemClasses(active: boolean) {
       panel.setAttribute('aria-hidden', 'true')
       toggle.classList.remove('is-open')
       toggle.setAttribute('aria-expanded', 'false')
-      toggle.setAttribute('aria-label', 'Menü öffnen')
+      toggle.setAttribute('aria-label', menuOpenLabel)
       document.body.classList.remove('site-nav-open')
     }
 
@@ -589,7 +659,7 @@ function navItemClasses(active: boolean) {
       panel.setAttribute('aria-hidden', 'false')
       toggle.classList.add('is-open')
       toggle.setAttribute('aria-expanded', 'true')
-      toggle.setAttribute('aria-label', 'Menü schließen')
+      toggle.setAttribute('aria-label', menuCloseLabel)
       document.body.classList.add('site-nav-open')
     }
 

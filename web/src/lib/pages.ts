@@ -1,3 +1,5 @@
+import type { Locale } from '../i18n/locale'
+import { withLocaleParam } from '../i18n/locale'
 import type { PhotoCategory } from './categories'
 import type { Media } from './photoLoader'
 
@@ -93,14 +95,17 @@ function getPayloadUrl(): string {
   return (import.meta.env.PUBLIC_PAYLOAD_URL || 'http://localhost:3000').replace(/\/$/, '')
 }
 
-export async function fetchNavigationPages(): Promise<CmsPage[]> {
-  const params = new URLSearchParams({
-    depth: '0',
-    limit: '100',
-    sort: 'navOrder',
-    'where[status][equals]': 'published',
-    'where[showInNavigation][equals]': 'true',
-  })
+export async function fetchNavigationPages(locale: Locale = 'de'): Promise<CmsPage[]> {
+  const params = withLocaleParam(
+    new URLSearchParams({
+      depth: '0',
+      limit: '100',
+      sort: 'navOrder',
+      'where[status][equals]': 'published',
+      'where[showInNavigation][equals]': 'true',
+    }),
+    locale,
+  )
 
   try {
     const response = await fetch(`${getPayloadUrl()}/api/pages?${params.toString()}`)
@@ -120,13 +125,16 @@ export async function fetchNavigationPages(): Promise<CmsPage[]> {
   }
 }
 
-export async function fetchPublishedPages(): Promise<CmsPage[]> {
-  const params = new URLSearchParams({
-    depth: '2',
-    limit: '100',
-    sort: 'title',
-    'where[status][equals]': 'published',
-  })
+export async function fetchPublishedPages(locale: Locale = 'de'): Promise<CmsPage[]> {
+  const params = withLocaleParam(
+    new URLSearchParams({
+      depth: '2',
+      limit: '100',
+      sort: 'title',
+      'where[status][equals]': 'published',
+    }),
+    locale,
+  )
 
   try {
     const response = await fetch(`${getPayloadUrl()}/api/pages?${params.toString()}`)
@@ -144,13 +152,16 @@ export async function fetchPublishedPages(): Promise<CmsPage[]> {
   }
 }
 
-export async function fetchPageBySlug(slug: string): Promise<CmsPage | null> {
-  const params = new URLSearchParams({
-    depth: '2',
-    limit: '1',
-    'where[slug][equals]': slug,
-    'where[status][equals]': 'published',
-  })
+export async function fetchPageBySlug(slug: string, locale: Locale = 'de'): Promise<CmsPage | null> {
+  const params = withLocaleParam(
+    new URLSearchParams({
+      depth: '2',
+      limit: '1',
+      'where[slug][equals]': slug,
+      'where[status][equals]': 'published',
+    }),
+    locale,
+  )
 
   try {
     const response = await fetch(`${getPayloadUrl()}/api/pages?${params.toString()}`)

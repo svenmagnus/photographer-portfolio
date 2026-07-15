@@ -1,3 +1,6 @@
+import type { Locale } from '../i18n/locale'
+import { withLocaleParam } from '../i18n/locale'
+
 export type MainMenuItem = {
   label?: string | null
   linkType?: 'page' | 'category' | 'external' | null
@@ -24,9 +27,10 @@ export type MainMenuData = {
 
 const payloadUrl = (import.meta.env.PUBLIC_PAYLOAD_URL || 'http://localhost:3000').replace(/\/$/, '')
 
-export async function fetchMainMenu(): Promise<MainMenuData> {
+export async function fetchMainMenu(locale: Locale = 'de'): Promise<MainMenuData> {
   try {
-    const response = await fetch(`${payloadUrl}/api/globals/main-menu?depth=2`)
+    const params = withLocaleParam(new URLSearchParams({ depth: '2' }), locale)
+    const response = await fetch(`${payloadUrl}/api/globals/main-menu?${params.toString()}`)
 
     if (!response.ok) {
       return { items: [] }

@@ -1,0 +1,67 @@
+---
+/**
+ * Gemeinsame Logik für CMS-Seiten (de + en).
+ */
+import Layout from '../../layouts/Layout.astro'
+import Header from '../Header.astro'
+import BlockRenderer from '../blocks/BlockRenderer.astro'
+import BlogPostList from '../blog/BlogPostList.astro'
+import Lightbox from '../Lightbox.astro'
+import type { Locale } from '../../i18n/locale'
+import { fetchPageBySlug, fetchNavigationPages } from '../../lib/pages'
+import { fetchBlogPostsForPage } from '../../lib/blogPosts'
+import { fetchSiteSettings } from '../../lib/siteSettings'
+import { fetchMainMenu } from '../../lib/mainMenu'
+import { buildNavigation } from '../../lib/navigation'
+
+interface Props {
+  locale: Locale
+  slug: string
+}
+
+const { locale, slug } = Astro.props
+
+if (slug === 'film-editor') {
+  return Astro.redirect(locale === 'en' ? '/en/blog' : '/blog', 301)
+}
+
+const [page, settings, mainMenu, navPages] = await Promise.all([
+  fetchPageBySlug(slug, locale),
+  fetchSiteSettings(locale),
+  fetchMainMenu(locale),
+  fetchNavigationPages(locale),
+])
+
+const blogPosts = page?.pageType === 'blog' ? await fetchBlogPostsForPage(page.slug, locale) : []
+
+if (!page) {
+  return new Response(null, { status: 404, statusText: 'Not Found' })
+}
+
+const navItems = buildNavigation(settings, navPages, mainMenu.items, locale)
+const activeCategory =
+  page.pageType === 'gallery' ? page.galleryCategory || page.slug : undefined
+
+const pageTitle = page.metaTitle || `${page.title} — ${settings.photographerName || 'Sven Magnus Hanefeld'}`
+const description = page.metaDescription || settings.metaDescription || page.title
+---
+
+<Layout title={pageTitle} description={description} locale={locale}>
+  <main class="min-h-screen bg-white pb-16">
+    <Header
+      locale={locale}
+      activeSlug={page.pageType !== 'gallery' ? page.slug : undefined}
+      activeCategory={activeCategory}
+      navItems={navItems}
+      settings={settings}
+    />
+    {
+      page.pageType === 'blog' ? (
+        <BlogPostList posts={blogPosts} blogSlug={page.slug} locale={locale} />
+      ) : (
+        <BlockRenderer blocks={page.layout} pageType={page.pageType} settings={settings} locale={locale} />
+      )
+    }
+    <Lightbox />
+  </main>
+</Layout>

@@ -12,6 +12,7 @@ interface Props {
   blocks: PageBlock[]
   pageType?: 'content' | 'gallery' | 'landing' | 'blog'
   settings?: SiteSettingsData
+  locale?: import('../i18n/locale').Locale
 }
 
 const { blocks, pageType = 'content', settings } = Astro.props

@@ -1,3 +1,6 @@
+import type { Locale } from '../i18n/locale'
+import { withLocaleParam } from '../i18n/locale'
+
 export interface SiteSettingsData {
   productionDomain?: string | null
   wwwEnabled?: boolean | null
@@ -35,9 +38,10 @@ const defaults: SiteSettingsData = {
   metaDescription: 'Photography Portfolio by Sven Magnus Hanefeld',
 }
 
-export async function fetchSiteSettings(): Promise<SiteSettingsData> {
+export async function fetchSiteSettings(locale: Locale = 'de'): Promise<SiteSettingsData> {
   try {
-    const response = await fetch(`${payloadUrl}/api/globals/site-settings?depth=1`)
+    const params = withLocaleParam(new URLSearchParams({ depth: '1' }), locale)
+    const response = await fetch(`${payloadUrl}/api/globals/site-settings?${params.toString()}`)
 
     if (!response.ok) {
       return defaults

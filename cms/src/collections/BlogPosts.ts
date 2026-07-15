@@ -29,6 +29,7 @@ export const BlogPosts: CollectionConfig = {
       type: 'text',
       required: true,
       label: 'Titel',
+      localized: true,
     },
     {
       name: 'slug',
@@ -44,6 +45,7 @@ export const BlogPosts: CollectionConfig = {
       name: 'excerpt',
       type: 'textarea',
       label: 'Kurztext',
+      localized: true,
       admin: {
         description: 'Optional — kurze Vorschau in der Blog-Liste',
       },
@@ -66,6 +68,7 @@ export const BlogPosts: CollectionConfig = {
       required: true,
       label: 'Inhalt',
       editor: contentLexicalEditor,
+      localized: true,
     },
     {
       name: 'blogPage',
@@ -112,6 +115,7 @@ export const BlogPosts: CollectionConfig = {
       name: 'metaTitle',
       type: 'text',
       label: 'SEO-Titel',
+      localized: true,
       admin: {
         position: 'sidebar',
       },
@@ -120,6 +124,7 @@ export const BlogPosts: CollectionConfig = {
       name: 'metaDescription',
       type: 'textarea',
       label: 'SEO-Beschreibung',
+      localized: true,
       admin: {
         position: 'sidebar',
       },

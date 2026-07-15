@@ -2,17 +2,24 @@
 import '../styles/cms-rich-text.css'
 import '../styles/responsive.css'
 
+import type { Locale } from '../i18n/locale'
+import { DEFAULT_LOCALE } from '../i18n/locale'
+
 interface Props {
   title?: string
   description?: string
+  locale?: Locale
 }
 
-const { title = 'Sven Magnus Hanefeld — Photographer', description = 'Photography Portfolio' } =
-  Astro.props
+const {
+  title = 'Sven Magnus Hanefeld — Photographer',
+  description = 'Photography Portfolio',
+  locale = DEFAULT_LOCALE,
+} = Astro.props
 ---
 
 <!doctype html>
-<html lang="de">
+<html lang={locale}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />

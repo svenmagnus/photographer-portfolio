@@ -11,6 +11,13 @@ export default defineConfig({
   output: 'server',
   adapter: vercel(),
   integrations: [tailwind()],
+  i18n: {
+    locales: ['de', 'en'],
+    defaultLocale: 'de',
+    routing: {
+      prefixDefaultLocale: false,
+    },
+  },
   vite: {
     define: {
       'import.meta.env.PUBLIC_PAYLOAD_URL': JSON.stringify(

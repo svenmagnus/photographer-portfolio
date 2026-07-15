@@ -105,6 +105,14 @@ if (isVercel && !isEmailConfigured()) {
 
 export default buildConfig({
   ...(email ? { email } : {}),
+  localization: {
+    locales: [
+      { label: 'Deutsch', code: 'de' },
+      { label: 'English', code: 'en' },
+    ],
+    defaultLocale: 'de',
+    fallback: true,
+  },
   admin: {
     user: Users.slug,
     importMap: {

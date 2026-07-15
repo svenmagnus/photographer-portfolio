@@ -3,13 +3,17 @@ import type { BlogPost } from '../../lib/blogPosts'
 import { getBlogPostListImage } from '../../lib/blogPostMedia'
 import { getBlogPostIntro } from '../../lib/blogPostIntro'
 import { getMediaUrl } from '../../lib/photoLoader'
+import type { Locale } from '../../i18n/locale'
+import { DEFAULT_LOCALE, localePath } from '../../i18n/locale'
+import { dateLocale, t } from '../../i18n/messages'
 
 interface Props {
   posts: BlogPost[]
   blogSlug: string
+  locale?: Locale
 }
 
-const { posts, blogSlug } = Astro.props
+const { posts, blogSlug, locale = DEFAULT_LOCALE } = Astro.props
 
 function formatPostDate(value?: string | null): string | null {
   if (!value) return null
@@ -17,7 +21,7 @@ function formatPostDate(value?: string | null): string | null {
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return null
 
-  return new Intl.DateTimeFormat('de-DE', {
+  return new Intl.DateTimeFormat(dateLocale(locale), {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
@@ -28,12 +32,12 @@ function formatPostDate(value?: string | null): string | null {
 <section class="blog-post-list" aria-label="Blog-Beiträge">
   {
     posts.length === 0 ? (
-      <p class="blog-post-empty">Noch keine Beiträge veröffentlicht.</p>
+      <p class="blog-post-empty">{t(locale, 'blogEmpty')}</p>
     ) : (
       <ul class="blog-post-rows">
         {
           posts.map((post) => {
-            const postUrl = `/${blogSlug}/${post.slug}`
+            const postUrl = localePath(`/${blogSlug}/${post.slug}`, locale)
             const listImage = getBlogPostListImage(post)
             const imageUrl = getMediaUrl(listImage)
             const dateLabel = formatPostDate(post.publishedAt)
@@ -64,7 +68,7 @@ function formatPostDate(value?: string | null): string | null {
                   {
                     showReadMore ? (
                       <a href={postUrl} class="blog-post-read-more">
-                        Weiterlesen …
+                        {t(locale, 'blogReadMore')}
                       </a>
                     ) : null
                   }

@@ -1,3 +1,5 @@
+import type { Locale } from '../i18n/locale'
+import { withLocaleParam } from '../i18n/locale'
 import type { Media } from './photoLoader'
 
 export interface BlogPost {
@@ -38,14 +40,17 @@ export function sortBlogPostsNewestFirst(posts: BlogPost[]): BlogPost[] {
   return [...posts].sort((a, b) => getPostSortTime(b) - getPostSortTime(a))
 }
 
-export async function fetchBlogPostsForPage(blogPageSlug: string): Promise<BlogPost[]> {
-  const pageParams = new URLSearchParams({
-    depth: '0',
-    limit: '1',
-    'where[slug][equals]': blogPageSlug,
-    'where[pageType][equals]': 'blog',
-    'where[status][equals]': 'published',
-  })
+export async function fetchBlogPostsForPage(blogPageSlug: string, locale: Locale = 'de'): Promise<BlogPost[]> {
+  const pageParams = withLocaleParam(
+    new URLSearchParams({
+      depth: '0',
+      limit: '1',
+      'where[slug][equals]': blogPageSlug,
+      'where[pageType][equals]': 'blog',
+      'where[status][equals]': 'published',
+    }),
+    locale,
+  )
 
   try {
     const pageResponse = await fetch(`${getPayloadUrl()}/api/pages?${pageParams.toString()}`)
@@ -55,13 +60,16 @@ export async function fetchBlogPostsForPage(blogPageSlug: string): Promise<BlogP
     const pageId = pageData.docs?.[0]?.id
     if (pageId == null) return []
 
-    const postParams = new URLSearchParams({
-      depth: '2',
-      limit: '100',
-      sort: '-publishedAt',
-      'where[status][equals]': 'published',
-      'where[blogPage][equals]': String(pageId),
-    })
+    const postParams = withLocaleParam(
+      new URLSearchParams({
+        depth: '2',
+        limit: '100',
+        sort: '-publishedAt',
+        'where[status][equals]': 'published',
+        'where[blogPage][equals]': String(pageId),
+      }),
+      locale,
+    )
 
     const response = await fetch(`${getPayloadUrl()}/api/blog-posts?${postParams.toString()}`)
     if (!response.ok) return []
@@ -77,14 +85,18 @@ export async function fetchBlogPostsForPage(blogPageSlug: string): Promise<BlogP
 export async function fetchBlogPost(
   blogPageSlug: string,
   postSlug: string,
+  locale: Locale = 'de',
 ): Promise<BlogPost | null> {
-  const params = new URLSearchParams({
-    depth: '2',
-    limit: '1',
-    'where[slug][equals]': postSlug,
-    'where[status][equals]': 'published',
-    'where[blogPage.slug][equals]': blogPageSlug,
-  })
+  const params = withLocaleParam(
+    new URLSearchParams({
+      depth: '2',
+      limit: '1',
+      'where[slug][equals]': postSlug,
+      'where[status][equals]': 'published',
+      'where[blogPage.slug][equals]': blogPageSlug,
+    }),
+    locale,
+  )
 
   try {
     const response = await fetch(`${getPayloadUrl()}/api/blog-posts?${params.toString()}`)
