@@ -1,40 +1,28 @@
 import type { Locale } from './locale'
 
-/** Feste Übersetzungen für Seiten, solange das CMS einsprachig ist. */
+/** Fallback-Labels, wenn im CMS noch kein Eintrag für die Sprache existiert. */
 const PAGE_LABELS: Record<string, Record<Locale, string>> = {
-  contact: {
-    de: 'Kontakt',
-    en: 'Contact',
-  },
-  imprint: {
-    de: 'Impressum',
-    en: 'Imprint',
-  },
-  publications: {
-    de: 'publications',
-    en: 'Publications',
-  },
-  'model-bewerbung': {
-    de: 'Model-Bewerbung',
-    en: 'Model Application',
-  },
+  contact: { de: 'Kontakt', en: 'Contact' },
+  imprint: { de: 'Impressum', en: 'Imprint' },
+  publications: { de: 'publications', en: 'Publications' },
+  'model-bewerbung': { de: 'Model-Bewerbung', en: 'Model Application' },
 }
 
 export function pageLabel(slug: string | undefined, locale: Locale, fallback = ''): string {
   if (!slug) return fallback
-  return PAGE_LABELS[slug]?.[locale] ?? (fallback || slug)
+  return fallback || PAGE_LABELS[slug]?.[locale] || slug
 }
 
-/** CMS-Texte durch feste Übersetzung ersetzen, wenn vorhanden. */
+/** CMS-Text bevorzugen, feste Übersetzung nur als Fallback. */
 export function localizedPageText(
   slug: string | undefined,
   locale: Locale,
   cmsText: string | null | undefined,
 ): string {
-  if (slug && PAGE_LABELS[slug]?.[locale]) {
-    return PAGE_LABELS[slug][locale]
-  }
-  return cmsText?.trim() || ''
+  const fromCms = cmsText?.trim()
+  if (fromCms) return fromCms
+  if (slug && PAGE_LABELS[slug]?.[locale]) return PAGE_LABELS[slug][locale]
+  return ''
 }
 
 export function contactIntroHtml(locale: Locale): string {

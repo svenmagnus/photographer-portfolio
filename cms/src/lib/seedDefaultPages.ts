@@ -13,14 +13,14 @@ const BLOG_NAV_ORDER =
 
 const DEFAULT_PAGES = [
   {
-    title: 'Contact',
+    title: 'Kontakt',
     slug: 'contact',
     pageType: 'content' as const,
     navOrder: GALLERY_COUNT + 3,
     layout: [
       {
         blockType: 'heading',
-        text: 'Contact',
+        text: 'Kontakt',
         level: 'h1',
         align: 'center',
       },
@@ -28,23 +28,23 @@ const DEFAULT_PAGES = [
         blockType: 'contactForm',
         showPhone: true,
         showEmail: true,
-        submitLabel: 'Send Message',
-        successMessage: 'Thank you — your message has been sent.',
+        submitLabel: 'Nachricht senden',
+        successMessage: 'Vielen Dank — deine Nachricht wurde gesendet.',
         intro: lexicalParagraphs(
-          "I'm available for local projects as well as potential employment opportunities. Use the form to inquire about rates and availability, or just to say hi.",
+          'Für lokale Projekte und Anfragen bin ich erreichbar. Nutze das Formular für Preise, Verfügbarkeit — oder sag einfach Hallo.',
         ),
       },
     ],
   },
   {
-    title: 'Imprint',
+    title: 'Impressum',
     slug: 'imprint',
     pageType: 'content' as const,
     navOrder: GALLERY_COUNT + 1,
     layout: [
       {
         blockType: 'heading',
-        text: 'Imprint',
+        text: 'Impressum',
         level: 'h1',
         align: 'left',
       },

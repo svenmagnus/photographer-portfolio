@@ -19,6 +19,7 @@ import { MainMenu } from './globals/MainMenu'
 import { seedDefaultPages } from './lib/seedDefaultPages'
 import { seedBlogPosts } from './lib/seedBlogPosts'
 import { seedMainMenuFromPages, repairMainMenuDuplicates, ensureModelApplicationInMenu, removeStoreFromMainMenu } from './lib/seedMainMenu'
+import { seedPageLocales, seedMenuLocales } from './lib/seedPageLocales'
 import { repairImageGalleryBlocks } from './lib/repairImageGalleryBlocks'
 import { migrations } from './migrations'
 
@@ -105,6 +106,14 @@ if (isVercel && !isEmailConfigured()) {
 
 export default buildConfig({
   ...(email ? { email } : {}),
+  localization: {
+    locales: [
+      { label: 'Deutsch', code: 'de' },
+      { label: 'English', code: 'en' },
+    ],
+    defaultLocale: 'de',
+    fallback: true,
+  },
   admin: {
     user: Users.slug,
     importMap: {
@@ -149,6 +158,8 @@ export default buildConfig({
     await repairMainMenuDuplicates(payload)
     await removeStoreFromMainMenu(payload)
     await ensureModelApplicationInMenu(payload)
+    await seedPageLocales(payload)
+    await seedMenuLocales(payload)
     await repairImageGalleryBlocks(payload)
   },
 })

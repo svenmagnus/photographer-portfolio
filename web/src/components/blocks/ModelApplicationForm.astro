@@ -32,15 +32,13 @@ const introHtml = intro ? lexicalToHtml(intro) : ''
 const formId = `model-application-form-${blockId}`
 const payloadUrl = (import.meta.env.PUBLIC_PAYLOAD_URL || 'http://localhost:3000').replace(/\/$/, '')
 
-const resolvedSubmitLabel =
-  locale === 'en' ? t(locale, 'mafDefaultSubmit') : submitLabel || t(locale, 'mafDefaultSubmit')
-const resolvedSuccessMessage =
-  locale === 'en' ? t(locale, 'mafDefaultSuccess') : successMessage || t(locale, 'mafDefaultSuccess')
+const resolvedSubmitLabel = submitLabel || t(locale, 'mafDefaultSubmit')
+const resolvedSuccessMessage = successMessage || t(locale, 'mafDefaultSuccess')
 const resolvedPrivacyUrl = privacyUrl?.startsWith('/')
   ? localePath(privacyUrl, locale)
   : privacyUrl || localePath('/datenschutz', locale)
 
-const useCmsIntro = locale === 'de' && introHtml
+const useCmsIntro = Boolean(introHtml)
 const defaultIntro = t(locale, 'mafDefaultIntro')
 const polaSlots = [
   { name: 'polaFront', label: t(locale, 'mafPolaFront') },

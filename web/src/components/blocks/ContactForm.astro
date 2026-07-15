@@ -35,14 +35,10 @@ const introHtml = intro ? lexicalToHtml(intro) : ''
 const payloadUrl = (import.meta.env.PUBLIC_PAYLOAD_URL || 'http://localhost:3000').replace(/\/$/, '')
 const formId = `contact-form-${blockId}`
 
-const useLocaleCopy = pageSlug === 'contact' || locale === 'de'
-const resolvedSubmitLabel = useLocaleCopy
-  ? t(locale, 'contactDefaultSubmit')
-  : submitLabel || t(locale, 'contactDefaultSubmit')
-const resolvedSuccessMessage = useLocaleCopy
-  ? t(locale, 'contactDefaultSuccess')
-  : successMessage || t(locale, 'contactDefaultSuccess')
-const displayIntroHtml = pageSlug === 'contact' ? contactIntroHtml(locale) : introHtml
+const resolvedSubmitLabel = submitLabel || t(locale, 'contactDefaultSubmit')
+const resolvedSuccessMessage = successMessage || t(locale, 'contactDefaultSuccess')
+const displayIntroHtml =
+  introHtml || (pageSlug === 'contact' ? contactIntroHtml(locale) : '')
 const labels = {
   phone: t(locale, 'contactPhoneLabel'),
   email: t(locale, 'contactEmailLabel'),

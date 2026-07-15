@@ -9,6 +9,8 @@ import * as migration_20260714_235000_blog_post_list_columns from './20260714_23
 
 import * as migration_20260715_090000_repair_localization_schema from './20260715_090000_repair_localization_schema';
 
+import * as migration_20260715_120000_pages_localization from './20260715_120000_pages_localization';
+
 export const migrations = [
   {
     up: migration_20260710_184534_initial.up,
@@ -54,5 +56,10 @@ export const migrations = [
     up: migration_20260715_090000_repair_localization_schema.up,
     down: migration_20260715_090000_repair_localization_schema.down,
     name: '20260715_090000_repair_localization_schema',
+  },
+  {
+    up: migration_20260715_120000_pages_localization.up,
+    down: migration_20260715_120000_pages_localization.down,
+    name: '20260715_120000_pages_localization',
   },
 ];
