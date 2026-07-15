@@ -13,6 +13,7 @@ import { fetchBlogPostsForPage } from '../../lib/blogPosts'
 import { fetchSiteSettings } from '../../lib/siteSettings'
 import { fetchMainMenu } from '../../lib/mainMenu'
 import { buildNavigation } from '../../lib/navigation'
+import { pageLabel } from '../../i18n/pageLabels'
 
 interface Props {
   locale: Locale
@@ -42,8 +43,10 @@ const navItems = buildNavigation(settings, navPages, mainMenu.items, locale)
 const activeCategory =
   page.pageType === 'gallery' ? page.galleryCategory || page.slug : undefined
 
-const pageTitle = page.metaTitle || `${page.title} — ${settings.photographerName || 'Sven Magnus Hanefeld'}`
-const description = page.metaDescription || settings.metaDescription || page.title
+const displayTitle = pageLabel(slug, locale, page.title)
+const pageTitle =
+  page.metaTitle || `${displayTitle} — ${settings.photographerName || 'Sven Magnus Hanefeld'}`
+const description = page.metaDescription || settings.metaDescription || displayTitle
 ---
 
 <Layout title={pageTitle} description={description} locale={locale}>
@@ -59,7 +62,13 @@ const description = page.metaDescription || settings.metaDescription || page.tit
       page.pageType === 'blog' ? (
         <BlogPostList posts={blogPosts} blogSlug={page.slug} locale={locale} />
       ) : (
-        <BlockRenderer blocks={page.layout} pageType={page.pageType} settings={settings} locale={locale} />
+        <BlockRenderer
+          blocks={page.layout}
+          pageType={page.pageType}
+          settings={settings}
+          locale={locale}
+          pageSlug={page.slug}
+        />
       )
     }
     <Lightbox />

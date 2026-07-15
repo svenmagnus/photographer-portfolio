@@ -4,6 +4,7 @@ import type { CmsPage } from './pages'
 import type { SiteSettingsData } from './siteSettings'
 import type { Locale } from '../i18n/locale'
 import { localePath } from '../i18n/locale'
+import { pageLabel } from '../i18n/pageLabels'
 
 export interface NavItem {
   label: string
@@ -72,7 +73,7 @@ function menuItemToNavItem(item: MainMenuItem, locale: Locale, isSubItem = false
       pageType === 'gallery' ? getGalleryCategory(item.page) || slug : undefined
 
     return {
-      label: label || getPageTitle(item.page) || slug,
+      label: pageLabel(slug, locale, label || getPageTitle(item.page) || slug),
       href: prefixHref(
         pageType === 'gallery' && categoryValue ? `/?category=${categoryValue}` : `/${slug}`,
         locale,
@@ -130,7 +131,7 @@ function buildNavigationFromPages(pages: CmsPage[], locale: Locale): NavItem[] {
         page.pageType === 'gallery' ? page.galleryCategory || page.slug : undefined
 
       return {
-        label: page.title,
+        label: pageLabel(page.slug, locale, page.title),
         href: prefixHref(
           page.pageType === 'gallery' && categoryValue ? `/?category=${categoryValue}` : `/${page.slug}`,
           locale,
@@ -202,7 +203,7 @@ export function buildNavigation(
   }))
 
   const staticItems: NavItem[] = STATIC_NAV_LINKS.map((link) => ({
-    label: link.label,
+    label: pageLabel(link.href.replace(/^\//, ''), locale, link.label),
     href: prefixHref(link.href, locale),
     slug: link.href.replace(/^\//, ''),
   }))
