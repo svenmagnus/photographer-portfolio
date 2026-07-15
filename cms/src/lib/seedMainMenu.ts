@@ -2,6 +2,7 @@ import type { Payload } from 'payload'
 
 import {
   createMenuItemFromPage,
+  menuItemFromApi,
   serializeMenuItems,
   type SerializedMenuItem,
 } from '@/components/MenuBuilder/types'
@@ -133,6 +134,81 @@ export async function seedMainMenuFromPages(payload: Payload): Promise<void> {
   } catch (error) {
     payload.logger.error(
       `Main menu seed skipped: ${error instanceof Error ? error.message : String(error)}`,
+    )
+  }
+}
+
+const MODEL_APPLICATION_PAGE_SLUG = 'model-bewerbung'
+
+/** Fügt Model-Bewerbung ins Hauptmenü ein, falls die Seite existiert aber noch nicht verlinkt ist. */
+export async function ensureModelApplicationInMenu(payload: Payload): Promise<void> {
+  try {
+    const pageResult = await payload.find({
+      collection: 'pages',
+      where: {
+        and: [
+          { slug: { equals: MODEL_APPLICATION_PAGE_SLUG } },
+          { status: { equals: 'published' } },
+        ],
+      },
+      limit: 1,
+      depth: 0,
+    })
+
+    const page = pageResult.docs[0]
+    if (!page) return
+
+    const menu = await payload.findGlobal({
+      slug: 'main-menu',
+      depth: 1,
+    })
+
+    const currentItems = Array.isArray(menu.items)
+      ? menu.items.map((item) => menuItemFromApi(item as never))
+      : []
+
+    const pageIds = new Set(
+      currentItems.flatMap((item) => {
+        const ids: number[] = []
+        if (item.page?.id != null) ids.push(Number(item.page.id))
+        item.children.forEach((child) => {
+          if (child.page?.id != null) ids.push(Number(child.page.id))
+        })
+        return ids
+      }),
+    )
+
+    if (pageIds.has(Number(page.id))) return
+
+    const newItem = createMenuItemFromPage({
+      id: page.id,
+      title: page.title,
+      slug: page.slug,
+      pageType: page.pageType,
+      galleryCategory: page.galleryCategory ?? null,
+    })
+
+    const contactIndex = currentItems.findIndex(
+      (item) => item.page?.slug === 'contact' || item.label.toLowerCase() === 'contact',
+    )
+
+    if (contactIndex >= 0) {
+      currentItems.splice(contactIndex, 0, newItem)
+    } else {
+      currentItems.push(newItem)
+    }
+
+    await payload.updateGlobal({
+      slug: 'main-menu',
+      data: {
+        items: dedupeSerializedMenuItems(serializeMenuItems(currentItems)) as never,
+      },
+    })
+
+    payload.logger.info(`Added ${MODEL_APPLICATION_PAGE_SLUG} to main menu.`)
+  } catch (error) {
+    payload.logger.error(
+      `Model application menu link skipped: ${error instanceof Error ? error.message : String(error)}`,
     )
   }
 }

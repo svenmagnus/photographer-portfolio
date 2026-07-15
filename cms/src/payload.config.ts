@@ -18,7 +18,7 @@ import { SiteSettings } from './globals/SiteSettings'
 import { MainMenu } from './globals/MainMenu'
 import { seedDefaultPages } from './lib/seedDefaultPages'
 import { seedBlogPosts } from './lib/seedBlogPosts'
-import { seedMainMenuFromPages, repairMainMenuDuplicates } from './lib/seedMainMenu'
+import { seedMainMenuFromPages, repairMainMenuDuplicates, ensureModelApplicationInMenu } from './lib/seedMainMenu'
 import { repairImageGalleryBlocks } from './lib/repairImageGalleryBlocks'
 import { migrations } from './migrations'
 
@@ -147,6 +147,7 @@ export default buildConfig({
     await seedBlogPosts(payload)
     await seedMainMenuFromPages(payload)
     await repairMainMenuDuplicates(payload)
+    await ensureModelApplicationInMenu(payload)
     await repairImageGalleryBlocks(payload)
   },
 })

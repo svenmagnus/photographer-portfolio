@@ -86,7 +86,7 @@ const DEFAULT_PAGES = [
     slug: 'model-bewerbung',
     pageType: 'content' as const,
     navOrder: GALLERY_COUNT + 4,
-    showInNavigation: false,
+    showInNavigation: true,
     layout: [
       {
         blockType: 'heading',
@@ -289,13 +289,23 @@ async function ensureModelApplicationPage(payload: Payload): Promise<void> {
   const layout = Array.isArray(doc.layout) ? (doc.layout as Array<{ blockType?: string }>) : []
   const hasFormBlock = layout.some((block) => block.blockType === 'modelApplicationForm')
 
-  if (hasFormBlock) return
+  if (hasFormBlock) {
+    if (doc.showInNavigation !== true) {
+      await payload.update({
+        collection: 'pages',
+        id: doc.id,
+        data: { showInNavigation: true },
+      })
+    }
+    return
+  }
 
   await payload.update({
     collection: 'pages',
     id: doc.id,
     data: {
       status: 'published',
+      showInNavigation: true,
       layout: [...modelPage.layout] as never,
     },
   })
