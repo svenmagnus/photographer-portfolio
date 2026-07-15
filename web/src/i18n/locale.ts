@@ -36,3 +36,12 @@ export function withLocaleParam(params: URLSearchParams, locale: Locale): URLSea
   params.set('locale', locale)
   return params
 }
+
+/** Kanonische Pfade für hreflang-Alternates (ohne Query/Hash) */
+export function alternateLocalePaths(pathname: string): Record<Locale, string> {
+  const path = stripLocalePrefix(pathname)
+  return {
+    de: localePath(path, 'de'),
+    en: localePath(path, 'en'),
+  }
+}

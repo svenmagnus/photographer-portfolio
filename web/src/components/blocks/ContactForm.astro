@@ -1,5 +1,8 @@
 ---
 import { lexicalToHtml } from '../../lib/lexicalToHtml'
+import type { Locale } from '../../i18n/locale'
+import { DEFAULT_LOCALE } from '../../i18n/locale'
+import { t } from '../../i18n/messages'
 
 interface Props {
   blockId: string
@@ -10,6 +13,7 @@ interface Props {
   successMessage?: string | null
   email?: string | null
   phone?: string | null
+  locale?: Locale
 }
 
 const {
@@ -17,15 +21,29 @@ const {
   intro,
   showPhone = true,
   showEmail = true,
-  submitLabel = 'Send Message',
-  successMessage = 'Thank you — your message has been sent.',
+  submitLabel,
+  successMessage,
   email,
   phone,
+  locale = DEFAULT_LOCALE,
 } = Astro.props
 
 const introHtml = intro ? lexicalToHtml(intro) : ''
 const payloadUrl = (import.meta.env.PUBLIC_PAYLOAD_URL || 'http://localhost:3000').replace(/\/$/, '')
 const formId = `contact-form-${blockId}`
+
+const resolvedSubmitLabel = submitLabel || t(locale, 'contactDefaultSubmit')
+const resolvedSuccessMessage = successMessage || t(locale, 'contactDefaultSuccess')
+const labels = {
+  phone: t(locale, 'contactPhoneLabel'),
+  email: t(locale, 'contactEmailLabel'),
+  name: t(locale, 'contactNamePlaceholder'),
+  emailField: t(locale, 'contactEmailPlaceholder'),
+  message: t(locale, 'contactMessagePlaceholder'),
+  requiredFields: t(locale, 'contactRequiredFields'),
+  sending: t(locale, 'contactSending'),
+  sendError: t(locale, 'contactSendError'),
+}
 ---
 
 <section class="py-8 max-w-3xl mx-auto">
@@ -43,7 +61,7 @@ const formId = `contact-form-${blockId}`
       {
         showPhone !== false && phone ? (
           <div>
-            <p class="font-semibold mb-1">Phone</p>
+            <p class="font-semibold mb-1">{labels.phone}</p>
             <p>
               <a href={`tel:${phone.replace(/\s/g, '')}`} class="hover:opacity-60 transition-opacity">
                 {phone}
@@ -55,7 +73,7 @@ const formId = `contact-form-${blockId}`
       {
         showEmail !== false && email ? (
           <div>
-            <p class="font-semibold mb-1">Email</p>
+            <p class="font-semibold mb-1">{labels.email}</p>
             <p>
               <a href={`mailto:${email}`} class="hover:opacity-60 transition-opacity">
                 {email}
@@ -67,33 +85,33 @@ const formId = `contact-form-${blockId}`
     </div>
 
     <form id={formId} class="contact-form space-y-0" novalidate>
-      <label class="sr-only" for={`${formId}-name`}>Name</label>
+      <label class="sr-only" for={`${formId}-name`}>{labels.name}</label>
       <input
         id={`${formId}-name`}
         type="text"
         name="name"
-        placeholder="Name"
+        placeholder={labels.name}
         required
         autocomplete="name"
         class="contact-field"
       />
 
-      <label class="sr-only" for={`${formId}-email`}>Email</label>
+      <label class="sr-only" for={`${formId}-email`}>{labels.emailField}</label>
       <input
         id={`${formId}-email`}
         type="email"
         name="email"
-        placeholder="Email"
+        placeholder={labels.emailField}
         required
         autocomplete="email"
         class="contact-field"
       />
 
-      <label class="sr-only" for={`${formId}-message`}>Message</label>
+      <label class="sr-only" for={`${formId}-message`}>{labels.message}</label>
       <textarea
         id={`${formId}-message`}
         name="message"
-        placeholder="Message"
+        placeholder={labels.message}
         required
         rows="6"
         class="contact-field contact-field-textarea"
@@ -109,7 +127,7 @@ const formId = `contact-form-${blockId}`
       />
 
       <button type="submit" class="contact-submit">
-        {submitLabel}
+        {resolvedSubmitLabel}
       </button>
 
       <p class="contact-status hidden mt-4 text-[13px]" role="status" aria-live="polite" />
@@ -117,7 +135,7 @@ const formId = `contact-form-${blockId}`
   </div>
 </section>
 
-<script define:vars={{ formId, payloadUrl, successMessage }}>
+<script define:vars={{ formId, payloadUrl, resolvedSuccessMessage, labels, resolvedSubmitLabel }}>
   const form = document.getElementById(formId)
   if (!form) throw new Error('Contact form not found')
 
@@ -139,13 +157,13 @@ const formId = `contact-form-${blockId}`
     statusEl.textContent = ''
 
     if (!name || !email || !message) {
-      statusEl.textContent = 'Bitte alle Felder ausfüllen.'
+      statusEl.textContent = labels.requiredFields
       statusEl.classList.add('text-red-700')
       return
     }
 
     submitBtn.disabled = true
-    submitBtn.textContent = 'Sending…'
+    submitBtn.textContent = labels.sending
 
     try {
       const response = await fetch(`${payloadUrl}/api/contact`, {
@@ -157,25 +175,25 @@ const formId = `contact-form-${blockId}`
       const data = await response.json().catch(() => ({}))
 
       if (!response.ok) {
-        throw new Error(data.error || 'Senden fehlgeschlagen')
+        throw new Error(data.error || labels.sendError)
       }
 
       form.reset()
-      statusEl.textContent = successMessage
+      statusEl.textContent = resolvedSuccessMessage
       statusEl.classList.add('text-black')
     } catch (error) {
       statusEl.textContent =
-        error instanceof Error ? error.message : 'Senden fehlgeschlagen. Bitte später erneut versuchen.'
+        error instanceof Error ? error.message : labels.sendError
       statusEl.classList.add('text-red-700')
     } finally {
       submitBtn.disabled = false
-      submitBtn.textContent = submitBtn.dataset.label || 'Send Message'
+      submitBtn.textContent = submitBtn.dataset.label || resolvedSubmitLabel
       statusEl.classList.remove('hidden')
     }
   })
 
   if (submitBtn instanceof HTMLButtonElement) {
-    submitBtn.dataset.label = submitBtn.textContent || 'Send Message'
+    submitBtn.dataset.label = submitBtn.textContent || resolvedSubmitLabel
   }
 </script>
 

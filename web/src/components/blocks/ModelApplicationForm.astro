@@ -3,14 +3,12 @@
  * ModelApplicationForm.astro
  *
  * Integriertes Bewerbungsformular für die Astro-Website.
- * Struktur und Texte sind abschnittsweise kommentiert — Felder und Labels
- * können hier direkt angepasst werden.
- *
- * Abhängigkeiten:
- * - /forms/model-application-form.js (Validierung, Vorschau, Absenden)
- * - POST {PUBLIC_PAYLOAD_URL}/api/model-application
+ * Texte kommen aus web/src/i18n/messages.ts (de/en).
  */
 import { lexicalToHtml } from '../../lib/lexicalToHtml'
+import type { Locale } from '../../i18n/locale'
+import { DEFAULT_LOCALE, localePath } from '../../i18n/locale'
+import { modelFormMessages, t } from '../../i18n/messages'
 
 interface Props {
   blockId: string
@@ -18,31 +16,40 @@ interface Props {
   privacyUrl?: string | null
   submitLabel?: string | null
   successMessage?: string | null
+  locale?: Locale
 }
 
 const {
   blockId,
   intro,
   privacyUrl = '/datenschutz',
-  submitLabel = 'Bewerbung absenden',
-  successMessage = 'Vielen Dank — deine Bewerbung wurde erfolgreich gesendet.',
+  submitLabel,
+  successMessage,
+  locale = DEFAULT_LOCALE,
 } = Astro.props
 
 const introHtml = intro ? lexicalToHtml(intro) : ''
 const formId = `model-application-form-${blockId}`
 const payloadUrl = (import.meta.env.PUBLIC_PAYLOAD_URL || 'http://localhost:3000').replace(/\/$/, '')
 
-/** Standard-Einleitung, wenn im CMS kein Text hinterlegt ist */
-const defaultIntro = `
-  <p>Für diese Bewerbung brauchst du keine professionellen Fotos. Natürliche
-  <strong>Polas</strong> (Polaroids / Snapshots) reichen völlig aus — aufgenommen bei Tageslicht,
-  ohne Make-up und in schlichter Kleidung.</p>
-  <p>Bitte fülle alle Pflichtfelder aus und lade deine vier Polas hoch.</p>
-`
+const resolvedSubmitLabel = submitLabel || t(locale, 'mafDefaultSubmit')
+const resolvedSuccessMessage = successMessage || t(locale, 'mafDefaultSuccess')
+const resolvedPrivacyUrl = privacyUrl?.startsWith('/')
+  ? localePath(privacyUrl, locale)
+  : privacyUrl || localePath('/datenschutz', locale)
+
+const defaultIntro = t(locale, 'mafDefaultIntro')
+const polaSlots = [
+  { name: 'polaFront', label: t(locale, 'mafPolaFront') },
+  { name: 'polaBack', label: t(locale, 'mafPolaBack') },
+  { name: 'polaProfile', label: t(locale, 'mafPolaProfile') },
+  { name: 'polaPortrait', label: t(locale, 'mafPolaPortrait') },
+] as const
+
+const formMessages = modelFormMessages(locale)
 ---
 
 <section class="maf-section py-8 max-w-2xl mx-auto">
-  <!-- EINLEITUNGSTEXT (CMS oder Standard) -->
   {
     introHtml ? (
       <div class="maf-intro cms-rich-text mb-12 text-[15px] leading-relaxed text-portfolio-muted" set:html={introHtml} />
@@ -52,24 +59,22 @@ const defaultIntro = `
   }
 
   <form id={formId} class="maf space-y-12" novalidate enctype="multipart/form-data">
-    <!-- Honeypot -->
     <div class="maf-honeypot" aria-hidden="true">
       <label for={`${formId}-website`}>Website</label>
       <input id={`${formId}-website`} type="text" name="website" tabindex="-1" autocomplete="off" />
     </div>
 
-    <!-- BEREICH 1: PERSÖNLICHE DATEN -->
     <div class="space-y-5">
-      <h2 class="maf-section-title font-serif text-lg tracking-wide">Persönliche Daten</h2>
+      <h2 class="maf-section-title font-serif text-lg tracking-wide">{t(locale, 'mafSectionPersonal')}</h2>
 
       <div class="grid gap-4 sm:grid-cols-2">
         <div class="maf-field" data-field="firstName">
-          <label for={`${formId}-firstName`}>Vorname *</label>
+          <label for={`${formId}-firstName`}>{t(locale, 'mafFirstName')}</label>
           <input id={`${formId}-firstName`} name="firstName" type="text" required autocomplete="given-name" class="maf-input" />
           <p class="maf-field-error" data-field-error hidden></p>
         </div>
         <div class="maf-field" data-field="lastName">
-          <label for={`${formId}-lastName`}>Nachname *</label>
+          <label for={`${formId}-lastName`}>{t(locale, 'mafLastName')}</label>
           <input id={`${formId}-lastName`} name="lastName" type="text" required autocomplete="family-name" class="maf-input" />
           <p class="maf-field-error" data-field-error hidden></p>
         </div>
@@ -77,32 +82,32 @@ const defaultIntro = `
 
       <div class="grid gap-4 sm:grid-cols-2">
         <div class="maf-field" data-field="birthDate">
-          <label for={`${formId}-birthDate`}>Geburtsdatum *</label>
+          <label for={`${formId}-birthDate`}>{t(locale, 'mafBirthDate')}</label>
           <input id={`${formId}-birthDate`} name="birthDate" type="date" required class="maf-input" />
           <p class="maf-field-error" data-field-error hidden></p>
         </div>
         <div class="maf-field" data-field="age">
-          <label for={`${formId}-age`}>Alter *</label>
+          <label for={`${formId}-age`}>{t(locale, 'mafAge')}</label>
           <input id={`${formId}-age`} name="age" type="number" min="14" max="99" required class="maf-input" />
-          <p class="text-xs text-portfolio-muted mt-1">Wird automatisch aus dem Geburtsdatum berechnet.</p>
+          <p class="text-xs text-portfolio-muted mt-1">{t(locale, 'mafAgeHint')}</p>
           <p class="maf-field-error" data-field-error hidden></p>
         </div>
       </div>
 
       <div class="maf-field" data-field="location">
-        <label for={`${formId}-location`}>Aktueller Wohnort *</label>
+        <label for={`${formId}-location`}>{t(locale, 'mafLocation')}</label>
         <input id={`${formId}-location`} name="location" type="text" required autocomplete="address-level2" class="maf-input" />
         <p class="maf-field-error" data-field-error hidden></p>
       </div>
 
       <div class="grid gap-4 sm:grid-cols-2">
         <div class="maf-field" data-field="email">
-          <label for={`${formId}-email`}>E-Mail-Adresse *</label>
+          <label for={`${formId}-email`}>{t(locale, 'mafEmail')}</label>
           <input id={`${formId}-email`} name="email" type="email" required autocomplete="email" class="maf-input" />
           <p class="maf-field-error" data-field-error hidden></p>
         </div>
         <div class="maf-field" data-field="phone">
-          <label for={`${formId}-phone`}>Telefonnummer *</label>
+          <label for={`${formId}-phone`}>{t(locale, 'mafPhone')}</label>
           <input id={`${formId}-phone`} name="phone" type="tel" required autocomplete="tel" class="maf-input" />
           <p class="maf-field-error" data-field-error hidden></p>
         </div>
@@ -110,38 +115,37 @@ const defaultIntro = `
 
       <div class="grid gap-4 sm:grid-cols-2">
         <div class="maf-field" data-field="instagram">
-          <label for={`${formId}-instagram`}>Instagram (optional)</label>
+          <label for={`${formId}-instagram`}>{t(locale, 'mafInstagram')}</label>
           <input id={`${formId}-instagram`} name="instagram" type="url" placeholder="https://instagram.com/…" class="maf-input" />
         </div>
         <div class="maf-field" data-field="tiktok">
-          <label for={`${formId}-tiktok`}>TikTok (optional)</label>
+          <label for={`${formId}-tiktok`}>{t(locale, 'mafTiktok')}</label>
           <input id={`${formId}-tiktok`} name="tiktok" type="url" placeholder="https://tiktok.com/@…" class="maf-input" />
         </div>
       </div>
     </div>
 
-    <!-- BEREICH 2: KÖRPERMASSE -->
     <div class="space-y-5">
-      <h2 class="maf-section-title font-serif text-lg tracking-wide">Körpermaße</h2>
+      <h2 class="maf-section-title font-serif text-lg tracking-wide">{t(locale, 'mafSectionMeasurements')}</h2>
 
       <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div class="maf-field" data-field="heightCm">
-          <label for={`${formId}-heightCm`}>Größe (cm) *</label>
+          <label for={`${formId}-heightCm`}>{t(locale, 'mafHeight')}</label>
           <input id={`${formId}-heightCm`} name="heightCm" type="number" min="100" max="230" required class="maf-input" />
           <p class="maf-field-error" data-field-error hidden></p>
         </div>
         <div class="maf-field" data-field="bustCm">
-          <label for={`${formId}-bustCm`}>Brustumfang (cm) *</label>
+          <label for={`${formId}-bustCm`}>{t(locale, 'mafBust')}</label>
           <input id={`${formId}-bustCm`} name="bustCm" type="number" min="50" max="200" required class="maf-input" />
           <p class="maf-field-error" data-field-error hidden></p>
         </div>
         <div class="maf-field" data-field="waistCm">
-          <label for={`${formId}-waistCm`}>Taillenumfang (cm) *</label>
+          <label for={`${formId}-waistCm`}>{t(locale, 'mafWaist')}</label>
           <input id={`${formId}-waistCm`} name="waistCm" type="number" min="40" max="200" required class="maf-input" />
           <p class="maf-field-error" data-field-error hidden></p>
         </div>
         <div class="maf-field" data-field="hipsCm">
-          <label for={`${formId}-hipsCm`}>Hüftumfang (cm) *</label>
+          <label for={`${formId}-hipsCm`}>{t(locale, 'mafHips')}</label>
           <input id={`${formId}-hipsCm`} name="hipsCm" type="number" min="50" max="200" required class="maf-input" />
           <p class="maf-field-error" data-field-error hidden></p>
         </div>
@@ -149,9 +153,9 @@ const defaultIntro = `
 
       <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div class="maf-field" data-field="clothingSize">
-          <label for={`${formId}-clothingSize`}>Konfektionsgröße *</label>
+          <label for={`${formId}-clothingSize`}>{t(locale, 'mafClothingSize')}</label>
           <select id={`${formId}-clothingSize`} name="clothingSize" required class="maf-input">
-            <option value="">Bitte wählen</option>
+            <option value="">{t(locale, 'mafClothingSizePlaceholder')}</option>
             <option value="XXS">XXS</option>
             <option value="XS">XS</option>
             <option value="S">S</option>
@@ -163,56 +167,50 @@ const defaultIntro = `
           <p class="maf-field-error" data-field-error hidden></p>
         </div>
         <div class="maf-field" data-field="shoeSize">
-          <label for={`${formId}-shoeSize`}>Schuhgröße *</label>
+          <label for={`${formId}-shoeSize`}>{t(locale, 'mafShoeSize')}</label>
           <input id={`${formId}-shoeSize`} name="shoeSize" type="number" min="30" max="50" step="0.5" required class="maf-input" />
           <p class="maf-field-error" data-field-error hidden></p>
         </div>
         <div class="maf-field" data-field="hairColor">
-          <label for={`${formId}-hairColor`}>Haarfarbe *</label>
+          <label for={`${formId}-hairColor`}>{t(locale, 'mafHairColor')}</label>
           <input id={`${formId}-hairColor`} name="hairColor" type="text" required class="maf-input" />
           <p class="maf-field-error" data-field-error hidden></p>
         </div>
         <div class="maf-field" data-field="eyeColor">
-          <label for={`${formId}-eyeColor`}>Augenfarbe *</label>
+          <label for={`${formId}-eyeColor`}>{t(locale, 'mafEyeColor')}</label>
           <input id={`${formId}-eyeColor`} name="eyeColor" type="text" required class="maf-input" />
           <p class="maf-field-error" data-field-error hidden></p>
         </div>
       </div>
     </div>
 
-    <!-- BEREICH 3: POLAS -->
     <div class="space-y-5">
-      <h2 class="maf-section-title font-serif text-lg tracking-wide">Polas / Snapshots</h2>
+      <h2 class="maf-section-title font-serif text-lg tracking-wide">{t(locale, 'mafSectionPolas')}</h2>
 
       <div class="maf-info-box border border-[#d4d4d4] bg-[#f7f7f7] p-4 text-sm leading-relaxed text-portfolio-muted">
-        <p class="text-black">So sollten deine Polas aussehen:</p>
+        <p class="text-black">{t(locale, 'mafPolasIntro')}</p>
         <ul class="mt-2 list-disc space-y-1 pl-5">
-          <li>Tageslicht (kein Blitz, kein Studiolicht)</li>
-          <li>Kein Make-up, natürlicher Look</li>
-          <li>Eng anliegendes oder schlichtes Outfit (z.&nbsp;B. Top &amp; Jeans)</li>
-          <li>Neutraler, gerader Blick in die Kamera</li>
-          <li>Einfacher, aufgeräumter Hintergrund</li>
+          <li>{t(locale, 'mafPolasTip1')}</li>
+          <li>{t(locale, 'mafPolasTip2')}</li>
+          <li>{t(locale, 'mafPolasTip3')}</li>
+          <li>{t(locale, 'mafPolasTip4')}</li>
+          <li>{t(locale, 'mafPolasTip5')}</li>
         </ul>
       </div>
 
       <div class="grid gap-4 sm:grid-cols-2">
         {
-          [
-            { name: 'polaFront', label: '1. Ganzkörper von vorne *' },
-            { name: 'polaBack', label: '2. Ganzkörper von hinten *' },
-            { name: 'polaProfile', label: '3. Profil (Seite) *' },
-            { name: 'polaPortrait', label: '4. Porträt (von vorne) *' },
-          ].map((slot) => (
+          polaSlots.map((slot) => (
             <div class="maf-field" data-field={slot.name}>
               <p class="mb-2 text-sm text-portfolio-muted">{slot.label}</p>
               <div class="maf-upload" data-upload-box>
                 <input type="file" name={slot.name} accept="image/jpeg,image/png,image/webp,image/heic" />
                 <div class="maf-upload-placeholder" data-upload-placeholder>
-                  <span>Foto hier ablegen oder klicken</span>
+                  <span>{t(locale, 'mafUploadPlaceholder')}</span>
                 </div>
                 <img class="maf-upload-preview" alt="" data-upload-preview hidden />
                 <button type="button" class="maf-upload-remove" data-upload-remove hidden>
-                  Entfernen
+                  {t(locale, 'mafUploadRemove')}
                 </button>
               </div>
               <p class="maf-field-error" data-field-error hidden></p>
@@ -222,21 +220,21 @@ const defaultIntro = `
       </div>
     </div>
 
-    <!-- DATENSCHUTZ & ABSENDEN -->
     <div class="space-y-5 border-t border-[#d4d4d4] pt-8">
       <div class="maf-field maf-privacy" data-field="privacyConsent">
         <input id={`${formId}-privacy`} name="privacyConsent" type="checkbox" required />
         <label for={`${formId}-privacy`}>
-          Ich willige ein, dass meine Angaben und Fotos zur Bearbeitung meiner Bewerbung
-          verarbeitet werden. Die
-          <a href={privacyUrl || '/datenschutz'} class="underline hover:opacity-70">Datenschutzerklärung</a>
-          habe ich gelesen. *
+          <span
+            set:html={t(locale, 'mafPrivacyConsent', {
+              link: `<a href="${resolvedPrivacyUrl}" class="underline hover:opacity-70">${t(locale, 'mafPrivacyLink')}</a>`,
+            })}
+          />
         </label>
         <p class="maf-field-error" data-field-error hidden></p>
       </div>
 
       <button type="submit" data-submit-button class="maf-submit">
-        {submitLabel}
+        {resolvedSubmitLabel}
       </button>
 
       <p class="maf-status hidden text-sm" role="status" aria-live="polite" data-form-status></p>
@@ -244,13 +242,14 @@ const defaultIntro = `
   </form>
 </section>
 
-<script define:vars={{ formId, payloadUrl, successMessage }}>
+<script define:vars={{ formId, payloadUrl, resolvedSuccessMessage, formMessages }}>
   function bootModelForm() {
     if (typeof window.initModelApplicationForm !== 'function') return false
     window.initModelApplicationForm({
       form: `#${formId}`,
       apiUrl: `${payloadUrl}/api/model-application`,
-      successMessage,
+      successMessage: resolvedSuccessMessage,
+      messages: formMessages,
     })
     return true
   }
@@ -264,7 +263,6 @@ const defaultIntro = `
 </script>
 
 <style>
-  /* Design-Variablen — hier an die Website anpassen */
   .maf-section {
     --maf-color-text: #111111;
     --maf-color-text-muted: #888888;

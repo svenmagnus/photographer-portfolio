@@ -34,9 +34,9 @@ const MODEL_FORM_LIMITS = {
 }
 
 /* --------------------------------------------------------------------------
- * TEXTE — Validierungs- und Statusmeldungen (hier auf Deutsch anpassen)
+ * TEXTE — Validierungs- und Statusmeldungen (über options.messages überschreibbar)
  * -------------------------------------------------------------------------- */
-const MODEL_FORM_MESSAGES = {
+const DEFAULT_MODEL_FORM_MESSAGES = {
   required: 'Bitte dieses Pflichtfeld ausfüllen.',
   invalidEmail: 'Bitte eine gültige E-Mail-Adresse angeben.',
   invalidPhone: 'Bitte eine gültige Telefonnummer angeben.',
@@ -49,6 +49,7 @@ const MODEL_FORM_MESSAGES = {
   sending: 'Wird gesendet …',
   sendError: 'Senden fehlgeschlagen. Bitte später erneut versuchen.',
   networkError: 'Verbindungsfehler. Bitte Internetverbindung prüfen.',
+  validationSummary: 'Bitte alle markierten Felder prüfen.',
 }
 
 /**
@@ -198,7 +199,7 @@ function initUploadBox(uploadBox) {
  * @param {HTMLFormElement} form
  * @returns {{ ok: true, formData: FormData } | { ok: false }}
  */
-function validateModelApplicationForm(form) {
+function validateModelApplicationForm(form, messages) {
   const formData = new FormData(form)
   let isValid = true
 
@@ -229,7 +230,7 @@ function validateModelApplicationForm(form) {
     const wrapper = form.querySelector(`[data-field="${name}"]`)
     const value = getTrimmed(formData, name)
     if (!value) {
-      setFieldError(wrapper, MODEL_FORM_MESSAGES.required)
+      setFieldError(wrapper, messages.required)
       isValid = false
     } else {
       setFieldError(wrapper, null)
@@ -240,7 +241,7 @@ function validateModelApplicationForm(form) {
   const emailWrapper = form.querySelector('[data-field="email"]')
   const email = getTrimmed(formData, 'email')
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    setFieldError(emailWrapper, MODEL_FORM_MESSAGES.invalidEmail)
+    setFieldError(emailWrapper, messages.invalidEmail)
     isValid = false
   }
 
@@ -252,7 +253,7 @@ function validateModelApplicationForm(form) {
   const ageNumber = ageValue ? Number.parseInt(ageValue, 10) : computedAge
 
   if (ageNumber == null || Number.isNaN(ageNumber) || ageNumber < 14 || ageNumber > 99) {
-    setFieldError(ageWrapper, MODEL_FORM_MESSAGES.invalidAge)
+    setFieldError(ageWrapper, messages.invalidAge)
     isValid = false
   } else {
     setFieldError(ageWrapper, null)
@@ -264,7 +265,7 @@ function validateModelApplicationForm(form) {
     const raw = getTrimmed(formData, name)
     const num = Number.parseFloat(raw.replace(',', '.'))
     if (raw && (Number.isNaN(num) || num <= 0)) {
-      setFieldError(wrapper, MODEL_FORM_MESSAGES.invalidNumber)
+      setFieldError(wrapper, messages.invalidNumber)
       isValid = false
     }
   })
@@ -281,19 +282,19 @@ function validateModelApplicationForm(form) {
     const file = input instanceof HTMLInputElement ? input.files?.[0] : null
 
     if (!file) {
-      setFieldError(wrapper, MODEL_FORM_MESSAGES.photoRequired)
+      setFieldError(wrapper, messages.photoRequired)
       isValid = false
       return
     }
 
     if (file.size > MODEL_FORM_LIMITS.maxFileSizeBytes) {
-      setFieldError(wrapper, MODEL_FORM_MESSAGES.photoTooLarge)
+      setFieldError(wrapper, messages.photoTooLarge)
       isValid = false
       return
     }
 
     if (!isAllowedImageFile(file)) {
-      setFieldError(wrapper, MODEL_FORM_MESSAGES.photoInvalidType)
+      setFieldError(wrapper, messages.photoInvalidType)
       isValid = false
       return
     }
@@ -305,7 +306,7 @@ function validateModelApplicationForm(form) {
   const privacyWrapper = form.querySelector('[data-field="privacyConsent"]')
   const privacyChecked = formData.get('privacyConsent') === 'on'
   if (!privacyChecked) {
-    setFieldError(privacyWrapper, MODEL_FORM_MESSAGES.privacyRequired)
+    setFieldError(privacyWrapper, messages.privacyRequired)
     isValid = false
   } else {
     setFieldError(privacyWrapper, null)
@@ -321,8 +322,11 @@ function validateModelApplicationForm(form) {
  * @param {string|HTMLFormElement} options.form
  * @param {string} options.apiUrl — POST-Endpunkt (multipart/form-data)
  * @param {string} [options.successMessage]
+ * @param {object} [options.messages] — lokalisierte Validierungs- und Statusmeldungen
  */
 function initModelApplicationForm(options) {
+  const messages = { ...DEFAULT_MODEL_FORM_MESSAGES, ...options.messages }
+
   const form =
     typeof options.form === 'string'
       ? document.querySelector(options.form)
@@ -361,10 +365,10 @@ function initModelApplicationForm(options) {
       statusEl.classList.remove('maf-status--error', 'maf-status--success')
     }
 
-    const validation = validateModelApplicationForm(form)
+    const validation = validateModelApplicationForm(form, messages)
     if (!validation.ok) {
       if (statusEl instanceof HTMLElement) {
-        statusEl.textContent = 'Bitte alle markierten Felder prüfen.'
+        statusEl.textContent = messages.validationSummary
         statusEl.hidden = false
         statusEl.classList.add('maf-status--error')
       }
@@ -376,7 +380,7 @@ function initModelApplicationForm(options) {
     if (!(submitBtn instanceof HTMLButtonElement)) return
 
     submitBtn.disabled = true
-    submitBtn.textContent = MODEL_FORM_MESSAGES.sending
+    submitBtn.textContent = messages.sending
 
     try {
       const response = await fetch(options.apiUrl, {
@@ -387,7 +391,7 @@ function initModelApplicationForm(options) {
       const data = await response.json().catch(() => ({}))
 
       if (!response.ok) {
-        throw new Error(data.error || MODEL_FORM_MESSAGES.sendError)
+        throw new Error(data.error || messages.sendError)
       }
 
       form.reset()
@@ -413,7 +417,7 @@ function initModelApplicationForm(options) {
     } catch (error) {
       if (statusEl instanceof HTMLElement) {
         statusEl.textContent =
-          error instanceof Error ? error.message : MODEL_FORM_MESSAGES.networkError
+          error instanceof Error ? error.message : messages.networkError
         statusEl.hidden = false
         statusEl.classList.add('maf-status--error')
       }

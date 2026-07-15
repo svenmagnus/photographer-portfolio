@@ -3,19 +3,27 @@ import '../styles/cms-rich-text.css'
 import '../styles/responsive.css'
 
 import type { Locale } from '../i18n/locale'
-import { DEFAULT_LOCALE } from '../i18n/locale'
+import { DEFAULT_LOCALE, LOCALES, alternateLocalePaths, localePath, stripLocalePrefix } from '../i18n/locale'
 
 interface Props {
   title?: string
   description?: string
   locale?: Locale
+  /** Pfad ohne Query für canonical/hreflang (Standard: aktuelle URL) */
+  canonicalPath?: string
 }
 
 const {
   title = 'Sven Magnus Hanefeld — Photographer',
   description = 'Photography Portfolio',
   locale = DEFAULT_LOCALE,
+  canonicalPath,
 } = Astro.props
+
+const pathForAlternates = stripLocalePrefix(canonicalPath ?? Astro.url.pathname)
+const alternates = alternateLocalePaths(pathForAlternates)
+const siteOrigin = Astro.site?.origin ?? ''
+const canonicalUrl = `${siteOrigin}${localePath(pathForAlternates, locale)}`
 ---
 
 <!doctype html>
@@ -24,6 +32,13 @@ const {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+    {
+      LOCALES.map((loc) => (
+        <link rel="alternate" hreflang={loc} href={`${siteOrigin}${alternates[loc]}`} />
+      ))
+    }
+    <link rel="alternate" hreflang="x-default" href={`${siteOrigin}${alternates[DEFAULT_LOCALE]}`} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title}</title>
   </head>

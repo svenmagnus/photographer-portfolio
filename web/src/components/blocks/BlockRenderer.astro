@@ -12,10 +12,11 @@ interface Props {
   blocks: PageBlock[]
   pageType?: 'content' | 'gallery' | 'landing' | 'blog'
   settings?: SiteSettingsData
-  locale?: import('../i18n/locale').Locale
+import type { Locale } from '../../i18n/locale'
+import { DEFAULT_LOCALE } from '../../i18n/locale'
 }
 
-const { blocks, pageType = 'content', settings } = Astro.props
+const { blocks, pageType = 'content', settings, locale = DEFAULT_LOCALE } = Astro.props
 
 function isMedia(value: unknown): value is Media {
   return Boolean(value && typeof value === 'object' && 'id' in value)
@@ -271,6 +272,7 @@ const sectionWidth = pageType === 'landing' ? 'max-w-[1400px]' : 'max-w-5xl'
             successMessage={block.successMessage}
             email={email}
             phone={phone}
+            locale={locale}
           />
         )
       }
@@ -283,6 +285,7 @@ const sectionWidth = pageType === 'landing' ? 'max-w-[1400px]' : 'max-w-5xl'
             privacyUrl={block.privacyUrl}
             submitLabel={block.submitLabel}
             successMessage={block.successMessage}
+            locale={locale}
           />
         )
       }
