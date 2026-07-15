@@ -1,0 +1,253 @@
+/**
+ * ============================================================================
+ * MODEL-BEWERBUNGSFORMULAR — CSS (ohne Tailwind)
+ * ============================================================================
+ *
+ * Alternative zum Tailwind-Styling in standalone.html.
+ * Alle Farben und Abstände lassen sich über die Variablen unten anpassen.
+ *
+ * EINBINDUNG:
+ *   <link rel="stylesheet" href="model-application-form.css">
+ *   <form class="maf" id="model-application-form"> … </form>
+ * ============================================================================
+ */
+
+.maf {
+  /* --- HAUPTFARBEN (hier an Website anpassen) --- */
+  --maf-color-text: #111111;
+  --maf-color-text-muted: #666666;
+  --maf-color-border: #d4d4d4;
+  --maf-color-border-focus: #999999;
+  --maf-color-bg: #ffffff;
+  --maf-color-bg-soft: #f7f7f7;
+  --maf-color-error: #b42318;
+  --maf-color-success: #1a1a1a;
+
+  /* --- ABSTÄNDE & TYPOGRAFIE --- */
+  --maf-font-body: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  --maf-font-serif: Georgia, 'Times New Roman', serif;
+  --maf-max-width: 42rem;
+  --maf-section-gap: 3rem;
+  --maf-field-gap: 1rem;
+
+  max-width: var(--maf-max-width);
+  margin: 0 auto;
+  color: var(--maf-color-text);
+  font-family: var(--maf-font-body);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.maf-intro {
+  margin-bottom: var(--maf-section-gap);
+  color: var(--maf-color-text-muted);
+}
+
+.maf-intro p + p {
+  margin-top: 0.75rem;
+}
+
+.maf-section {
+  margin-bottom: var(--maf-section-gap);
+}
+
+.maf-section-title {
+  margin: 0 0 1.25rem;
+  font-family: var(--maf-font-serif);
+  font-size: 1.125rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+
+.maf-grid {
+  display: grid;
+  gap: var(--maf-field-gap);
+}
+
+.maf-grid--2 {
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .maf-grid--2 {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .maf-grid--4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.maf-field label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 13px;
+  color: var(--maf-color-text-muted);
+}
+
+.maf-field input,
+.maf-field select,
+.maf-field textarea {
+  width: 100%;
+  border: 1px solid var(--maf-color-border);
+  background: var(--maf-color-bg);
+  padding: 0.75rem 0.85rem;
+  font: inherit;
+  color: inherit;
+  outline: none;
+}
+
+.maf-field input:focus,
+.maf-field select:focus,
+.maf-field textarea:focus {
+  border-color: var(--maf-color-border-focus);
+}
+
+.maf-field--error input,
+.maf-field--error select,
+.maf-upload--error {
+  border-color: var(--maf-color-error);
+}
+
+.maf-field-error {
+  margin-top: 0.35rem;
+  font-size: 12px;
+  color: var(--maf-color-error);
+}
+
+.maf-info-box {
+  margin-bottom: 1.25rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--maf-color-border);
+  background: var(--maf-color-bg-soft);
+  font-size: 14px;
+  color: var(--maf-color-text-muted);
+}
+
+.maf-info-box ul {
+  margin: 0.5rem 0 0;
+  padding-left: 1.1rem;
+}
+
+.maf-upload-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .maf-upload-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.maf-upload {
+  position: relative;
+  min-height: 220px;
+  border: 1px dashed var(--maf-color-border);
+  background: var(--maf-color-bg-soft);
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.maf-upload--dragover {
+  border-color: var(--maf-color-text);
+  background: #f0f0f0;
+}
+
+.maf-upload input[type='file'] {
+  display: none;
+}
+
+.maf-upload-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 220px;
+  padding: 1rem;
+  text-align: center;
+  color: var(--maf-color-text-muted);
+  font-size: 13px;
+}
+
+.maf-upload-preview {
+  display: block;
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+}
+
+.maf-upload-remove {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  border: 1px solid var(--maf-color-border);
+  background: var(--maf-color-bg);
+  padding: 0.25rem 0.5rem;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.maf-privacy {
+  display: flex;
+  gap: 0.65rem;
+  align-items: flex-start;
+  font-size: 14px;
+  color: var(--maf-color-text-muted);
+}
+
+.maf-privacy input {
+  margin-top: 0.2rem;
+}
+
+.maf-submit {
+  margin-top: 1.5rem;
+  width: 100%;
+  border: 1px solid var(--maf-color-border);
+  background: var(--maf-color-bg);
+  padding: 0.9rem 1rem;
+  font: inherit;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.maf-submit:hover:not(:disabled) {
+  opacity: 0.7;
+}
+
+.maf-submit:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+.maf-status {
+  margin-top: 1rem;
+  font-size: 14px;
+}
+
+.maf-status--error {
+  color: var(--maf-color-error);
+}
+
+.maf-status--success {
+  color: var(--maf-color-success);
+}
+
+.maf-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+.maf-honeypot {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}

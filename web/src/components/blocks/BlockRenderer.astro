@@ -6,6 +6,7 @@ import type { SiteSettingsData } from '../../lib/siteSettings'
 import { getVideoEmbedUrl, getAspectRatioClass } from '../../lib/videoEmbed'
 import CategoryPhotoGrid from './CategoryPhotoGrid.astro'
 import ContactForm from './ContactForm.astro'
+import ModelApplicationForm from './ModelApplicationForm.astro'
 
 interface Props {
   blocks: PageBlock[]
@@ -269,6 +270,18 @@ const sectionWidth = pageType === 'landing' ? 'max-w-[1400px]' : 'max-w-5xl'
             successMessage={block.successMessage}
             email={email}
             phone={phone}
+          />
+        )
+      }
+
+      if (block.blockType === 'modelApplicationForm') {
+        return (
+          <ModelApplicationForm
+            blockId={String(index)}
+            intro={block.intro}
+            privacyUrl={block.privacyUrl}
+            submitLabel={block.submitLabel}
+            successMessage={block.successMessage}
           />
         )
       }

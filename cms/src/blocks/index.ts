@@ -3,6 +3,7 @@ import { ContactInfoBlock } from './ContactInfo'
 import { HeadingBlock } from './Heading'
 import { ImageGalleryBlock } from './ImageGallery'
 import { MediaTextBlock } from './MediaText'
+import { ModelApplicationFormBlock } from './ModelApplicationForm'
 import { PhotoGridBlock } from './PhotoGrid'
 import { RichTextBlock } from './RichText'
 import { SpacerBlock } from './Spacer'
@@ -17,6 +18,7 @@ export const pageBlocks = [
   VideoBlock,
   ContactInfoBlock,
   ContactFormBlock,
+  ModelApplicationFormBlock,
   SpacerBlock,
 ]
 
@@ -26,6 +28,7 @@ export {
   HeadingBlock,
   ImageGalleryBlock,
   MediaTextBlock,
+  ModelApplicationFormBlock,
   PhotoGridBlock,
   RichTextBlock,
   SpacerBlock,

@@ -62,6 +62,13 @@ export type PageBlock =
       submitLabel?: string | null
       successMessage?: string | null
     }
+  | {
+      blockType: 'modelApplicationForm'
+      intro?: Record<string, unknown> | null
+      privacyUrl?: string | null
+      submitLabel?: string | null
+      successMessage?: string | null
+    }
 
 export interface CmsPage {
   id: string | number

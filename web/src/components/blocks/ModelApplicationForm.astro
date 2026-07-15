@@ -1,0 +1,407 @@
+---
+/**
+ * ModelApplicationForm.astro
+ *
+ * Integriertes Bewerbungsformular für die Astro-Website.
+ * Struktur und Texte sind abschnittsweise kommentiert — Felder und Labels
+ * können hier direkt angepasst werden.
+ *
+ * Abhängigkeiten:
+ * - /forms/model-application-form.js (Validierung, Vorschau, Absenden)
+ * - POST {PUBLIC_PAYLOAD_URL}/api/model-application
+ */
+import { lexicalToHtml } from '../../lib/lexicalToHtml'
+
+interface Props {
+  blockId: string
+  intro?: Record<string, unknown> | null
+  privacyUrl?: string | null
+  submitLabel?: string | null
+  successMessage?: string | null
+}
+
+const {
+  blockId,
+  intro,
+  privacyUrl = '/datenschutz',
+  submitLabel = 'Bewerbung absenden',
+  successMessage = 'Vielen Dank — deine Bewerbung wurde erfolgreich gesendet.',
+} = Astro.props
+
+const introHtml = intro ? lexicalToHtml(intro) : ''
+const formId = `model-application-form-${blockId}`
+const payloadUrl = (import.meta.env.PUBLIC_PAYLOAD_URL || 'http://localhost:3000').replace(/\/$/, '')
+
+/** Standard-Einleitung, wenn im CMS kein Text hinterlegt ist */
+const defaultIntro = `
+  <p>Für diese Bewerbung brauchst du keine professionellen Fotos. Natürliche
+  <strong>Polas</strong> (Polaroids / Snapshots) reichen völlig aus — aufgenommen bei Tageslicht,
+  ohne Make-up und in schlichter Kleidung.</p>
+  <p>Bitte fülle alle Pflichtfelder aus und lade deine vier Polas hoch.</p>
+`
+---
+
+<section class="maf-section py-8 max-w-2xl mx-auto">
+  <!-- EINLEITUNGSTEXT (CMS oder Standard) -->
+  {
+    introHtml ? (
+      <div class="maf-intro cms-rich-text mb-12 text-[15px] leading-relaxed text-portfolio-muted" set:html={introHtml} />
+    ) : (
+      <div class="maf-intro mb-12 text-[15px] leading-relaxed text-portfolio-muted" set:html={defaultIntro} />
+    )
+  }
+
+  <form id={formId} class="maf space-y-12" novalidate enctype="multipart/form-data">
+    <!-- Honeypot -->
+    <div class="maf-honeypot" aria-hidden="true">
+      <label for={`${formId}-website`}>Website</label>
+      <input id={`${formId}-website`} type="text" name="website" tabindex="-1" autocomplete="off" />
+    </div>
+
+    <!-- BEREICH 1: PERSÖNLICHE DATEN -->
+    <div class="space-y-5">
+      <h2 class="maf-section-title font-serif text-lg tracking-wide">Persönliche Daten</h2>
+
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div class="maf-field" data-field="firstName">
+          <label for={`${formId}-firstName`}>Vorname *</label>
+          <input id={`${formId}-firstName`} name="firstName" type="text" required autocomplete="given-name" class="maf-input" />
+          <p class="maf-field-error" data-field-error hidden></p>
+        </div>
+        <div class="maf-field" data-field="lastName">
+          <label for={`${formId}-lastName`}>Nachname *</label>
+          <input id={`${formId}-lastName`} name="lastName" type="text" required autocomplete="family-name" class="maf-input" />
+          <p class="maf-field-error" data-field-error hidden></p>
+        </div>
+      </div>
+
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div class="maf-field" data-field="birthDate">
+          <label for={`${formId}-birthDate`}>Geburtsdatum *</label>
+          <input id={`${formId}-birthDate`} name="birthDate" type="date" required class="maf-input" />
+          <p class="maf-field-error" data-field-error hidden></p>
+        </div>
+        <div class="maf-field" data-field="age">
+          <label for={`${formId}-age`}>Alter *</label>
+          <input id={`${formId}-age`} name="age" type="number" min="14" max="99" required class="maf-input" />
+          <p class="text-xs text-portfolio-muted mt-1">Wird automatisch aus dem Geburtsdatum berechnet.</p>
+          <p class="maf-field-error" data-field-error hidden></p>
+        </div>
+      </div>
+
+      <div class="maf-field" data-field="location">
+        <label for={`${formId}-location`}>Aktueller Wohnort *</label>
+        <input id={`${formId}-location`} name="location" type="text" required autocomplete="address-level2" class="maf-input" />
+        <p class="maf-field-error" data-field-error hidden></p>
+      </div>
+
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div class="maf-field" data-field="email">
+          <label for={`${formId}-email`}>E-Mail-Adresse *</label>
+          <input id={`${formId}-email`} name="email" type="email" required autocomplete="email" class="maf-input" />
+          <p class="maf-field-error" data-field-error hidden></p>
+        </div>
+        <div class="maf-field" data-field="phone">
+          <label for={`${formId}-phone`}>Telefonnummer *</label>
+          <input id={`${formId}-phone`} name="phone" type="tel" required autocomplete="tel" class="maf-input" />
+          <p class="maf-field-error" data-field-error hidden></p>
+        </div>
+      </div>
+
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div class="maf-field" data-field="instagram">
+          <label for={`${formId}-instagram`}>Instagram (optional)</label>
+          <input id={`${formId}-instagram`} name="instagram" type="url" placeholder="https://instagram.com/…" class="maf-input" />
+        </div>
+        <div class="maf-field" data-field="tiktok">
+          <label for={`${formId}-tiktok`}>TikTok (optional)</label>
+          <input id={`${formId}-tiktok`} name="tiktok" type="url" placeholder="https://tiktok.com/@…" class="maf-input" />
+        </div>
+      </div>
+    </div>
+
+    <!-- BEREICH 2: KÖRPERMASSE -->
+    <div class="space-y-5">
+      <h2 class="maf-section-title font-serif text-lg tracking-wide">Körpermaße</h2>
+
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="maf-field" data-field="heightCm">
+          <label for={`${formId}-heightCm`}>Größe (cm) *</label>
+          <input id={`${formId}-heightCm`} name="heightCm" type="number" min="100" max="230" required class="maf-input" />
+          <p class="maf-field-error" data-field-error hidden></p>
+        </div>
+        <div class="maf-field" data-field="bustCm">
+          <label for={`${formId}-bustCm`}>Brustumfang (cm) *</label>
+          <input id={`${formId}-bustCm`} name="bustCm" type="number" min="50" max="200" required class="maf-input" />
+          <p class="maf-field-error" data-field-error hidden></p>
+        </div>
+        <div class="maf-field" data-field="waistCm">
+          <label for={`${formId}-waistCm`}>Taillenumfang (cm) *</label>
+          <input id={`${formId}-waistCm`} name="waistCm" type="number" min="40" max="200" required class="maf-input" />
+          <p class="maf-field-error" data-field-error hidden></p>
+        </div>
+        <div class="maf-field" data-field="hipsCm">
+          <label for={`${formId}-hipsCm`}>Hüftumfang (cm) *</label>
+          <input id={`${formId}-hipsCm`} name="hipsCm" type="number" min="50" max="200" required class="maf-input" />
+          <p class="maf-field-error" data-field-error hidden></p>
+        </div>
+      </div>
+
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="maf-field" data-field="clothingSize">
+          <label for={`${formId}-clothingSize`}>Konfektionsgröße *</label>
+          <select id={`${formId}-clothingSize`} name="clothingSize" required class="maf-input">
+            <option value="">Bitte wählen</option>
+            <option value="XXS">XXS</option>
+            <option value="XS">XS</option>
+            <option value="S">S</option>
+            <option value="M">M</option>
+            <option value="L">L</option>
+            <option value="XL">XL</option>
+            <option value="XXL">XXL</option>
+          </select>
+          <p class="maf-field-error" data-field-error hidden></p>
+        </div>
+        <div class="maf-field" data-field="shoeSize">
+          <label for={`${formId}-shoeSize`}>Schuhgröße *</label>
+          <input id={`${formId}-shoeSize`} name="shoeSize" type="number" min="30" max="50" step="0.5" required class="maf-input" />
+          <p class="maf-field-error" data-field-error hidden></p>
+        </div>
+        <div class="maf-field" data-field="hairColor">
+          <label for={`${formId}-hairColor`}>Haarfarbe *</label>
+          <input id={`${formId}-hairColor`} name="hairColor" type="text" required class="maf-input" />
+          <p class="maf-field-error" data-field-error hidden></p>
+        </div>
+        <div class="maf-field" data-field="eyeColor">
+          <label for={`${formId}-eyeColor`}>Augenfarbe *</label>
+          <input id={`${formId}-eyeColor`} name="eyeColor" type="text" required class="maf-input" />
+          <p class="maf-field-error" data-field-error hidden></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- BEREICH 3: POLAS -->
+    <div class="space-y-5">
+      <h2 class="maf-section-title font-serif text-lg tracking-wide">Polas / Snapshots</h2>
+
+      <div class="maf-info-box border border-[#d4d4d4] bg-[#f7f7f7] p-4 text-sm leading-relaxed text-portfolio-muted">
+        <p class="text-black">So sollten deine Polas aussehen:</p>
+        <ul class="mt-2 list-disc space-y-1 pl-5">
+          <li>Tageslicht (kein Blitz, kein Studiolicht)</li>
+          <li>Kein Make-up, natürlicher Look</li>
+          <li>Eng anliegendes oder schlichtes Outfit (z.&nbsp;B. Top &amp; Jeans)</li>
+          <li>Neutraler, gerader Blick in die Kamera</li>
+          <li>Einfacher, aufgeräumter Hintergrund</li>
+        </ul>
+      </div>
+
+      <div class="grid gap-4 sm:grid-cols-2">
+        {
+          [
+            { name: 'polaFront', label: '1. Ganzkörper von vorne *' },
+            { name: 'polaBack', label: '2. Ganzkörper von hinten *' },
+            { name: 'polaProfile', label: '3. Profil (Seite) *' },
+            { name: 'polaPortrait', label: '4. Porträt (von vorne) *' },
+          ].map((slot) => (
+            <div class="maf-field" data-field={slot.name}>
+              <p class="mb-2 text-sm text-portfolio-muted">{slot.label}</p>
+              <div class="maf-upload" data-upload-box>
+                <input type="file" name={slot.name} accept="image/jpeg,image/png,image/webp,image/heic" />
+                <div class="maf-upload-placeholder" data-upload-placeholder>
+                  <span>Foto hier ablegen oder klicken</span>
+                </div>
+                <img class="maf-upload-preview" alt="" data-upload-preview hidden />
+                <button type="button" class="maf-upload-remove" data-upload-remove hidden>
+                  Entfernen
+                </button>
+              </div>
+              <p class="maf-field-error" data-field-error hidden></p>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+
+    <!-- DATENSCHUTZ & ABSENDEN -->
+    <div class="space-y-5 border-t border-[#d4d4d4] pt-8">
+      <div class="maf-field maf-privacy" data-field="privacyConsent">
+        <input id={`${formId}-privacy`} name="privacyConsent" type="checkbox" required />
+        <label for={`${formId}-privacy`}>
+          Ich willige ein, dass meine Angaben und Fotos zur Bearbeitung meiner Bewerbung
+          verarbeitet werden. Die
+          <a href={privacyUrl || '/datenschutz'} class="underline hover:opacity-70">Datenschutzerklärung</a>
+          habe ich gelesen. *
+        </label>
+        <p class="maf-field-error" data-field-error hidden></p>
+      </div>
+
+      <button type="submit" data-submit-button class="maf-submit">
+        {submitLabel}
+      </button>
+
+      <p class="maf-status hidden text-sm" role="status" aria-live="polite" data-form-status></p>
+    </div>
+  </form>
+</section>
+
+<script define:vars={{ formId, payloadUrl, successMessage }}>
+  function bootModelForm() {
+    if (typeof window.initModelApplicationForm !== 'function') return false
+    window.initModelApplicationForm({
+      form: `#${formId}`,
+      apiUrl: `${payloadUrl}/api/model-application`,
+      successMessage,
+    })
+    return true
+  }
+
+  if (!bootModelForm()) {
+    const script = document.createElement('script')
+    script.src = '/forms/model-application-form.js'
+    script.onload = bootModelForm
+    document.head.appendChild(script)
+  }
+</script>
+
+<style>
+  /* Design-Variablen — hier an die Website anpassen */
+  .maf-section {
+    --maf-color-text: #111111;
+    --maf-color-text-muted: #888888;
+    --maf-color-border: #d4d4d4;
+    --maf-color-bg-soft: #f7f7f7;
+    --maf-color-error: #b42318;
+  }
+
+  .maf-field label {
+    display: block;
+    margin-bottom: 0.35rem;
+    font-size: 13px;
+    color: var(--maf-color-text-muted);
+  }
+
+  .maf-input {
+    display: block;
+    width: 100%;
+    border: 1px solid var(--maf-color-border);
+    background: #fff;
+    padding: 0.75rem 0.85rem;
+    font-size: 15px;
+    line-height: 1.4;
+    color: #000;
+    outline: none;
+    font-family: inherit;
+  }
+
+  .maf-input:focus {
+    border-color: #999;
+  }
+
+  .maf-field--error .maf-input,
+  .maf-upload--error {
+    border-color: var(--maf-color-error);
+  }
+
+  .maf-field-error {
+    margin-top: 0.35rem;
+    font-size: 12px;
+    color: var(--maf-color-error);
+  }
+
+  .maf-upload {
+    position: relative;
+    min-height: 220px;
+    border: 1px dashed var(--maf-color-border);
+    background: var(--maf-color-bg-soft);
+    cursor: pointer;
+    overflow: hidden;
+  }
+
+  .maf-upload--dragover {
+    border-color: #111;
+    background: #f0f0f0;
+  }
+
+  .maf-upload input[type='file'] {
+    display: none;
+  }
+
+  .maf-upload-placeholder {
+    display: flex;
+    min-height: 220px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    text-align: center;
+    font-size: 13px;
+    color: var(--maf-color-text-muted);
+  }
+
+  .maf-upload-preview {
+    display: block;
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+  }
+
+  .maf-upload-remove {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    border: 1px solid var(--maf-color-border);
+    background: #fff;
+    padding: 0.25rem 0.5rem;
+    font-size: 12px;
+    cursor: pointer;
+  }
+
+  .maf-privacy {
+    display: flex;
+    gap: 0.65rem;
+    align-items: flex-start;
+    font-size: 14px;
+    color: var(--maf-color-text-muted);
+  }
+
+  .maf-privacy input {
+    margin-top: 0.2rem;
+  }
+
+  .maf-submit {
+    width: 100%;
+    border: 1px solid var(--maf-color-border);
+    background: #fff;
+    padding: 0.9rem 1rem;
+    font-size: 15px;
+    color: #000;
+    cursor: pointer;
+    font-family: inherit;
+    transition: opacity 0.15s ease;
+  }
+
+  .maf-submit:hover:not(:disabled) {
+    opacity: 0.7;
+  }
+
+  .maf-submit:disabled {
+    opacity: 0.5;
+    cursor: wait;
+  }
+
+  .maf-status--error {
+    color: var(--maf-color-error);
+  }
+
+  .maf-status--success {
+    color: #111;
+  }
+
+  .maf-honeypot {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+</style>

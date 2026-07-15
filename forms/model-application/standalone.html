@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<!--
+  ============================================================================
+  MODEL-BEWERBUNGSFORMULAR — Standalone-Version (Tailwind CSS via CDN)
+  ============================================================================
+
+  Diese Datei kann 1:1 in ein Custom-HTML-Widget, WordPress oder eine
+  statische Seite kopiert werden.
+
+  ANPASSUNG:
+  1. Farben: CSS-Variablen im <style>-Block unten (--maf-*)
+  2. Texte: Alle Abschnitte sind mit HTML-Kommentaren markiert
+  3. API-Endpunkt: ganz unten bei initModelApplicationForm({ apiUrl: '...' })
+  4. Ohne Tailwind: model-application-form.css einbinden, Tailwind-Script entfernen
+
+  BENÖTIGTE DATEIEN (im gleichen Ordner):
+  - model-application-form.js
+  - optional: model-application-form.css (statt Tailwind)
+  ============================================================================
+-->
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Model-Bewerbung — Kostenloses Fotoshooting</title>
+
+    <!-- Tailwind CSS über CDN (für Produktion ggf. lokal bauen) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              /* Hauptfarben — hier an deine Website anpassen */
+              maf: {
+                text: 'var(--maf-color-text)',
+                muted: 'var(--maf-color-text-muted)',
+                border: 'var(--maf-color-border)',
+                soft: 'var(--maf-color-bg-soft)',
+                error: 'var(--maf-color-error)',
+              },
+            },
+            fontFamily: {
+              sans: ['Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
+              serif: ['Georgia', 'Times New Roman', 'serif'],
+            },
+          },
+        },
+      }
+    </script>
+
+    <!-- Design-Variablen (leicht auffindbar zum Anpassen) -->
+    <style>
+      :root {
+        --maf-color-text: #111111;
+        --maf-color-text-muted: #666666;
+        --maf-color-border: #d4d4d4;
+        --maf-color-bg-soft: #f7f7f7;
+        --maf-color-error: #b42318;
+      }
+    </style>
+
+    <!-- Optional: reines CSS statt Tailwind -->
+    <!-- <link rel="stylesheet" href="model-application-form.css" /> -->
+  </head>
+
+  <body class="bg-white text-maf-text antialiased">
+    <main class="mx-auto max-w-2xl px-4 py-12 md:py-16">
+      <!-- ================================================================== -->
+      <!-- EINLEITUNGSTEXT — Texte hier anpassen                              -->
+      <!-- ================================================================== -->
+      <header class="mb-12 space-y-3 text-[15px] leading-relaxed text-maf-muted">
+        <h1 class="font-serif text-3xl font-normal tracking-tight text-maf-text md:text-4xl">
+          Bewerbung — Kostenloses Model-Fotoshooting
+        </h1>
+        <p>
+          Für diese Bewerbung brauchst du keine professionellen Fotos. Natürliche
+          <strong class="font-normal text-maf-text">Polas</strong> (Polaroids / Snapshots) reichen
+          völlig aus — aufgenommen bei Tageslicht, ohne Make-up und in schlichter Kleidung.
+        </p>
+        <p>Bitte fülle alle Pflichtfelder aus und lade deine vier Polas hoch.</p>
+      </header>
+
+      <form
+        id="model-application-form"
+        class="maf space-y-12"
+        novalidate
+        enctype="multipart/form-data"
+      >
+        <!-- Honeypot (Spam-Schutz — für Nutzer unsichtbar) -->
+        <div class="maf-honeypot" aria-hidden="true">
+          <label for="website">Website</label>
+          <input id="website" type="text" name="website" tabindex="-1" autocomplete="off" />
+        </div>
+
+        <!-- ================================================================ -->
+        <!-- BEREICH 1: PERSÖNLICHE DATEN                                     -->
+        <!-- ================================================================ -->
+        <section class="space-y-5">
+          <h2 class="font-serif text-lg tracking-wide text-maf-text">Persönliche Daten</h2>
+
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div class="maf-field" data-field="firstName">
+              <label for="firstName">Vorname *</label>
+              <input id="firstName" name="firstName" type="text" required autocomplete="given-name" class="maf-input" />
+              <p class="maf-field-error mt-1 hidden text-xs text-maf-error" data-field-error></p>
+            </div>
+            <div class="maf-field" data-field="lastName">
+              <label for="lastName">Nachname *</label>
+              <input id="lastName" name="lastName" type="text" required autocomplete="family-name" class="maf-input" />
+              <p class="maf-field-error mt-1 hidden text-xs text-maf-error" data-field-error></p>
+            </div>
+          </div>
+
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div class="maf-field" data-field="birthDate">
+              <label for="birthDate">Geburtsdatum *</label>
+              <input id="birthDate" name="birthDate" type="date" required class="maf-input" />
+              <p class="maf-field-error mt-1 hidden text-xs text-maf-error" data-field-error></p>
+            </div>
+            <div class="maf-field" data-field="age">
+              <label for="age">Alter *</label>
+              <input id="age" name="age" type="number" min="14" max="99" required class="maf-input" />
+              <p class="text-xs text-maf-muted mt-1">Wird automatisch aus dem Geburtsdatum berechnet.</p>
+              <p class="maf-field-error mt-1 hidden text-xs text-maf-error" data-field-error></p>
+            </div>
+          </div>
+
+          <div class="maf-field" data-field="location">
+            <label for="location">Aktueller Wohnort *</label>
+            <input id="location" name="location" type="text" required autocomplete="address-level2" class="maf-input" />
+            <p class="maf-field-error mt-1 hidden text-xs text-maf-error" data-field-error></p>
+          </div>
+
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div class="maf-field" data-field="email">
+              <label for="email">E-Mail-Adresse *</label>
+              <input id="email" name="email" type="email" required autocomplete="email" class="maf-input" />
+              <p class="maf-field-error mt-1 hidden text-xs text-maf-error" data-field-error></p>
+            </div>
+            <div class="maf-field" data-field="phone">
+              <label for="phone">Telefonnummer *</label>
+              <input id="phone" name="phone" type="tel" required autocomplete="tel" class="maf-input" />
+              <p class="maf-field-error mt-1 hidden text-xs text-maf-error" data-field-error></p>
+            </div>
+          </div>
+
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div class="maf-field" data-field="instagram">
+              <label for="instagram">Instagram (optional)</label>
+              <input id="instagram" name="instagram" type="url" placeholder="https://instagram.com/…" class="maf-input" />
+            </div>
+            <div class="maf-field" data-field="tiktok">
+              <label for="tiktok">TikTok (optional)</label>
+              <input id="tiktok" name="tiktok" type="url" placeholder="https://tiktok.com/@…" class="maf-input" />
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- BEREICH 2: KÖRPERMASSE (kompaktes Raster)                          -->
+        <!-- ================================================================ -->
+        <section class="space-y-5">
+          <h2 class="font-serif text-lg tracking-wide text-maf-text">Körpermaße</h2>
+
+          <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div class="maf-field" data-field="heightCm">
+              <label for="heightCm">Größe (cm) *</label>
+              <input id="heightCm" name="heightCm" type="number" min="100" max="230" required class="maf-input" />
+              <p class="maf-field-error mt-1 hidden text-xs text-maf-error" data-field-error></p>
+            </div>
+            <div class="maf-field" data-field="bustCm">
+              <label for="bustCm">Brustumfang (cm) *</label>
+              <input id="bustCm" name="bustCm" type="number" min="50" max="200" required class="maf-input" />
+              <p class="maf-field-error mt-1 hidden text-xs text-maf-error" data-field-error></p>
+            </div>
+            <div class="maf-field" data-field="waistCm">
+              <label for="waistCm">Taillenumfang (cm) *</label>
+              <input id="waistCm" name="waistCm" type="number" min="40" max="200" required class="maf-input" />
+              <p class="maf-field-error mt-1 hidden text-xs text-maf-error" data-field-error></p>
+            </div>
+            <div class="maf-field" data-field="hipsCm">
+              <label for="hipsCm">Hüftumfang (cm) *</label>
+              <input id="hipsCm" name="hipsCm" type="number" min="50" max="200" required class="maf-input" />
+              <p class="maf-field-error mt-1 hidden text-xs text-maf-error" data-field-error></p>
+            </div>
+          </div>
+
+          <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div class="maf-field" data-field="clothingSize">
+              <label for="clothingSize">Konfektionsgröße *</label>
+              <select id="clothingSize" name="clothingSize" required class="maf-input">
+                <option value="">Bitte wählen</option>
+                <option value="XXS">XXS</option>
+                <option value="XS">XS</option>
+                <option value="S">S</option>
+                <option value="M">M</option>
+                <option value="L">L</option>
+                <option value="XL">XL</option>
+                <option value="XXL">XXL</option>
+              </select>
+              <p class="maf-field-error mt-1 hidden text-xs text-maf-error" data-field-error></p>
+            </div>
+            <div class="maf-field" data-field="shoeSize">
+              <label for="shoeSize">Schuhgröße *</label>
+              <input id="shoeSize" name="shoeSize" type="number" min="30" max="50" step="0.5" required class="maf-input" />
+              <p class="maf-field-error mt-1 hidden text-xs text-maf-error" data-field-error></p>
+            </div>
+            <div class="maf-field" data-field="hairColor">
+              <label for="hairColor">Haarfarbe *</label>
+              <input id="hairColor" name="hairColor" type="text" required class="maf-input" />
+              <p class="maf-field-error mt-1 hidden text-xs text-maf-error" data-field-error></p>
+            </div>
+            <div class="maf-field" data-field="eyeColor">
+              <label for="eyeColor">Augenfarbe *</label>
+              <input id="eyeColor" name="eyeColor" type="text" required class="maf-input" />
+              <p class="maf-field-error mt-1 hidden text-xs text-maf-error" data-field-error></p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- BEREICH 3: FOTO-UPLOAD (POLAROIDS)                                 -->
+        <!-- ================================================================ -->
+        <section class="space-y-5">
+          <h2 class="font-serif text-lg tracking-wide text-maf-text">Polas / Snapshots</h2>
+
+          <!-- Infokasten — Richtlinien hier anpassen -->
+          <div class="border border-maf-border bg-maf-soft p-4 text-sm leading-relaxed text-maf-muted">
+            <p class="font-medium text-maf-text">So sollten deine Polas aussehen:</p>
+            <ul class="mt-2 list-disc space-y-1 pl-5">
+              <li>Tageslicht (kein Blitz, kein Studiolicht)</li>
+              <li>Kein Make-up, natürlicher Look</li>
+              <li>Eng anliegendes oder schlichtes Outfit (z.&nbsp;B. Top &amp; Jeans)</li>
+              <li>Neutraler, gerader Blick in die Kamera</li>
+              <li>Einfacher, aufgeräumter Hintergrund</li>
+            </ul>
+          </div>
+
+          <div class="grid gap-4 sm:grid-cols-2">
+            <!-- Upload 1: Ganzkörper vorne -->
+            <div class="maf-field" data-field="polaFront">
+              <p class="mb-2 text-sm text-maf-muted">1. Ganzkörper von vorne *</p>
+              <div class="maf-upload relative min-h-[220px] border border-dashed border-maf-border bg-maf-soft" data-upload-box>
+                <input type="file" name="polaFront" accept="image/jpeg,image/png,image/webp,image/heic" />
+                <div class="maf-upload-placeholder flex min-h-[220px] flex-col items-center justify-center p-4 text-center text-sm text-maf-muted" data-upload-placeholder>
+                  <span>Foto hier ablegen oder klicken</span>
+                </div>
+                <img class="maf-upload-preview hidden h-[220px] w-full object-cover" alt="" data-upload-preview />
+                <button type="button" class="absolute right-2 top-2 hidden border border-maf-border bg-white px-2 py-1 text-xs" data-upload-remove>Entfernen</button>
+              </div>
+              <p class="maf-field-error mt-1 hidden text-xs text-maf-error" data-field-error></p>
+            </div>
+
+            <!-- Upload 2: Ganzkörper hinten -->
+            <div class="maf-field" data-field="polaBack">
+              <p class="mb-2 text-sm text-maf-muted">2. Ganzkörper von hinten *</p>
+              <div class="maf-upload relative min-h-[220px] border border-dashed border-maf-border bg-maf-soft" data-upload-box>
+                <input type="file" name="polaBack" accept="image/jpeg,image/png,image/webp,image/heic" />
+                <div class="maf-upload-placeholder flex min-h-[220px] flex-col items-center justify-center p-4 text-center text-sm text-maf-muted" data-upload-placeholder>
+                  <span>Foto hier ablegen oder klicken</span>
+                </div>
+                <img class="maf-upload-preview hidden h-[220px] w-full object-cover" alt="" data-upload-preview />
+                <button type="button" class="absolute right-2 top-2 hidden border border-maf-border bg-white px-2 py-1 text-xs" data-upload-remove>Entfernen</button>
+              </div>
+              <p class="maf-field-error mt-1 hidden text-xs text-maf-error" data-field-error></p>
+            </div>
+
+            <!-- Upload 3: Profil -->
+            <div class="maf-field" data-field="polaProfile">
+              <p class="mb-2 text-sm text-maf-muted">3. Profil (Seite) *</p>
+              <div class="maf-upload relative min-h-[220px] border border-dashed border-maf-border bg-maf-soft" data-upload-box>
+                <input type="file" name="polaProfile" accept="image/jpeg,image/png,image/webp,image/heic" />
+                <div class="maf-upload-placeholder flex min-h-[220px] flex-col items-center justify-center p-4 text-center text-sm text-maf-muted" data-upload-placeholder>
+                  <span>Foto hier ablegen oder klicken</span>
+                </div>
+                <img class="maf-upload-preview hidden h-[220px] w-full object-cover" alt="" data-upload-preview />
+                <button type="button" class="absolute right-2 top-2 hidden border border-maf-border bg-white px-2 py-1 text-xs" data-upload-remove>Entfernen</button>
+              </div>
+              <p class="maf-field-error mt-1 hidden text-xs text-maf-error" data-field-error></p>
+            </div>
+
+            <!-- Upload 4: Porträt -->
+            <div class="maf-field" data-field="polaPortrait">
+              <p class="mb-2 text-sm text-maf-muted">4. Porträt (von vorne) *</p>
+              <div class="maf-upload relative min-h-[220px] border border-dashed border-maf-border bg-maf-soft" data-upload-box>
+                <input type="file" name="polaPortrait" accept="image/jpeg,image/png,image/webp,image/heic" />
+                <div class="maf-upload-placeholder flex min-h-[220px] flex-col items-center justify-center p-4 text-center text-sm text-maf-muted" data-upload-placeholder>
+                  <span>Foto hier ablegen oder klicken</span>
+                </div>
+                <img class="maf-upload-preview hidden h-[220px] w-full object-cover" alt="" data-upload-preview />
+                <button type="button" class="absolute right-2 top-2 hidden border border-maf-border bg-white px-2 py-1 text-xs" data-upload-remove>Entfernen</button>
+              </div>
+              <p class="maf-field-error mt-1 hidden text-xs text-maf-error" data-field-error></p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================================ -->
+        <!-- DATENSCHUTZ & ABSENDEN                                             -->
+        <!-- ================================================================ -->
+        <section class="space-y-5 border-t border-maf-border pt-8">
+          <div class="maf-field flex items-start gap-3" data-field="privacyConsent">
+            <input id="privacyConsent" name="privacyConsent" type="checkbox" required class="mt-1" />
+            <label for="privacyConsent" class="text-sm leading-relaxed text-maf-muted">
+              Ich willige ein, dass meine Angaben und Fotos zur Bearbeitung meiner Bewerbung
+              verarbeitet werden. Die
+              <a href="/datenschutz" class="underline hover:opacity-70">Datenschutzerklärung</a>
+              habe ich gelesen. *
+            </label>
+            <p class="maf-field-error mt-1 hidden text-xs text-maf-error" data-field-error></p>
+          </div>
+
+          <button
+            type="submit"
+            data-submit-button
+            class="w-full border border-maf-border bg-white px-4 py-3 text-[15px] transition-opacity hover:opacity-70 disabled:cursor-wait disabled:opacity-50"
+          >
+            Bewerbung absenden
+          </button>
+
+          <p class="hidden text-sm" role="status" aria-live="polite" data-form-status></p>
+        </section>
+      </form>
+    </main>
+
+    <!-- Tailwind-Hilfsklassen für Inputs (wenn kein separates CSS genutzt wird) -->
+    <style>
+      .maf-field label {
+        display: block;
+        margin-bottom: 0.35rem;
+        font-size: 13px;
+        color: var(--maf-color-text-muted);
+      }
+      .maf-input {
+        width: 100%;
+        border: 1px solid var(--maf-color-border);
+        background: #fff;
+        padding: 0.75rem 0.85rem;
+        font-size: 15px;
+        outline: none;
+      }
+      .maf-input:focus {
+        border-color: #999;
+      }
+      .maf-field--error .maf-input,
+      .maf-upload--error {
+        border-color: var(--maf-color-error);
+      }
+      .maf-honeypot {
+        position: absolute;
+        left: -9999px;
+      }
+    </style>
+
+    <script src="./model-application-form.js"></script>
+    <script>
+      /**
+       * API-ENDPUNKT — hier an dein Backend anpassen.
+       * In diesem Projekt: Payload CMS unter PUBLIC_PAYLOAD_URL
+       */
+      initModelApplicationForm({
+        form: '#model-application-form',
+        apiUrl: 'https://photographer-portfolio-cms.vercel.app/api/model-application',
+        successMessage: 'Vielen Dank — deine Bewerbung wurde erfolgreich gesendet.',
+      })
+    </script>
+  </body>
+</html>
