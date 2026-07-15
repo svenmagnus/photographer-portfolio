@@ -32,21 +32,3 @@ export function contactIntroHtml(locale: Locale): string {
 
   return `<p>I'm available for local projects as well as potential employment opportunities. Use the form to inquire about rates and availability, or just to say hi.</p>`
 }
-
-export function imprintBodyHtml(locale: Locale): string {
-  if (locale === 'de') {
-    return [
-      '<p>Angaben gemäß § 5 TMG</p>',
-      '<p>Sven Magnus Hanefeld — Photographer</p>',
-      '<p>Kontakt: info@svenmagnus.com</p>',
-      '<p>Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV: Sven Magnus Hanefeld</p>',
-    ].join('')
-  }
-
-  return [
-    '<p>Legal information pursuant to § 5 TMG (German Telemedia Act)</p>',
-    '<p>Sven Magnus Hanefeld — Photographer</p>',
-    '<p>Contact: info@svenmagnus.com</p>',
-    '<p>Responsible for content pursuant to § 55 Abs. 2 RStV: Sven Magnus Hanefeld</p>',
-  ].join('')
-}

@@ -20,7 +20,6 @@ export const CONTENT_EN_LAYOUT_SEED_SLUGS = ['publications'] as const
 /** Seiten mit festem Layout — Seed darf Inhalt setzen/aktualisieren. */
 export const FULL_LAYOUT_SEED_SLUGS = [
   'contact',
-  'imprint',
   'model-bewerbung',
   'blog',
 ] as const
@@ -102,38 +101,8 @@ export const PAGE_LOCALE_CONTENT: Record<string, Partial<Record<LocaleCode, Page
     },
   },
   imprint: {
-    de: {
-      title: 'Impressum',
-      layout: [
-        headingBlock('Impressum', 'left'),
-        {
-          blockType: 'richText',
-          width: 'narrow',
-          content: lexicalParagraphs(
-            'Angaben gemäß § 5 TMG',
-            'Sven Magnus Hanefeld — Photographer',
-            'Kontakt: info@svenmagnus.com',
-            'Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV: Sven Magnus Hanefeld',
-          ),
-        },
-      ],
-    },
-    en: {
-      title: 'Imprint',
-      layout: [
-        headingBlock('Imprint', 'left'),
-        {
-          blockType: 'richText',
-          width: 'narrow',
-          content: lexicalParagraphs(
-            'Legal information pursuant to § 5 TMG (German Telemedia Act)',
-            'Sven Magnus Hanefeld — Photographer',
-            'Contact: info@svenmagnus.com',
-            'Responsible for content pursuant to § 55 Abs. 2 RStV: Sven Magnus Hanefeld',
-          ),
-        },
-      ],
-    },
+    de: { title: 'Impressum' },
+    en: { title: 'Imprint' },
   },
   'model-bewerbung': {
     de: {

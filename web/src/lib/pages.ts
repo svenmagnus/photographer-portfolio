@@ -164,7 +164,9 @@ export async function fetchPageBySlug(slug: string, locale: Locale = 'de'): Prom
   )
 
   try {
-    const response = await fetch(`${getPayloadUrl()}/api/pages?${params.toString()}`)
+    const response = await fetch(`${getPayloadUrl()}/api/pages?${params.toString()}`, {
+      cache: 'no-store',
+    })
     if (!response.ok) return null
 
     const data = (await response.json()) as PagesResponse
