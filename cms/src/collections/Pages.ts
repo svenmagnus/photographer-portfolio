@@ -54,7 +54,6 @@ export const Pages: CollectionConfig = {
       type: 'text',
       required: true,
       label: 'Titel',
-      localized: true,
     },
     {
       name: 'slug',
@@ -152,13 +151,11 @@ export const Pages: CollectionConfig = {
 
         return contentBlocks.map((block) => block.slug)
       },
-      localized: true,
     },
     {
       name: 'metaTitle',
       type: 'text',
       label: 'SEO-Titel',
-      localized: true,
       admin: {
         position: 'sidebar',
       },
@@ -167,7 +164,6 @@ export const Pages: CollectionConfig = {
       name: 'metaDescription',
       type: 'textarea',
       label: 'SEO-Beschreibung',
-      localized: true,
       admin: {
         position: 'sidebar',
       },

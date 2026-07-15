@@ -18,7 +18,7 @@ import { SiteSettings } from './globals/SiteSettings'
 import { MainMenu } from './globals/MainMenu'
 import { seedDefaultPages } from './lib/seedDefaultPages'
 import { seedBlogPosts } from './lib/seedBlogPosts'
-import { seedMainMenuFromPages, repairMainMenuDuplicates, ensureModelApplicationInMenu } from './lib/seedMainMenu'
+import { seedMainMenuFromPages, repairMainMenuDuplicates, ensureModelApplicationInMenu, removeStoreFromMainMenu } from './lib/seedMainMenu'
 import { repairImageGalleryBlocks } from './lib/repairImageGalleryBlocks'
 import { migrations } from './migrations'
 
@@ -105,14 +105,6 @@ if (isVercel && !isEmailConfigured()) {
 
 export default buildConfig({
   ...(email ? { email } : {}),
-  localization: {
-    locales: [
-      { label: 'Deutsch', code: 'de' },
-      { label: 'English', code: 'en' },
-    ],
-    defaultLocale: 'de',
-    fallback: true,
-  },
   admin: {
     user: Users.slug,
     importMap: {
@@ -140,7 +132,7 @@ export default buildConfig({
         },
         blocksAsJSON: true,
         prodMigrations: migrations,
-        push: isVercel,
+        push: false,
       })
     : sqliteAdapter({
         client: {
@@ -155,6 +147,7 @@ export default buildConfig({
     await seedBlogPosts(payload)
     await seedMainMenuFromPages(payload)
     await repairMainMenuDuplicates(payload)
+    await removeStoreFromMainMenu(payload)
     await ensureModelApplicationInMenu(payload)
     await repairImageGalleryBlocks(payload)
   },

@@ -7,6 +7,8 @@ import * as migration_20260714_222400_blog_posts from './20260714_222400_blog_po
 import * as migration_20260714_234500_blog_post_featured_images from './20260714_234500_blog_post_featured_images';
 import * as migration_20260714_235000_blog_post_list_columns from './20260714_235000_blog_post_list_columns';
 
+import * as migration_20260715_090000_repair_localization_schema from './20260715_090000_repair_localization_schema';
+
 export const migrations = [
   {
     up: migration_20260710_184534_initial.up,
@@ -47,5 +49,10 @@ export const migrations = [
     up: migration_20260714_235000_blog_post_list_columns.up,
     down: migration_20260714_235000_blog_post_list_columns.down,
     name: '20260714_235000_blog_post_list_columns',
+  },
+  {
+    up: migration_20260715_090000_repair_localization_schema.up,
+    down: migration_20260715_090000_repair_localization_schema.down,
+    name: '20260715_090000_repair_localization_schema',
   },
 ];

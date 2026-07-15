@@ -13,8 +13,9 @@ export const PHOTO_CATEGORIES = [
 ] as const
 
 export const STATIC_NAV_LINKS = [
+  { label: 'blog', href: '/blog' },
+  { label: 'model-bewerbung', href: '/model-bewerbung' },
   { label: 'imprint', href: '/imprint' },
-  { label: 'store', href: '/store' },
   { label: 'contact', href: '/contact' },
 ] as const
 

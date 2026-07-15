@@ -8,7 +8,6 @@ export const menuLinkFields: Field[] = [
     type: 'text',
     required: true,
     label: 'Anzeigename',
-    localized: true,
   },
   {
     name: 'linkType',

@@ -138,6 +138,44 @@ export async function seedMainMenuFromPages(payload: Payload): Promise<void> {
   }
 }
 
+const STORE_PAGE_SLUG = 'store'
+
+/** Entfernt Store aus dem Hauptmenü (Seite bleibt erreichbar, nur nicht im Menü). */
+export async function removeStoreFromMainMenu(payload: Payload): Promise<void> {
+  try {
+    const menu = await payload.findGlobal({
+      slug: 'main-menu',
+      depth: 1,
+    })
+
+    const currentItems = Array.isArray(menu.items)
+      ? menu.items.map((item) => menuItemFromApi(item as never))
+      : []
+
+    const filtered = currentItems.filter((item) => {
+      const slug = item.page?.slug
+      if (slug === STORE_PAGE_SLUG) return false
+      if (item.label.toLowerCase() === 'store') return false
+      return true
+    })
+
+    if (filtered.length === currentItems.length) return
+
+    await payload.updateGlobal({
+      slug: 'main-menu',
+      data: {
+        items: dedupeSerializedMenuItems(serializeMenuItems(filtered)) as never,
+      },
+    })
+
+    payload.logger.info('Removed store from main menu.')
+  } catch (error) {
+    payload.logger.error(
+      `Store menu removal skipped: ${error instanceof Error ? error.message : String(error)}`,
+    )
+  }
+}
+
 const MODEL_APPLICATION_PAGE_SLUG = 'model-bewerbung'
 
 /** Fügt Model-Bewerbung ins Hauptmenü ein, falls die Seite existiert aber noch nicht verlinkt ist. */

@@ -65,6 +65,7 @@ const DEFAULT_PAGES = [
     slug: 'store',
     pageType: 'content' as const,
     navOrder: GALLERY_COUNT + 2,
+    showInNavigation: false,
     layout: [
       {
         blockType: 'heading',
@@ -128,6 +129,7 @@ export async function seedDefaultPages(payload: Payload): Promise<void> {
     await seedGalleryPages(payload)
     await ensureBlogPage(payload)
     await ensureModelApplicationPage(payload)
+    await ensureStoreHiddenFromNavigation(payload)
     await removeDuplicateLegacyBlogPage(payload)
     await syncContentPageNavigation(payload)
     await removeDuplicateContactInfoBlock(payload)
@@ -313,6 +315,26 @@ async function ensureModelApplicationPage(payload: Payload): Promise<void> {
   payload.logger.info(`Updated ${modelPage.slug} page with model application form block`)
 }
 
+async function ensureStoreHiddenFromNavigation(payload: Payload): Promise<void> {
+  const existing = await payload.find({
+    collection: 'pages',
+    where: { slug: { equals: 'store' } },
+    limit: 1,
+    depth: 0,
+  })
+
+  const doc = existing.docs[0]
+  if (!doc || doc.showInNavigation === false) return
+
+  await payload.update({
+    collection: 'pages',
+    id: doc.id,
+    data: { showInNavigation: false },
+  })
+
+  payload.logger.info('Store page hidden from navigation.')
+}
+
 async function removeDuplicateLegacyBlogPage(payload: Payload): Promise<void> {
   const [existingBlog, legacyBlog] = await Promise.all([
     payload.find({
@@ -369,10 +391,7 @@ async function syncContentPageNavigation(payload: Payload): Promise<void> {
     const doc = existing.docs[0]
     if (!doc) continue
 
-    const needsUpdate =
-      doc.showInNavigation !== true ||
-      doc.navOrder !== page.navOrder ||
-      doc.pageType !== page.pageType
+    const needsUpdate = doc.navOrder !== page.navOrder || doc.pageType !== page.pageType
 
     if (!needsUpdate) continue
 
@@ -380,7 +399,6 @@ async function syncContentPageNavigation(payload: Payload): Promise<void> {
       collection: 'pages',
       id: doc.id,
       data: {
-        showInNavigation: true,
         navOrder: page.navOrder,
         pageType: page.pageType,
       },
