@@ -10,7 +10,7 @@ type LexicalTextNode = {
 
 type LexicalParagraphNode = {
   type: 'paragraph'
-  children: Array<LexicalTextNode | LexicalLinkNode>
+  children: Array<LexicalTextNode | LexicalLinkNode | LexicalAutolinkNode>
   direction: null
   format: 'start' | ''
   indent: 0
@@ -33,7 +33,7 @@ type LexicalLinkNode = {
   type: 'link'
   fields: {
     url: string
-    newTab: boolean
+    newTab?: boolean
     linkType: 'custom'
   }
   format: ''
@@ -43,16 +43,31 @@ type LexicalLinkNode = {
   direction: null
 }
 
+type LexicalAutolinkNode = {
+  type: 'autolink'
+  fields: {
+    url: string
+    linkType: 'custom'
+  }
+  format: ''
+  indent: 0
+  version: 2
+  children: LexicalTextNode[]
+  direction: null
+}
+
 type LexicalChild = LexicalParagraphNode | LexicalHeadingNode
 
-function textNode(text: string): LexicalTextNode {
+const FORMAT_BOLD = 1
+
+function textNode(text: string, format = 0): LexicalTextNode {
   return {
     type: 'text',
     mode: 'normal',
     text,
     style: '',
     detail: 0,
-    format: 0,
+    format,
     version: 1,
   }
 }
@@ -76,6 +91,49 @@ export function lexicalParagraph(text: string): LexicalParagraphNode {
     indent: 0,
     version: 1,
     children: [textNode(text)],
+    direction: null,
+    textStyle: '',
+    textFormat: 0,
+  }
+}
+
+export function lexicalParagraphWithBoldPrefix(prefix: string, text: string): LexicalParagraphNode {
+  return {
+    type: 'paragraph',
+    format: 'start',
+    indent: 0,
+    version: 1,
+    children: [textNode(prefix, FORMAT_BOLD), textNode(text)],
+    direction: null,
+    textStyle: '',
+    textFormat: 0,
+  }
+}
+
+export function lexicalParagraphWithAutolink(
+  prefix: string,
+  linkText: string,
+  url: string,
+): LexicalParagraphNode {
+  const link: LexicalAutolinkNode = {
+    type: 'autolink',
+    fields: {
+      url,
+      linkType: 'custom',
+    },
+    format: '',
+    indent: 0,
+    version: 2,
+    children: [textNode(linkText)],
+    direction: null,
+  }
+
+  return {
+    type: 'paragraph',
+    format: 'start',
+    indent: 0,
+    version: 1,
+    children: prefix ? [textNode(prefix), link] : [link],
     direction: null,
     textStyle: '',
     textFormat: 0,

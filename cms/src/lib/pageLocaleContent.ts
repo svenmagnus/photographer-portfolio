@@ -17,6 +17,9 @@ export const CONTENT_CATEGORY_SLUGS = ['publications', 'advertorial', 'motion'] 
 /** Inhaltsseiten mit festem EN-Layout im Seed (DE-Layout bleibt unangetastet). */
 export const CONTENT_EN_LAYOUT_SEED_SLUGS = ['publications'] as const
 
+/** Layout wird nur im CMS gepflegt — Seed darf es nicht überschreiben. */
+export const CMS_MANAGED_LAYOUT_SLUGS = ['imprint', ...CONTENT_CATEGORY_SLUGS] as const
+
 /** Seiten mit festem Layout — Seed darf Inhalt setzen/aktualisieren. */
 export const FULL_LAYOUT_SEED_SLUGS = [
   'contact',
@@ -193,6 +196,10 @@ export function isContentCategorySlug(slug: string): boolean {
 
 export function isContentEnLayoutSeedSlug(slug: string): boolean {
   return (CONTENT_EN_LAYOUT_SEED_SLUGS as readonly string[]).includes(slug)
+}
+
+export function isCmsManagedLayoutSlug(slug: string): boolean {
+  return (CMS_MANAGED_LAYOUT_SLUGS as readonly string[]).includes(slug)
 }
 
 export function isGalleryCategorySlug(slug: string): boolean {

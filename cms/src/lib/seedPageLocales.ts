@@ -3,11 +3,17 @@ import type { Payload } from 'payload'
 import {
   MENU_LABEL_BY_SLUG,
   PAGE_LOCALE_CONTENT,
+  isCmsManagedLayoutSlug,
   isContentCategorySlug,
   isContentEnLayoutSeedSlug,
   isFullLayoutSeedSlug,
   isGalleryCategorySlug,
 } from './pageLocaleContent'
+import {
+  buildImprintDeLayout,
+  buildImprintEnLayout,
+  isPlaceholderImprintLayout,
+} from './imprintLayouts'
 import { buildPublicationsEnLayout } from './publicationsEnLayout'
 
 type LocaleCode = 'de' | 'en'
@@ -113,7 +119,8 @@ export async function seedPageLocales(payload: Payload): Promise<void> {
           locale === 'en' &&
           (isContentCategorySlug(slug) || pageType === 'content') &&
           !isFullLayoutSeedSlug(slug) &&
-          !isContentEnLayoutSeedSlug(slug)
+          !isContentEnLayoutSeedSlug(slug) &&
+          !isCmsManagedLayoutSlug(slug)
         ) {
           const pageEn = await findPageBySlug(payload, slug, 'en')
           const enBlocks = layoutBlockCount(pageEn?.layout)
@@ -137,11 +144,42 @@ export async function seedPageLocales(payload: Payload): Promise<void> {
       }
     }
 
+    await restoreImprintIfPlaceholder(payload)
+
     payload.logger.info('Page locale content seeded (de + en).')
   } catch (error) {
     payload.logger.error(
       `Page locale seed skipped: ${error instanceof Error ? error.message : String(error)}`,
     )
+  }
+}
+
+/** Stellt das vollständige Impressum wieder her, falls der Seed-Platzhalter noch aktiv ist. */
+export async function restoreImprintIfPlaceholder(payload: Payload): Promise<void> {
+  const pageDe = await findPageBySlug(payload, 'imprint', 'de')
+  if (!pageDe) return
+
+  const pageId = Number(pageDe.id)
+
+  if (isPlaceholderImprintLayout(pageDe.layout)) {
+    await payload.update({
+      collection: 'pages',
+      id: pageId,
+      locale: 'de',
+      data: { layout: buildImprintDeLayout() as never },
+    })
+    payload.logger.info('Restored imprint DE layout (replaced seed placeholder).')
+  }
+
+  const pageEn = await findPageBySlug(payload, 'imprint', 'en')
+  if (pageEn && isPlaceholderImprintLayout(pageEn.layout)) {
+    await payload.update({
+      collection: 'pages',
+      id: pageId,
+      locale: 'en',
+      data: { layout: buildImprintEnLayout() as never },
+    })
+    payload.logger.info('Restored imprint EN layout (replaced seed placeholder).')
   }
 }
 

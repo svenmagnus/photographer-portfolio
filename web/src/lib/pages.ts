@@ -2,6 +2,7 @@ import type { Locale } from '../i18n/locale'
 import { withLocaleParam } from '../i18n/locale'
 import type { PhotoCategory } from './categories'
 import type { Media } from './photoLoader'
+import { getPayloadUrl } from './payloadUrl'
 
 export type PageBlock =
   | {
@@ -91,10 +92,6 @@ interface PagesResponse {
   totalDocs: number
 }
 
-function getPayloadUrl(): string {
-  return (import.meta.env.PUBLIC_PAYLOAD_URL || 'http://localhost:3000').replace(/\/$/, '')
-}
-
 export async function fetchNavigationPages(locale: Locale = 'de'): Promise<CmsPage[]> {
   const params = withLocaleParam(
     new URLSearchParams({
@@ -108,7 +105,9 @@ export async function fetchNavigationPages(locale: Locale = 'de'): Promise<CmsPa
   )
 
   try {
-    const response = await fetch(`${getPayloadUrl()}/api/pages?${params.toString()}`)
+    const response = await fetch(`${getPayloadUrl()}/api/pages?${params.toString()}`, {
+      cache: 'no-store',
+    })
 
     if (!response.ok) {
       console.warn(`Navigation pages API error: ${response.status}`)
@@ -137,7 +136,9 @@ export async function fetchPublishedPages(locale: Locale = 'de'): Promise<CmsPag
   )
 
   try {
-    const response = await fetch(`${getPayloadUrl()}/api/pages?${params.toString()}`)
+    const response = await fetch(`${getPayloadUrl()}/api/pages?${params.toString()}`, {
+      cache: 'no-store',
+    })
 
     if (!response.ok) {
       console.warn(`Pages API error: ${response.status}`)

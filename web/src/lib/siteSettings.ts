@@ -1,5 +1,6 @@
 import type { Locale } from '../i18n/locale'
 import { withLocaleParam } from '../i18n/locale'
+import { getPayloadUrl } from './payloadUrl'
 
 export interface SiteSettingsData {
   productionDomain?: string | null
@@ -24,24 +25,26 @@ export interface SiteSettingsData {
   }> | null
 }
 
-const payloadUrl = (import.meta.env.PUBLIC_PAYLOAD_URL || 'http://localhost:3000').replace(/\/$/, '')
-
-const defaults: SiteSettingsData = {
-  productionDomain: 'svenmagnus.com',
-  cmsUrl: payloadUrl,
-  loginPath: '/log-in',
-  photographerName: import.meta.env.PUBLIC_PHOTOGRAPHER_NAME || 'Sven Magnus Hanefeld',
-  photographerTitle: import.meta.env.PUBLIC_PHOTOGRAPHER_TITLE || 'Photographer',
-  contactEmail: import.meta.env.PUBLIC_CONTACT_EMAIL || null,
-  instagramUrl: import.meta.env.PUBLIC_INSTAGRAM_URL || null,
-  facebookUrl: import.meta.env.PUBLIC_FACEBOOK_URL || null,
-  metaDescription: 'Photography Portfolio by Sven Magnus Hanefeld',
+function getDefaults(): SiteSettingsData {
+  return {
+    productionDomain: 'svenmagnus.com',
+    cmsUrl: getPayloadUrl(),
+    loginPath: '/log-in',
+    photographerName: import.meta.env.PUBLIC_PHOTOGRAPHER_NAME || 'Sven Magnus Hanefeld',
+    photographerTitle: import.meta.env.PUBLIC_PHOTOGRAPHER_TITLE || 'Photographer',
+    contactEmail: import.meta.env.PUBLIC_CONTACT_EMAIL || null,
+    instagramUrl: import.meta.env.PUBLIC_INSTAGRAM_URL || null,
+    facebookUrl: import.meta.env.PUBLIC_FACEBOOK_URL || null,
+    metaDescription: 'Photography Portfolio by Sven Magnus Hanefeld',
+  }
 }
 
 export async function fetchSiteSettings(locale: Locale = 'de'): Promise<SiteSettingsData> {
+  const defaults = getDefaults()
+
   try {
     const params = withLocaleParam(new URLSearchParams({ depth: '1' }), locale)
-    const response = await fetch(`${payloadUrl}/api/globals/site-settings?${params.toString()}`)
+    const response = await fetch(`${getPayloadUrl()}/api/globals/site-settings?${params.toString()}`)
 
     if (!response.ok) {
       return defaults
@@ -55,6 +58,5 @@ export async function fetchSiteSettings(locale: Locale = 'de'): Promise<SiteSett
 }
 
 export function getAdminLoginUrl(_settings: SiteSettingsData): string {
-  // Always use PUBLIC_PAYLOAD_URL — cms.svenmagnus.com may not have valid SSL yet.
-  return `${payloadUrl}/admin`
+  return `${getPayloadUrl()}/admin`
 }
