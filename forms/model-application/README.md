@@ -21,9 +21,13 @@ Das Formular ist bereits ins Projekt eingebunden:
 
 ### Neue Seite anlegen
 
-1. CMS → **Seiten** → Neue Seite (z. B. Slug `model-bewerbung`)
-2. Block **Überschrift** + Block **Model-Bewerbungsformular** hinzufügen
-3. Status **Veröffentlicht**, optional ins Menü aufnehmen
+Die Seite wird beim CMS-Start automatisch angelegt:
+
+- **URL:** `/model-bewerbung`
+- **Slug:** `model-bewerbung`
+- **Menü:** standardmäßig ausgeblendet — im CMS unter Seiten → „In Navigation anzeigen“ aktivieren oder im Menü-Editor verlinken
+
+Falls die Seite fehlt: CMS neu deployen (onInit legt sie an).
 
 ### Felder & Texte anpassen
 

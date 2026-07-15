@@ -82,6 +82,31 @@ const DEFAULT_PAGES = [
     ],
   },
   {
+    title: 'Model-Bewerbung',
+    slug: 'model-bewerbung',
+    pageType: 'content' as const,
+    navOrder: GALLERY_COUNT + 4,
+    showInNavigation: false,
+    layout: [
+      {
+        blockType: 'heading',
+        text: 'Model-Bewerbung',
+        level: 'h1',
+        align: 'center',
+      },
+      {
+        blockType: 'modelApplicationForm',
+        privacyUrl: '/datenschutz',
+        submitLabel: 'Bewerbung absenden',
+        successMessage: 'Vielen Dank — deine Bewerbung wurde erfolgreich gesendet.',
+        intro: lexicalParagraphs(
+          'Für diese Bewerbung brauchst du keine professionellen Fotos. Natürliche Polas (Polaroids / Snapshots) reichen völlig aus — aufgenommen bei Tageslicht, ohne Make-up und in schlichter Kleidung.',
+          'Bitte fülle alle Pflichtfelder aus und lade deine vier Polas hoch.',
+        ),
+      },
+    ],
+  },
+  {
     title: 'Blog',
     slug: BLOG_PAGE_SLUG,
     pageType: 'blog' as const,
@@ -102,6 +127,7 @@ export async function seedDefaultPages(payload: Payload): Promise<void> {
     await seedDefaultPagesInner(payload)
     await seedGalleryPages(payload)
     await ensureBlogPage(payload)
+    await ensureModelApplicationPage(payload)
     await removeDuplicateLegacyBlogPage(payload)
     await syncContentPageNavigation(payload)
     await removeDuplicateContactInfoBlock(payload)
@@ -231,6 +257,52 @@ async function ensureBlogPage(payload: Payload): Promise<void> {
   payload.logger.info(`Updated ${BLOG_PAGE_SLUG} page to blog type`)
 }
 
+async function ensureModelApplicationPage(payload: Payload): Promise<void> {
+  const modelPage = DEFAULT_PAGES.find((page) => page.slug === 'model-bewerbung')
+  if (!modelPage) return
+
+  const existing = await payload.find({
+    collection: 'pages',
+    where: { slug: { equals: modelPage.slug } },
+    limit: 1,
+    depth: 0,
+  })
+
+  if (existing.docs.length === 0) {
+    await payload.create({
+      collection: 'pages',
+      data: {
+        title: modelPage.title,
+        slug: modelPage.slug,
+        pageType: modelPage.pageType,
+        status: 'published',
+        showInNavigation: modelPage.showInNavigation ?? true,
+        navOrder: modelPage.navOrder,
+        layout: [...modelPage.layout] as never,
+      },
+    })
+    payload.logger.info(`Created model application page: ${modelPage.slug}`)
+    return
+  }
+
+  const doc = existing.docs[0]
+  const layout = Array.isArray(doc.layout) ? (doc.layout as Array<{ blockType?: string }>) : []
+  const hasFormBlock = layout.some((block) => block.blockType === 'modelApplicationForm')
+
+  if (hasFormBlock) return
+
+  await payload.update({
+    collection: 'pages',
+    id: doc.id,
+    data: {
+      status: 'published',
+      layout: [...modelPage.layout] as never,
+    },
+  })
+
+  payload.logger.info(`Updated ${modelPage.slug} page with model application form block`)
+}
+
 async function removeDuplicateLegacyBlogPage(payload: Payload): Promise<void> {
   const [existingBlog, legacyBlog] = await Promise.all([
     payload.find({
@@ -353,9 +425,9 @@ async function seedDefaultPagesInner(payload: Payload): Promise<void> {
         slug: page.slug,
         pageType: page.pageType,
         status: 'published',
-        showInNavigation: true,
+        showInNavigation: 'showInNavigation' in page ? page.showInNavigation : true,
         navOrder: page.navOrder,
-        layout: [...page.layout],
+        layout: [...page.layout] as never,
       },
     })
 
