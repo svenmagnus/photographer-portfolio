@@ -8,6 +8,26 @@ type PageLocaleData = {
   layout?: Record<string, unknown>[]
 }
 
+/**
+ * Foto-Kategorien, die als Inhaltsseite (Text/Bilder) statt Galerie laufen.
+ * Diese Seiten werden im Seed nicht mit einem Foto-Grid überschrieben.
+ */
+export const CONTENT_CATEGORY_SLUGS = ['publications', 'advertorial', 'motion'] as const
+
+/** Seiten mit festem Layout — Seed darf Inhalt setzen/aktualisieren. */
+export const FULL_LAYOUT_SEED_SLUGS = [
+  'contact',
+  'imprint',
+  'model-bewerbung',
+  'blog',
+] as const
+
+const GALLERY_CATEGORY_SLUGS = PHOTO_CATEGORIES.filter(
+  (category) =>
+    category.value !== 'film-editor' &&
+    !CONTENT_CATEGORY_SLUGS.includes(category.value as (typeof CONTENT_CATEGORY_SLUGS)[number]),
+).map((category) => category.value)
+
 /** Deutsche Navigations-Titel (Kleinschreibung wie auf der Website) */
 const GALLERY_TITLE_DE: Record<string, string> = {
   hollywood: 'hollywood',
@@ -152,17 +172,24 @@ export const PAGE_LOCALE_CONTENT: Record<string, Partial<Record<LocaleCode, Page
   },
 }
 
-for (const category of PHOTO_CATEGORIES) {
-  if (category.value === 'film-editor') continue
+// Inhaltsseiten: nur Titel lokalisiert — Layout bleibt im CMS (DE/EN separat pflegen)
+for (const slug of CONTENT_CATEGORY_SLUGS) {
+  PAGE_LOCALE_CONTENT[slug] = {
+    de: { title: GALLERY_TITLE_DE[slug] ?? slug },
+    en: { title: slug === 'publications' ? 'Publications' : GALLERY_TITLE_DE[slug] ?? slug },
+  }
+}
 
-  PAGE_LOCALE_CONTENT[category.value] = {
+// Galerie-Seiten: Foto-Grid-Layout
+for (const slug of GALLERY_CATEGORY_SLUGS) {
+  PAGE_LOCALE_CONTENT[slug] = {
     de: {
-      title: GALLERY_TITLE_DE[category.value] ?? category.label,
-      layout: galleryLayout(category.value),
+      title: GALLERY_TITLE_DE[slug] ?? slug,
+      layout: galleryLayout(slug),
     },
     en: {
-      title: category.label,
-      layout: galleryLayout(category.value),
+      title: slug.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
+      layout: galleryLayout(slug),
     },
   }
 }
@@ -182,4 +209,16 @@ for (const category of PHOTO_CATEGORIES) {
     de: GALLERY_TITLE_DE[category.value] ?? category.label,
     en: category.label,
   }
+}
+
+export function isFullLayoutSeedSlug(slug: string): boolean {
+  return (FULL_LAYOUT_SEED_SLUGS as readonly string[]).includes(slug)
+}
+
+export function isContentCategorySlug(slug: string): boolean {
+  return (CONTENT_CATEGORY_SLUGS as readonly string[]).includes(slug)
+}
+
+export function isGalleryCategorySlug(slug: string): boolean {
+  return (GALLERY_CATEGORY_SLUGS as string[]).includes(slug)
 }

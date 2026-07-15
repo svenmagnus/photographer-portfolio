@@ -1,19 +1,35 @@
 import type { Payload } from 'payload'
 
-import { MENU_LABEL_BY_SLUG, PAGE_LOCALE_CONTENT } from './pageLocaleContent'
+import {
+  MENU_LABEL_BY_SLUG,
+  PAGE_LOCALE_CONTENT,
+  isContentCategorySlug,
+  isFullLayoutSeedSlug,
+  isGalleryCategorySlug,
+} from './pageLocaleContent'
 
 type LocaleCode = 'de' | 'en'
 
-async function findPageBySlug(payload: Payload, slug: string) {
+type PageDoc = {
+  id: number | string
+  pageType?: string
+  layout?: unknown
+}
+
+async function findPageBySlug(payload: Payload, slug: string, locale: LocaleCode = 'de') {
   const result = await payload.find({
     collection: 'pages',
     where: { slug: { equals: slug } },
     limit: 1,
     depth: 0,
-    locale: 'de',
+    locale,
   })
 
-  return result.docs[0] ?? null
+  return (result.docs[0] as PageDoc | undefined) ?? null
+}
+
+function layoutBlockCount(layout: unknown): number {
+  return Array.isArray(layout) ? layout.length : 0
 }
 
 async function upsertPageLocale(
@@ -30,22 +46,61 @@ async function upsertPageLocale(
   })
 }
 
-/** Schreibt DE- und EN-Inhalte für alle bekannten Seiten in Payload. */
+function shouldSeedLayout(
+  slug: string,
+  pageType: string | undefined,
+  locale: LocaleCode,
+  layout?: Record<string, unknown>[],
+): layout is Record<string, unknown>[] {
+  if (!layout?.length) return false
+  if (isFullLayoutSeedSlug(slug)) return true
+  if (pageType === 'gallery' && isGalleryCategorySlug(slug)) return true
+  return false
+}
+
+/**
+ * Schreibt DE- und EN-Inhalte in Payload.
+ * Inhaltsseiten (publications, advertorial, motion): nur Titel — Layout nie überschreiben.
+ * Beim ersten EN-Setup: DE-Layout nach EN kopieren, damit du im CMS übersetzen kannst.
+ */
 export async function seedPageLocales(payload: Payload): Promise<void> {
   try {
     for (const [slug, locales] of Object.entries(PAGE_LOCALE_CONTENT)) {
-      const page = await findPageBySlug(payload, slug)
-      if (!page) continue
+      const pageDe = await findPageBySlug(payload, slug, 'de')
+      if (!pageDe) continue
+
+      const pageId = Number(pageDe.id)
+      const pageType = pageDe.pageType
 
       for (const locale of ['de', 'en'] as const) {
         const content = locales[locale]
         if (!content) continue
 
+        const data: { title: string; layout?: Record<string, unknown>[] } = {
+          title: content.title,
+        }
+
+        if (shouldSeedLayout(slug, pageType, locale, content.layout)) {
+          data.layout = content.layout
+        } else if (
+          locale === 'en' &&
+          (isContentCategorySlug(slug) || pageType === 'content') &&
+          !isFullLayoutSeedSlug(slug)
+        ) {
+          const pageEn = await findPageBySlug(payload, slug, 'en')
+          const enBlocks = layoutBlockCount(pageEn?.layout)
+          const deBlocks = layoutBlockCount(pageDe.layout)
+
+          if (enBlocks === 0 && deBlocks > 0 && Array.isArray(pageDe.layout)) {
+            data.layout = pageDe.layout as Record<string, unknown>[]
+            payload.logger.info(
+              `Copied DE layout to EN for content page "${slug}" (${deBlocks} blocks).`,
+            )
+          }
+        }
+
         try {
-          await upsertPageLocale(payload, Number(page.id), locale, {
-            title: content.title,
-            ...(content.layout ? { layout: content.layout } : {}),
-          })
+          await upsertPageLocale(payload, pageId, locale, data)
         } catch (error) {
           payload.logger.warn(
             `Page locale ${slug}/${locale} skipped: ${error instanceof Error ? error.message : String(error)}`,

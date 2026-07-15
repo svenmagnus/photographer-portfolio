@@ -4,7 +4,11 @@ import { PHOTO_CATEGORIES } from '@/collections/Photos'
 import { lexicalParagraphs } from './defaultLexical'
 
 /** Gallery pages on the homepage — the blog lives at /blog instead. */
-const GALLERY_PAGE_CATEGORIES = PHOTO_CATEGORIES.filter((category) => category.value !== 'film-editor')
+const GALLERY_PAGE_CATEGORIES = PHOTO_CATEGORIES.filter(
+  (category) =>
+    category.value !== 'film-editor' &&
+    !['publications', 'advertorial', 'motion'].includes(category.value),
+)
 const GALLERY_COUNT = GALLERY_PAGE_CATEGORIES.length
 const BLOG_PAGE_SLUG = 'blog'
 const LEGACY_BLOG_PAGE_SLUG = 'film-editor'
