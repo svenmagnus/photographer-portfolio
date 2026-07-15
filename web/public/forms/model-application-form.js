@@ -109,6 +109,41 @@ function isAllowedImageFile(file) {
 }
 
 /**
+ * Entfernt Vorschau und setzt ein Upload-Feld zurück.
+ * @param {HTMLElement} uploadBox
+ */
+function clearUploadBox(uploadBox) {
+  const input = uploadBox.querySelector('input[type="file"]')
+  const preview = uploadBox.querySelector('[data-upload-preview]')
+  const placeholder = uploadBox.querySelector('[data-upload-placeholder]')
+  const removeBtn = uploadBox.querySelector('[data-upload-remove]')
+
+  if (input instanceof HTMLInputElement) {
+    input.value = ''
+  }
+
+  if (preview instanceof HTMLImageElement) {
+    preview.hidden = true
+    if (preview.src.startsWith('blob:')) {
+      URL.revokeObjectURL(preview.src)
+    }
+    preview.removeAttribute('src')
+    preview.alt = ''
+  }
+
+  uploadBox.classList.remove('maf-upload--filled', 'maf-upload--dragover', 'maf-upload--error')
+
+  if (placeholder instanceof HTMLElement) {
+    placeholder.hidden = false
+  }
+  if (removeBtn instanceof HTMLElement) {
+    removeBtn.hidden = true
+  }
+
+  setFieldError(uploadBox.closest('[data-field]'), null)
+}
+
+/**
  * Initialisiert Drag & Drop und Klick-Upload für ein Pola-Feld.
  * @param {HTMLElement} uploadBox — Container mit data-upload-box
  */
@@ -124,6 +159,10 @@ function initUploadBox(uploadBox) {
   function showPreview(file) {
     if (!file || !preview || !(preview instanceof HTMLImageElement)) return
 
+    if (preview.src.startsWith('blob:')) {
+      URL.revokeObjectURL(preview.src)
+    }
+
     const objectUrl = URL.createObjectURL(file)
     preview.src = objectUrl
     preview.alt = file.name
@@ -134,31 +173,17 @@ function initUploadBox(uploadBox) {
     if (removeBtn) removeBtn.hidden = false
   }
 
-  /** Entfernt die Vorschau und setzt das Input zurück */
-  function clearPreview() {
-    input.value = ''
-    if (preview instanceof HTMLImageElement) {
-      if (preview.src.startsWith('blob:')) URL.revokeObjectURL(preview.src)
-      preview.src = ''
-      preview.hidden = true
-    }
-    uploadBox.classList.remove('maf-upload--filled', 'maf-upload--error')
-    if (placeholder) placeholder.hidden = false
-    if (removeBtn) removeBtn.hidden = true
-    setFieldError(uploadBox.closest('[data-field]'), null)
-  }
-
   input.addEventListener('change', () => {
     const file = input.files?.[0]
     if (file) showPreview(file)
-    else clearPreview()
+    else clearUploadBox(uploadBox)
   })
 
   if (removeBtn) {
     removeBtn.addEventListener('click', (event) => {
       event.preventDefault()
       event.stopPropagation()
-      clearPreview()
+      clearUploadBox(uploadBox)
     })
   }
 
@@ -394,25 +419,17 @@ function initModelApplicationForm(options) {
         throw new Error(data.error || messages.sendError)
       }
 
-      form.reset()
       form.querySelectorAll('[data-upload-box]').forEach((box) => {
-        const preview = box.querySelector('[data-upload-preview]')
-        const placeholder = box.querySelector('[data-upload-placeholder]')
-        const removeBtn = box.querySelector('[data-upload-remove]')
-        box.classList.remove('maf-upload--filled', 'maf-upload--dragover', 'maf-upload--error')
-        if (preview instanceof HTMLImageElement) {
-          if (preview.src.startsWith('blob:')) URL.revokeObjectURL(preview.src)
-          preview.src = ''
-          preview.hidden = true
-        }
-        if (placeholder instanceof HTMLElement) placeholder.hidden = false
-        if (removeBtn instanceof HTMLElement) removeBtn.hidden = true
+        if (box instanceof HTMLElement) clearUploadBox(box)
       })
+      form.reset()
+      form.classList.add('maf-form--submitted')
 
       if (statusEl instanceof HTMLElement) {
         statusEl.textContent = options.successMessage || 'Vielen Dank für deine Bewerbung!'
         statusEl.hidden = false
         statusEl.classList.add('maf-status--success')
+        statusEl.scrollIntoView({ behavior: 'smooth', block: 'center' })
       }
     } catch (error) {
       if (statusEl instanceof HTMLElement) {
