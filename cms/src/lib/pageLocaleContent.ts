@@ -14,6 +14,9 @@ type PageLocaleData = {
  */
 export const CONTENT_CATEGORY_SLUGS = ['publications', 'advertorial', 'motion'] as const
 
+/** Inhaltsseiten mit festem EN-Layout im Seed (DE-Layout bleibt unangetastet). */
+export const CONTENT_EN_LAYOUT_SEED_SLUGS = ['publications'] as const
+
 /** Seiten mit festem Layout — Seed darf Inhalt setzen/aktualisieren. */
 export const FULL_LAYOUT_SEED_SLUGS = [
   'contact',
@@ -217,6 +220,10 @@ export function isFullLayoutSeedSlug(slug: string): boolean {
 
 export function isContentCategorySlug(slug: string): boolean {
   return (CONTENT_CATEGORY_SLUGS as readonly string[]).includes(slug)
+}
+
+export function isContentEnLayoutSeedSlug(slug: string): boolean {
+  return (CONTENT_EN_LAYOUT_SEED_SLUGS as readonly string[]).includes(slug)
 }
 
 export function isGalleryCategorySlug(slug: string): boolean {

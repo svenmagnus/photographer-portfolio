@@ -4,9 +4,11 @@ import {
   MENU_LABEL_BY_SLUG,
   PAGE_LOCALE_CONTENT,
   isContentCategorySlug,
+  isContentEnLayoutSeedSlug,
   isFullLayoutSeedSlug,
   isGalleryCategorySlug,
 } from './pageLocaleContent'
+import { buildPublicationsEnLayout } from './publicationsEnLayout'
 
 type LocaleCode = 'de' | 'en'
 
@@ -58,10 +60,27 @@ function shouldSeedLayout(
   return false
 }
 
+function contentEnLayoutFromDe(
+  slug: string,
+  pageDe: PageDoc,
+): Record<string, unknown>[] | undefined {
+  if (!isContentEnLayoutSeedSlug(slug) || !Array.isArray(pageDe.layout)) return undefined
+
+  if (slug === 'publications' && pageDe.layout.length >= 2) {
+    const bookImage = (pageDe.layout[0] as Record<string, unknown>).image
+    const beautyshotsImage = (pageDe.layout[1] as Record<string, unknown>).image
+    if (bookImage != null && beautyshotsImage != null) {
+      return buildPublicationsEnLayout(bookImage as number | string, beautyshotsImage as number | string)
+    }
+  }
+
+  return undefined
+}
+
 /**
  * Schreibt DE- und EN-Inhalte in Payload.
- * Inhaltsseiten (publications, advertorial, motion): nur Titel — Layout nie überschreiben.
- * Beim ersten EN-Setup: DE-Layout nach EN kopieren, damit du im CMS übersetzen kannst.
+ * Inhaltsseiten (advertorial, motion): nur Titel — Layout bleibt im CMS.
+ * publications: EN-Layout wird aus Seed übersetzt (Bilder aus DE übernommen).
  */
 export async function seedPageLocales(payload: Payload): Promise<void> {
   try {
@@ -82,10 +101,19 @@ export async function seedPageLocales(payload: Payload): Promise<void> {
 
         if (shouldSeedLayout(slug, pageType, locale, content.layout)) {
           data.layout = content.layout
-        } else if (
+        } else if (locale === 'en') {
+          const enLayout = contentEnLayoutFromDe(slug, pageDe)
+          if (enLayout) {
+            data.layout = enLayout
+          }
+        }
+
+        if (
+          !data.layout &&
           locale === 'en' &&
           (isContentCategorySlug(slug) || pageType === 'content') &&
-          !isFullLayoutSeedSlug(slug)
+          !isFullLayoutSeedSlug(slug) &&
+          !isContentEnLayoutSeedSlug(slug)
         ) {
           const pageEn = await findPageBySlug(payload, slug, 'en')
           const enBlocks = layoutBlockCount(pageEn?.layout)
