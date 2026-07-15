@@ -2,6 +2,7 @@
 import { lexicalToHtml } from '../../lib/lexicalToHtml'
 import type { Locale } from '../../i18n/locale'
 import { DEFAULT_LOCALE } from '../../i18n/locale'
+import { contactIntroHtml } from '../../i18n/pageLabels'
 import { t } from '../../i18n/messages'
 
 interface Props {
@@ -14,6 +15,7 @@ interface Props {
   email?: string | null
   phone?: string | null
   locale?: Locale
+  pageSlug?: string
 }
 
 const {
@@ -26,14 +28,21 @@ const {
   email,
   phone,
   locale = DEFAULT_LOCALE,
+  pageSlug,
 } = Astro.props
 
 const introHtml = intro ? lexicalToHtml(intro) : ''
 const payloadUrl = (import.meta.env.PUBLIC_PAYLOAD_URL || 'http://localhost:3000').replace(/\/$/, '')
 const formId = `contact-form-${blockId}`
 
-const resolvedSubmitLabel = submitLabel || t(locale, 'contactDefaultSubmit')
-const resolvedSuccessMessage = successMessage || t(locale, 'contactDefaultSuccess')
+const useLocaleCopy = pageSlug === 'contact' || locale === 'de'
+const resolvedSubmitLabel = useLocaleCopy
+  ? t(locale, 'contactDefaultSubmit')
+  : submitLabel || t(locale, 'contactDefaultSubmit')
+const resolvedSuccessMessage = useLocaleCopy
+  ? t(locale, 'contactDefaultSuccess')
+  : successMessage || t(locale, 'contactDefaultSuccess')
+const displayIntroHtml = pageSlug === 'contact' ? contactIntroHtml(locale) : introHtml
 const labels = {
   phone: t(locale, 'contactPhoneLabel'),
   email: t(locale, 'contactEmailLabel'),
@@ -48,10 +57,10 @@ const labels = {
 
 <section class="py-8 max-w-3xl mx-auto">
   {
-    introHtml ? (
+    displayIntroHtml ? (
       <div
         class="cms-rich-text mb-10 text-center md:text-left"
-        set:html={introHtml}
+        set:html={displayIntroHtml}
       />
     ) : null
   }

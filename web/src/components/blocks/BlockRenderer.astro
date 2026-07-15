@@ -9,7 +9,7 @@ import ContactForm from './ContactForm.astro'
 import ModelApplicationForm from './ModelApplicationForm.astro'
 import type { Locale } from '../../i18n/locale'
 import { DEFAULT_LOCALE } from '../../i18n/locale'
-import { localizedPageText } from '../../i18n/pageLabels'
+import { imprintBodyHtml, localizedPageText, pageLabel } from '../../i18n/pageLabels'
 
 interface Props {
   blocks: PageBlock[]
@@ -124,7 +124,8 @@ const sectionWidth = pageType === 'landing' ? 'max-w-[1400px]' : 'max-w-5xl'
       }
 
       if (block.blockType === 'richText') {
-        const html = lexicalToHtml(block.content)
+        const html =
+          pageSlug === 'imprint' ? imprintBodyHtml(locale) : lexicalToHtml(block.content)
         return (
           <section class={`py-4 mx-auto ${getWidthClass(block.width)}`}>
             <div class="cms-rich-text" set:html={html} />
@@ -219,8 +220,10 @@ const sectionWidth = pageType === 'landing' ? 'max-w-[1400px]' : 'max-w-5xl'
         const gridId = `page-grid-${index}`
         return (
           <section class="py-4">
-            {block.showTitle ? <h2 class="mb-4 text-center text-xl">{block.category}</h2> : null}
-            <CategoryPhotoGrid category={block.category} rootId={gridId} />
+            {block.showTitle ? (
+              <h2 class="mb-4 text-center text-xl">{pageLabel(block.category, locale, block.category)}</h2>
+            ) : null}
+            <CategoryPhotoGrid category={block.category} rootId={gridId} locale={locale} />
           </section>
         )
       }
@@ -277,6 +280,7 @@ const sectionWidth = pageType === 'landing' ? 'max-w-[1400px]' : 'max-w-5xl'
             email={email}
             phone={phone}
             locale={locale}
+            pageSlug={pageSlug}
           />
         )
       }

@@ -87,7 +87,7 @@ function menuItemToNavItem(item: MainMenuItem, locale: Locale, isSubItem = false
 
   if (linkType === 'category' && item.category) {
     return {
-      label: label || item.category,
+      label: pageLabel(item.category, locale, label || item.category),
       href: prefixHref(`/?category=${item.category}`, locale),
       categoryValue: item.category,
       openInNewTab: Boolean(item.openInNewTab),
@@ -197,7 +197,7 @@ export function buildNavigation(
   }
 
   const categoryItems: NavItem[] = PHOTO_CATEGORIES.map((category) => ({
-    label: category.label,
+    label: pageLabel(category.value, locale, category.label),
     href: prefixHref(`/?category=${category.value}`, locale),
     categoryValue: category.value,
   }))

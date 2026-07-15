@@ -13,6 +13,8 @@ const messages = {
     blogBack: '← {title}',
     photoGridEmpty: 'Noch keine Fotografien vorhanden. Bitte im CMS unter Fotos anlegen.',
     photoGridEmptyCms: 'CMS',
+    photoGridLoading: 'Fotografien werden geladen…',
+    photoGridEmptyCategory: 'Noch keine Fotografien in dieser Kategorie.',
 
     contactPhoneLabel: 'Telefon',
     contactEmailLabel: 'E-Mail',
@@ -92,6 +94,8 @@ const messages = {
     blogBack: '← {title}',
     photoGridEmpty: 'No photographs yet. Please add photos in the CMS under Photos.',
     photoGridEmptyCms: 'CMS',
+    photoGridLoading: 'Loading photographs…',
+    photoGridEmptyCategory: 'No photographs in this category yet.',
 
     contactPhoneLabel: 'Phone',
     contactEmailLabel: 'Email',

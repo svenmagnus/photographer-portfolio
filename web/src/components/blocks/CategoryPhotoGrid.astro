@@ -1,12 +1,16 @@
 ---
-import type { PhotoCategory } from '../lib/categories'
+import type { PhotoCategory } from '../../lib/categories'
+import type { Locale } from '../../i18n/locale'
+import { DEFAULT_LOCALE } from '../../i18n/locale'
+import { t } from '../../i18n/messages'
 
 interface Props {
   category: PhotoCategory
   rootId: string
+  locale?: Locale
 }
 
-const { category, rootId } = Astro.props
+const { category, rootId, locale = DEFAULT_LOCALE } = Astro.props
 ---
 
 <div
@@ -19,14 +23,14 @@ const { category, rootId } = Astro.props
   id={`${rootId}-loading`}
   class="py-12 text-center text-[13px] text-portfolio-muted"
 >
-  Fotografien werden geladen…
+  {t(locale, 'photoGridLoading')}
 </p>
 
 <p
   id={`${rootId}-empty`}
   class="hidden py-12 text-center text-[13px] text-portfolio-muted"
 >
-  Noch keine Fotografien in dieser Kategorie.
+  {t(locale, 'photoGridEmptyCategory')}
 </p>
 
 <p
@@ -39,5 +43,4 @@ const { category, rootId } = Astro.props
   import { loadCategoryPhotoGrid } from '../../lib/photoLoader'
 
   loadCategoryPhotoGrid(category, rootId)
-  document.addEventListener('astro:page-load', () => loadCategoryPhotoGrid(category, rootId))
 </script>
