@@ -51,15 +51,23 @@ const formMessages = modelFormMessages(locale)
 ---
 
 <section class="maf-section py-8 max-w-2xl mx-auto">
-  {
-    useCmsIntro ? (
-      <div class="maf-intro cms-rich-text mb-12 text-[15px] leading-relaxed text-portfolio-muted" set:html={introHtml} />
-    ) : (
-      <div class="maf-intro mb-12 text-[15px] leading-relaxed text-portfolio-muted" set:html={defaultIntro} />
-    )
-  }
-
   <form id={formId} class="maf space-y-12" novalidate enctype="multipart/form-data">
+    {
+      useCmsIntro ? (
+        <div
+          class="maf-intro cms-rich-text text-[15px] leading-relaxed text-portfolio-muted"
+          data-form-intro
+          set:html={introHtml}
+        />
+      ) : (
+        <div
+          class="maf-intro text-[15px] leading-relaxed text-portfolio-muted"
+          data-form-intro
+          set:html={defaultIntro}
+        />
+      )
+    }
+
     <div class="maf-honeypot" aria-hidden="true">
       <label for={`${formId}-website`}>Website</label>
       <input id={`${formId}-website`} type="text" name="website" tabindex="-1" autocomplete="off" />
@@ -352,6 +360,7 @@ const formMessages = modelFormMessages(locale)
     display: none !important;
   }
 
+  .maf-form--submitted [data-form-intro],
   .maf-form--submitted [data-form-body],
   .maf-form--submitted [data-form-footer] .maf-privacy {
     display: none;
@@ -364,6 +373,11 @@ const formMessages = modelFormMessages(locale)
 
   .maf-form--submitted [data-submit-button] {
     display: none;
+  }
+
+  .maf-section--submitted {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
   }
 
   .maf-form--submitted [data-form-status] {

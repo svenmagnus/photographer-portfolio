@@ -425,6 +425,13 @@ function initModelApplicationForm(options) {
       form.reset()
       form.classList.add('maf-form--submitted')
 
+      const section = form.closest('.maf-section')
+      section?.classList.add('maf-section--submitted')
+      const pageHeading = section?.previousElementSibling
+      if (pageHeading instanceof HTMLElement && pageHeading.querySelector('h1')) {
+        pageHeading.hidden = true
+      }
+
       if (statusEl instanceof HTMLElement) {
         statusEl.textContent = options.successMessage || 'Vielen Dank für deine Bewerbung!'
         statusEl.hidden = false
