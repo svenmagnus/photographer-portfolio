@@ -20,6 +20,7 @@ import { seedDefaultPages } from './lib/seedDefaultPages'
 import { seedBlogPosts } from './lib/seedBlogPosts'
 import { seedMainMenuFromPages, repairMainMenuDuplicates, ensureModelApplicationInMenu, removeStoreFromMainMenu } from './lib/seedMainMenu'
 import { seedPageLocales, seedMenuLocales } from './lib/seedPageLocales'
+import { regenerateMediaSizes } from './lib/regenerateMediaSizes'
 import { repairImageGalleryBlocks } from './lib/repairImageGalleryBlocks'
 import { migrations } from './migrations'
 
@@ -91,7 +92,9 @@ const plugins = useVercelBlob
           },
         },
         clientUploads: true,
-        addRandomSuffix: true,
+        // Keep size filenames stable so Payload's generated thumbnail/grid/fullscreen
+        // URLs match the files actually stored on Vercel Blob.
+        addRandomSuffix: false,
       }),
     ]
   : []
@@ -161,5 +164,21 @@ export default buildConfig({
     await seedPageLocales(payload)
     await seedMenuLocales(payload)
     await repairImageGalleryBlocks(payload)
+
+    try {
+      const regenerated = await regenerateMediaSizes(payload, { limit: 15 })
+      if (regenerated.updated > 0) {
+        payload.logger.info(
+          `Auto-regenerated ${regenerated.updated} media size set(s); ${regenerated.skipped} already ok.`,
+        )
+      }
+      if (regenerated.errors.length) {
+        payload.logger.warn(`Media size regen errors: ${regenerated.errors.slice(0, 3).join(' | ')}`)
+      }
+    } catch (error) {
+      payload.logger.warn(
+        `Media size auto-regen skipped: ${error instanceof Error ? error.message : String(error)}`,
+      )
+    }
   },
 })

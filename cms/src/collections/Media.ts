@@ -34,22 +34,27 @@ export const Media: CollectionConfig = {
         position: 'centre',
         formatOptions: {
           format: 'webp',
+          options: { quality: 82 },
         },
       },
       {
+        // ~2x typical grid cell width for sharp retina tiles without shipping full originals
         name: 'grid',
-        width: 800,
+        width: 1200,
         position: 'centre',
         formatOptions: {
           format: 'webp',
+          options: { quality: 82 },
         },
       },
       {
         name: 'fullscreen',
         width: 2400,
         position: 'centre',
+        withoutEnlargement: true,
         formatOptions: {
           format: 'webp',
+          options: { quality: 85 },
         },
       },
     ],

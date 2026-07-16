@@ -135,7 +135,7 @@ const sectionWidth = pageType === 'landing' ? 'max-w-[1400px]' : 'max-w-5xl'
       if (block.blockType === 'mediaText' && isMedia(block.image)) {
         const html = lexicalToHtml(block.content)
         const layout = getMediaTextLayout(block.layout, block.imageWidth)
-        const src = getMediaUrl(block.image)
+        const src = getMediaUrl(block.image, 'grid')
 
         return (
           <section class="py-10">
@@ -173,7 +173,7 @@ const sectionWidth = pageType === 'landing' ? 'max-w-[1400px]' : 'max-w-5xl'
               {
                 block.images.map((entry) => {
                   const media = getGalleryEntryMedia(entry)
-                  const src = getMediaUrl(media)
+                  const src = getMediaUrl(media, 'grid')
                   const fullSrc = getFullMediaUrl(media)
                   if (!src) return null
                   const caption = getGalleryEntryCaption(entry)

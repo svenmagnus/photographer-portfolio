@@ -49,9 +49,11 @@ export function getMediaUrl(
   if (!media) return ''
   if (typeof media === 'string') return resolveMediaUrl(media)
 
+  const preferred = size ? media.sizes?.[size]?.url : undefined
   const fallbacks = [
-    media.url,
+    preferred,
     media.sizes?.grid?.url,
+    media.url,
     media.sizes?.thumbnail?.url,
     media.sizes?.fullscreen?.url,
   ]
