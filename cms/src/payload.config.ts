@@ -166,7 +166,7 @@ export default buildConfig({
     await repairImageGalleryBlocks(payload)
 
     try {
-      const regenerated = await regenerateMediaSizes(payload, { limit: 15 })
+      const regenerated = await regenerateMediaSizes(payload, { limit: 30 })
       if (regenerated.updated > 0) {
         payload.logger.info(
           `Auto-regenerated ${regenerated.updated} media size set(s); ${regenerated.skipped} already ok.`,
