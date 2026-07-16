@@ -569,7 +569,8 @@ function navItemClasses(active: boolean) {
 </style>
 
 <script define:vars={{ menuOpenLabel: t(locale, 'menuOpen'), menuCloseLabel: t(locale, 'menuClose') }}>
-  function getShareUrl(network: string, pageUrl: string, title: string): string {
+  // define:vars scripts are inlined as raw JS — no TypeScript syntax allowed.
+  function getShareUrl(network, pageUrl, title) {
     const encodedUrl = encodeURIComponent(pageUrl)
     const encodedTitle = encodeURIComponent(title)
 
@@ -593,6 +594,8 @@ function navItemClasses(active: boolean) {
     const dropdown = document.getElementById('share-dropdown')
 
     if (!menu || !button || !dropdown) return
+    if (button.dataset.bound === 'true') return
+    button.dataset.bound = 'true'
 
     const close = () => {
       dropdown.classList.add('hidden')
@@ -607,17 +610,14 @@ function navItemClasses(active: boolean) {
     button.addEventListener('click', (event) => {
       event.stopPropagation()
       const isOpen = !dropdown.classList.contains('hidden')
-      if (isOpen) {
-        close()
-      } else {
-        open()
-      }
+      if (isOpen) close()
+      else open()
     })
 
     dropdown.querySelectorAll('[data-share]').forEach((link) => {
       link.addEventListener('click', (event) => {
         event.preventDefault()
-        const network = (link as HTMLElement).dataset.share
+        const network = link instanceof HTMLElement ? link.dataset.share : null
         if (!network) return
 
         const shareUrl = getShareUrl(network, window.location.href, document.title)
@@ -627,15 +627,13 @@ function navItemClasses(active: boolean) {
     })
 
     document.addEventListener('click', (event) => {
-      if (!menu.contains(event.target as Node)) {
+      if (event.target instanceof Node && !menu.contains(event.target)) {
         close()
       }
     })
 
     document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape') {
-        close()
-      }
+      if (event.key === 'Escape') close()
     })
   }
 
@@ -644,6 +642,8 @@ function navItemClasses(active: boolean) {
     const panel = document.getElementById('site-nav-mobile')
 
     if (!toggle || !panel) return
+    if (toggle.dataset.bound === 'true') return
+    toggle.dataset.bound = 'true'
 
     const close = () => {
       panel.classList.add('hidden')
@@ -665,11 +665,8 @@ function navItemClasses(active: boolean) {
 
     toggle.addEventListener('click', () => {
       const isOpen = !panel.classList.contains('hidden')
-      if (isOpen) {
-        close()
-      } else {
-        open()
-      }
+      if (isOpen) close()
+      else open()
     })
 
     panel.querySelectorAll('a').forEach((link) => {
@@ -679,9 +676,7 @@ function navItemClasses(active: boolean) {
     })
 
     document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape') {
-        close()
-      }
+      if (event.key === 'Escape') close()
     })
 
     window.addEventListener('resize', () => {
