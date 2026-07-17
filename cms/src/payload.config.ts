@@ -165,20 +165,25 @@ export default buildConfig({
     await seedMenuLocales(payload)
     await repairImageGalleryBlocks(payload)
 
-    try {
-      const regenerated = await regenerateMediaSizes(payload, { limit: 30 })
-      if (regenerated.updated > 0) {
-        payload.logger.info(
-          `Auto-regenerated ${regenerated.updated} media size set(s); ${regenerated.skipped} already ok.`,
+    // Auto-regen burns Vercel Blob "Advanced Operations" (put per size variant).
+    // Hobby tier: 2,000/month — running on every cold start exhausted the quota.
+    // Run manually: node cms/scripts/regenerate-media-sizes.mjs
+    if (process.env.REGENERATE_MEDIA_ON_INIT === 'true') {
+      try {
+        const regenerated = await regenerateMediaSizes(payload, { limit: 10 })
+        if (regenerated.updated > 0) {
+          payload.logger.info(
+            `Auto-regenerated ${regenerated.updated} media size set(s); ${regenerated.skipped} already ok.`,
+          )
+        }
+        if (regenerated.errors.length) {
+          payload.logger.warn(`Media size regen errors: ${regenerated.errors.slice(0, 3).join(' | ')}`)
+        }
+      } catch (error) {
+        payload.logger.warn(
+          `Media size auto-regen skipped: ${error instanceof Error ? error.message : String(error)}`,
         )
       }
-      if (regenerated.errors.length) {
-        payload.logger.warn(`Media size regen errors: ${regenerated.errors.slice(0, 3).join(' | ')}`)
-      }
-    } catch (error) {
-      payload.logger.warn(
-        `Media size auto-regen skipped: ${error instanceof Error ? error.message : String(error)}`,
-      )
     }
   },
 })
