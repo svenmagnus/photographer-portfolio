@@ -9,7 +9,7 @@
 | `cms.svenmagnus.com` | Payload CMS + Admin | Vercel |
 | `svenmagnus.com/log-in` | Weiterleitung zum Admin | Astro (Vercel) |
 
-E-Mail (`mail@svenmagnus.com`) bleibt bei **Strato** oder wird zu Google Workspace umgezogen — unabhängig von der Website.
+E-Mail (`info@svenmagnus.com`) bleibt bei **Strato** oder wird zu Google Workspace umgezogen — unabhängig von der Website.
 
 ---
 

@@ -44,7 +44,9 @@ export async function fetchSiteSettings(locale: Locale = 'de'): Promise<SiteSett
 
   try {
     const params = withLocaleParam(new URLSearchParams({ depth: '1' }), locale)
-    const response = await fetch(`${getPayloadUrl()}/api/globals/site-settings?${params.toString()}`)
+    const response = await fetch(`${getPayloadUrl()}/api/globals/site-settings?${params.toString()}`, {
+      cache: 'force-cache'
+    })
 
     if (!response.ok) {
       return defaults

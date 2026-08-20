@@ -30,7 +30,9 @@ const payloadUrl = (import.meta.env.PUBLIC_PAYLOAD_URL || 'http://localhost:3000
 export async function fetchMainMenu(locale: Locale = 'de'): Promise<MainMenuData> {
   try {
     const params = withLocaleParam(new URLSearchParams({ depth: '2' }), locale)
-    const response = await fetch(`${payloadUrl}/api/globals/main-menu?${params.toString()}`)
+    const response = await fetch(`${getPayloadUrl()}/api/globals/mainMenu?${params.toString()}`, {
+      cache: 'force-cache'
+    })
 
     if (!response.ok) {
       return { items: [] }

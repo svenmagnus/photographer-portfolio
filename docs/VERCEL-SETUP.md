@@ -52,9 +52,9 @@ Optional für **„Forgot password“** (E-Mail via Strato):
 | `SMTP_HOST` | `smtp.strato.de` | Nein |
 | `SMTP_PORT` | `465` | Nein |
 | `SMTP_SECURE` | `true` | Nein |
-| `SMTP_USER` | `mail@svenmagnus.com` | Nein |
+| `SMTP_USER` | `info@svenmagnus.com` | Nein |
 | `SMTP_PASS` | Postfach-Passwort aus Strato | **Ja** |
-| `SMTP_FROM_ADDRESS` | `mail@svenmagnus.com` | Nein |
+| `SMTP_FROM_ADDRESS` | `info@svenmagnus.com` | Nein |
 | `SMTP_FROM_NAME` | `Sven Magnus Portfolio` | Nein |
 
 **Environments:** Production + Preview für alle SMTP-Variablen anhaken.
