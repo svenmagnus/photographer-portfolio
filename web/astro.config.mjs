@@ -10,12 +10,9 @@ export default defineConfig({
   base,
   output: 'server',
   adapter: vercel({
-    isr: {
-      // Cache HTML at the CDN after the first render so most visits skip CMS/Postgres.
-      expiration: 60 * 60,
-      // Query-string photo lists must not share one ISR cache key.
-      exclude: ['/api/photos'],
-    },
+    // ISR crashed this Hobby deploy with FUNCTION_INVOCATION_FAILED (~400ms).
+    // CMS JSON is still cached in cmsFetch to keep Neon traffic down.
+    maxDuration: 10,
   }),
   integrations: [tailwind()],
   i18n: {

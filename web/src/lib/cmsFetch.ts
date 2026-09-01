@@ -61,8 +61,6 @@ export async function cmsFetch(pathWithQuery: string): Promise<Response> {
     const init: CachedFetchInit = {
       method: 'GET',
       signal: controller.signal,
-      cache: 'force-cache',
-      next: { revalidate: CMS_REVALIDATE_SECONDS },
     }
 
     const response = await fetch(url, init)
