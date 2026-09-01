@@ -2,7 +2,7 @@ import type { Locale } from '../i18n/locale'
 import { withLocaleParam } from '../i18n/locale'
 import type { PhotoCategory } from './categories'
 import type { Media } from './photoLoader'
-import { getPayloadUrl } from './payloadUrl'
+import { cmsFetchJson } from './cmsFetch'
 
 export type PageBlock =
   | {
@@ -104,24 +104,9 @@ export async function fetchNavigationPages(locale: Locale = 'de'): Promise<CmsPa
     locale,
   )
 
-  try {
-    const response = await fetch(`${getPayloadUrl()}/api/pages?${params.toString()}`, {
-      cache: 'no-store',
-    })
-
-    if (!response.ok) {
-      console.warn(`Navigation pages API error: ${response.status}`)
-      return []
-    }
-
-    const data = (await response.json()) as PagesResponse
-    const docs = data.docs ?? []
-
-    return [...docs].sort((a, b) => (a.navOrder ?? 999) - (b.navOrder ?? 999))
-  } catch (error) {
-    console.warn('Navigation pages API unreachable:', error)
-    return []
-  }
+  const data = await cmsFetchJson<PagesResponse>(`/api/pages?${params.toString()}`)
+  const docs = data?.docs ?? []
+  return [...docs].sort((a, b) => (a.navOrder ?? 999) - (b.navOrder ?? 999))
 }
 
 export async function fetchPublishedPages(locale: Locale = 'de'): Promise<CmsPage[]> {
@@ -135,22 +120,8 @@ export async function fetchPublishedPages(locale: Locale = 'de'): Promise<CmsPag
     locale,
   )
 
-  try {
-    const response = await fetch(`${getPayloadUrl()}/api/pages?${params.toString()}`, {
-      cache: 'no-store',
-    })
-
-    if (!response.ok) {
-      console.warn(`Pages API error: ${response.status}`)
-      return []
-    }
-
-    const data = (await response.json()) as PagesResponse
-    return data.docs ?? []
-  } catch (error) {
-    console.warn('Pages API unreachable during build:', error)
-    return []
-  }
+  const data = await cmsFetchJson<PagesResponse>(`/api/pages?${params.toString()}`)
+  return data?.docs ?? []
 }
 
 export async function fetchPageBySlug(slug: string, locale: Locale = 'de'): Promise<CmsPage | null> {
@@ -164,15 +135,6 @@ export async function fetchPageBySlug(slug: string, locale: Locale = 'de'): Prom
     locale,
   )
 
-  try {
-    const response = await fetch(`${getPayloadUrl()}/api/pages?${params.toString()}`, {
-      cache: 'no-store',
-    })
-    if (!response.ok) return null
-
-    const data = (await response.json()) as PagesResponse
-    return data.docs?.[0] ?? null
-  } catch {
-    return null
-  }
+  const data = await cmsFetchJson<PagesResponse>(`/api/pages?${params.toString()}`)
+  return data?.docs?.[0] ?? null
 }

@@ -1,5 +1,6 @@
 import type { Locale } from '../i18n/locale'
 import { withLocaleParam } from '../i18n/locale'
+import { cmsFetchJson } from './cmsFetch'
 import { getPayloadUrl } from './payloadUrl'
 
 export interface SiteSettingsData {
@@ -41,22 +42,9 @@ function getDefaults(): SiteSettingsData {
 
 export async function fetchSiteSettings(locale: Locale = 'de'): Promise<SiteSettingsData> {
   const defaults = getDefaults()
-
-  try {
-    const params = withLocaleParam(new URLSearchParams({ depth: '1' }), locale)
-    const response = await fetch(`${getPayloadUrl()}/api/globals/site-settings?${params.toString()}`, {
-      cache: 'force-cache'
-    })
-
-    if (!response.ok) {
-      return defaults
-    }
-
-    const data = (await response.json()) as SiteSettingsData
-    return { ...defaults, ...data }
-  } catch {
-    return defaults
-  }
+  const params = withLocaleParam(new URLSearchParams({ depth: '1' }), locale)
+  const data = await cmsFetchJson<SiteSettingsData>(`/api/globals/site-settings?${params.toString()}`)
+  return data ? { ...defaults, ...data } : defaults
 }
 
 export function getAdminLoginUrl(_settings: SiteSettingsData): string {

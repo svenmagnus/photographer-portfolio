@@ -1,6 +1,7 @@
 import type { Locale } from '../i18n/locale'
 import { withLocaleParam } from '../i18n/locale'
 import type { Media } from './photoLoader'
+import { cmsFetchJson } from './cmsFetch'
 
 export interface BlogPost {
   id: string | number
@@ -26,10 +27,6 @@ interface BlogPostsResponse {
   totalDocs: number
 }
 
-function getPayloadUrl(): string {
-  return (import.meta.env.PUBLIC_PAYLOAD_URL || 'http://localhost:3000').replace(/\/$/, '')
-}
-
 function getPostSortTime(post: BlogPost): number {
   const published = post.publishedAt ? Date.parse(post.publishedAt) : Number.NaN
   if (!Number.isNaN(published)) return published
@@ -52,34 +49,25 @@ export async function fetchBlogPostsForPage(blogPageSlug: string, locale: Locale
     locale,
   )
 
-  try {
-    const pageResponse = await fetch(`${getPayloadUrl()}/api/pages?${pageParams.toString()}`)
-    if (!pageResponse.ok) return []
+  const pageData = await cmsFetchJson<{ docs: Array<{ id: string | number }> }>(
+    `/api/pages?${pageParams.toString()}`,
+  )
+  const pageId = pageData?.docs?.[0]?.id
+  if (pageId == null) return []
 
-    const pageData = (await pageResponse.json()) as { docs: Array<{ id: string | number }> }
-    const pageId = pageData.docs?.[0]?.id
-    if (pageId == null) return []
+  const postParams = withLocaleParam(
+    new URLSearchParams({
+      depth: '2',
+      limit: '100',
+      sort: '-publishedAt',
+      'where[status][equals]': 'published',
+      'where[blogPage][equals]': String(pageId),
+    }),
+    locale,
+  )
 
-    const postParams = withLocaleParam(
-      new URLSearchParams({
-        depth: '2',
-        limit: '100',
-        sort: '-publishedAt',
-        'where[status][equals]': 'published',
-        'where[blogPage][equals]': String(pageId),
-      }),
-      locale,
-    )
-
-    const response = await fetch(`${getPayloadUrl()}/api/blog-posts?${postParams.toString()}`)
-    if (!response.ok) return []
-
-    const data = (await response.json()) as BlogPostsResponse
-    return sortBlogPostsNewestFirst(data.docs ?? [])
-  } catch (error) {
-    console.warn('Blog posts API unreachable:', error)
-    return []
-  }
+  const data = await cmsFetchJson<BlogPostsResponse>(`/api/blog-posts?${postParams.toString()}`)
+  return sortBlogPostsNewestFirst(data?.docs ?? [])
 }
 
 export async function fetchBlogPost(
@@ -98,13 +86,6 @@ export async function fetchBlogPost(
     locale,
   )
 
-  try {
-    const response = await fetch(`${getPayloadUrl()}/api/blog-posts?${params.toString()}`)
-    if (!response.ok) return null
-
-    const data = (await response.json()) as BlogPostsResponse
-    return data.docs?.[0] ?? null
-  } catch {
-    return null
-  }
+  const data = await cmsFetchJson<BlogPostsResponse>(`/api/blog-posts?${params.toString()}`)
+  return data?.docs?.[0] ?? null
 }

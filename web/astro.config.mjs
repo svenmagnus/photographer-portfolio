@@ -9,7 +9,14 @@ export default defineConfig({
   site,
   base,
   output: 'server',
-  adapter: vercel(),
+  adapter: vercel({
+    isr: {
+      // Cache HTML at the CDN after the first render so most visits skip CMS/Postgres.
+      expiration: 60 * 60,
+      // Query-string photo lists must not share one ISR cache key.
+      exclude: ['/api/photos'],
+    },
+  }),
   integrations: [tailwind()],
   i18n: {
     locales: ['de', 'en'],

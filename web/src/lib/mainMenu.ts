@@ -1,5 +1,6 @@
 import type { Locale } from '../i18n/locale'
 import { withLocaleParam } from '../i18n/locale'
+import { cmsFetchJson } from './cmsFetch'
 
 export type MainMenuItem = {
   label?: string | null
@@ -25,21 +26,8 @@ export type MainMenuData = {
   items?: MainMenuItem[] | null
 }
 
-const payloadUrl = (import.meta.env.PUBLIC_PAYLOAD_URL || 'http://localhost:3000').replace(/\/$/, '')
-
 export async function fetchMainMenu(locale: Locale = 'de'): Promise<MainMenuData> {
-  try {
-    const params = withLocaleParam(new URLSearchParams({ depth: '2' }), locale)
-    const response = await fetch(`${getPayloadUrl()}/api/globals/mainMenu?${params.toString()}`, {
-      cache: 'force-cache'
-    })
-
-    if (!response.ok) {
-      return { items: [] }
-    }
-
-    return (await response.json()) as MainMenuData
-  } catch {
-    return { items: [] }
-  }
+  const params = withLocaleParam(new URLSearchParams({ depth: '2' }), locale)
+  const data = await cmsFetchJson<MainMenuData>(`/api/globals/mainMenu?${params.toString()}`)
+  return data ?? { items: [] }
 }
