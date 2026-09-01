@@ -8,12 +8,8 @@ const base = process.env.PUBLIC_BASE_PATH || '/'
 export default defineConfig({
   site,
   base,
-  output: 'server',
-  adapter: vercel({
-    // ISR crashed this Hobby deploy with FUNCTION_INVOCATION_FAILED (~400ms).
-    // CMS JSON is still cached in cmsFetch to keep Neon traffic down.
-    maxDuration: 10,
-  }),
+  output: 'static',
+  adapter: vercel(),
   integrations: [tailwind()],
   i18n: {
     locales: ['de', 'en'],

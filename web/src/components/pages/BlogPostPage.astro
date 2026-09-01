@@ -30,20 +30,26 @@ const [blogPage, post, settings, mainMenu, navPages] = await Promise.all([
   fetchNavigationPages(locale),
 ])
 
-if (!blogPage || blogPage.pageType !== 'blog' || !post) {
-  return new Response(null, { status: 404, statusText: 'Not Found' })
-}
-
+const missing = !blogPage || blogPage.pageType !== 'blog' || !post
 const navItems = buildNavigation(settings, navPages, mainMenu.items, locale)
-const pageTitle =
-  post.metaTitle ||
-  `${post.title} — ${blogPage.title} — ${settings.photographerName || 'Sven Magnus Hanefeld'}`
-const description = post.metaDescription || post.excerpt || post.title
+const pageTitle = missing
+  ? `${postSlug} — ${settings.photographerName || 'Sven Magnus Hanefeld'}`
+  : post!.metaTitle ||
+    `${post!.title} — ${blogPage!.title} — ${settings.photographerName || 'Sven Magnus Hanefeld'}`
+const description = missing
+  ? postSlug
+  : post!.metaDescription || post!.excerpt || post!.title
 ---
 
 <Layout title={pageTitle} description={description} locale={locale}>
   <main class="min-h-screen bg-white pb-16">
     <Header activeSlug={blogSlug} navItems={navItems} settings={settings} locale={locale} />
-    <BlogPostArticle post={post} blogSlug={blogSlug} blogTitle={blogPage.title} locale={locale} />
+    {
+      missing || !post || !blogPage ? (
+        <p class="py-24 text-center text-[13px] text-portfolio-muted">Beitrag nicht gefunden.</p>
+      ) : (
+        <BlogPostArticle post={post} blogSlug={blogSlug} blogTitle={blogPage.title} locale={locale} />
+      )
+    }
   </main>
 </Layout>

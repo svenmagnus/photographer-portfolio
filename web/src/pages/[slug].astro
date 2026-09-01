@@ -1,14 +1,14 @@
 ---
-export const prerender = false
+export const prerender = true
 
 import CmsSlugPage from '../components/pages/CmsSlugPage.astro'
+import { slugStaticPaths } from '../lib/staticPaths'
 
-const slug = Astro.params.slug
-
-if (!slug) {
-  return new Response(null, { status: 404, statusText: 'Not Found' })
+export async function getStaticPaths() {
+  return slugStaticPaths('de')
 }
 
+const slug = Astro.params.slug ?? ''
 ---
 
 <CmsSlugPage locale="de" slug={slug} />

@@ -74,12 +74,7 @@ export async function fetchPhotosFromCMS(category?: string): Promise<Photo[]> {
     params.set('where[category][equals]', category)
   }
 
-  const photosUrl =
-    typeof window !== 'undefined'
-      ? `/api/photos${category ? `?category=${encodeURIComponent(category)}` : ''}`
-      : `${getPayloadUrl()}/api/photos?${params.toString()}`
-
-  const response = await fetch(photosUrl)
+  const response = await fetch(`${getPayloadUrl()}/api/photos?${params.toString()}`)
 
   if (!response.ok) {
     throw new Error(`CMS antwortet mit Status ${response.status}`)

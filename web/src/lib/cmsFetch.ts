@@ -4,7 +4,7 @@ import { getPayloadUrl } from './payloadUrl'
 export const CMS_REVALIDATE_SECONDS = 60 * 60
 
 /** Abort CMS calls before the Vercel Hobby function times out (~10s). */
-const FETCH_TIMEOUT_MS = 4000
+const FETCH_TIMEOUT_MS = process.env.VERCEL ? 15000 : 4000
 
 type MemoryEntry = {
   expiresAt: number

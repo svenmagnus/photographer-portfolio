@@ -1,15 +1,15 @@
 ---
-export const prerender = false
+export const prerender = true
 
 import BlogPostPage from '../../../components/pages/BlogPostPage.astro'
+import { blogPostStaticPaths } from '../../../lib/staticPaths'
 
-const blogSlug = Astro.params.slug
-const postSlug = Astro.params.postSlug
-
-if (!blogSlug || !postSlug) {
-  return new Response(null, { status: 404, statusText: 'Not Found' })
+export async function getStaticPaths() {
+  return blogPostStaticPaths('en')
 }
 
+const blogSlug = Astro.params.slug ?? ''
+const postSlug = Astro.params.postSlug ?? ''
 ---
 
 <BlogPostPage locale="en" blogSlug={blogSlug} postSlug={postSlug} />
